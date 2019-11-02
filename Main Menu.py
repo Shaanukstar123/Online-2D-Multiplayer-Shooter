@@ -1,36 +1,54 @@
 import pygame
-from pygame.locals import *
 
 pygame.init()
 
-
-screen_width = 800
-screen_height = 600
-screen = pygame.display.set_mode((screen_width, screen_height))
-
-def text_format(message, textFont, textSize, textColor):
-
-    newFont = pygame.font.Font(textFont, textSize)
-    newText = newFont.render(message, 0, textColor)
-
-    return newText
-
+width = 900
+height = 600
+display = pygame.display.set_mode((width, height))
+clock = pygame.time.Clock()
 
 white=(255, 255, 255)
 black=(0, 0, 0)
-gray=(50, 50, 50)
+brown=(150,75,0)
 red=(255, 0, 0)
-green=(0, 255, 0)
-blue=(0, 0, 255)
 yellow=(255, 255, 0)
+blue=(0, 0, 255)
+green=(0, 255, 0)
+grey=(128, 128, 128)
 
-font = "freesansbold.ttf"
+anime1=pygame.image.load("tmp-0.gif")
+anime2=pygame.image.load('tmp-1.gif')
+anime3=pygame.image.load('tmp-2.gif')
+anime4=pygame.image.load('tmp-3.gif')
+anime5=pygame.image.load('tmp-4.gif')
+anime6=pygame.image.load('tmp-5.gif')
+anime7=pygame.image.load('tmp-6.gif')
+anime8=pygame.image.load('tmp-7.gif')
+
+backgrounds=[]
+
+backgrounds.append(pygame.transform.scale(anime1,(width,height)))
+backgrounds.append(pygame.transform.scale(anime2,(width,height)))
+backgrounds.append(pygame.transform.scale(anime3,(width,height)))
+backgrounds.append(pygame.transform.scale(anime4,(width,height)))
+backgrounds.append(pygame.transform.scale(anime5,(width,height)))
+backgrounds.append(pygame.transform.scale(anime6,(width,height)))
+backgrounds.append(pygame.transform.scale(anime7,(width,height)))
+backgrounds.append(pygame.transform.scale(anime8,(width,height)))
+
+def process_text(message, font, size, color):
+
+    new_font = pygame.font.Font(font, size)
+    edited = new_font.render(message, 0, color)
+
+    return edited
 
 
-clock = pygame.time.Clock()
-FPS=60
+font = "arcade.TTF"
+n=0
 
-def main_menu():
+def main_menu(n):
+
     tracker=["start","instructions","quit"]
     pointer=0
 
@@ -38,6 +56,10 @@ def main_menu():
     selected="start"
 
     while menu:
+        if n>6:
+          n=0
+        else:
+          n+=1
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 pygame.quit()
@@ -48,52 +70,46 @@ def main_menu():
                     if pointer>0:
                         pointer-=1
                     selected=tracker[pointer]
-                    print(pointer)
-                    print(tracker[pointer])
+
                 if event.key==pygame.K_DOWN:
                     if pointer<2:
                         pointer+=1
                     selected=tracker[pointer]
-                    print(pointer)
-                    print(tracker[pointer])
+
                 if event.key==pygame.K_RETURN:
-                    if selected=="start":
-                        print("Start")
                     if selected=="quit":
                         pygame.quit()
                         quit()
 
-        # Main Menu UI
-        screen.fill(black)
-        title=text_format("Some shooting game", font, 70, yellow)
+        display.fill(grey)
+        display.blit(backgrounds[n],(0,0))
+        #title=process_text("Some shooting game", font, 70, yellow)
         if selected=="start":
-            text_start=text_format("START", font, 55, white)
+            text_start=process_text("START", font, 35, white)
         else:
-            text_start = text_format("START", font, 55, black)
+            text_start = process_text("START", font, 35, yellow)
         if selected=="quit":
-            text_quit=text_format("QUIT", font, 55, white)
+            text_quit=process_text("QUIT", font, 35, white)
         else:
-            text_quit = text_format("QUIT", font, 55, black)
+            text_quit = process_text("QUIT", font, 35, yellow)
         if selected =="instructions":
-          text_instructions = text_format("INSTRUCTIONS",font,55,white)
+          text_instructions = process_text("INSTRUCTIONS",font,35,white)
         else:
-          text_instructions = text_format("INSTRUCTIONS",font,55,black)
+          text_instructions = process_text("INSTRUCTIONS",font,35,yellow)
 
-        title_rect=title.get_rect()
+        #title_rect=title.get_rect()
         start_rect=text_start.get_rect()
         quit_rect=text_quit.get_rect()
         instruct_rect=text_instructions.get_rect()
 
-        # Main Menu Text
-        screen.blit(title, (screen_width/2 - (title_rect[2]/2), 80))
-        screen.blit(text_start, (screen_width/2 - (start_rect[2]/2), 300))
-        screen.blit(text_quit, (screen_width/2 - (quit_rect[2]/2), 420))
-        screen.blit(text_instructions, (screen_width/2 - (instruct_rect[2]/2), 360))
+        #display.blit(title, (450 - (title_rect[2]/2), 80))
+        display.blit(text_start, (450 - (start_rect[2]/2), 120))
+        display.blit(text_instructions, (450 - (instruct_rect[2]/2), 160))
+        display.blit(text_quit, (450 - (quit_rect[2]/2), 200))
         pygame.display.update()
-        clock.tick(FPS)
+        clock.tick(60)
         pygame.display.set_caption("Python - Pygame Simple Main Menu Selection")
 
-
-main_menu()
+main_menu(n)
 pygame.quit()
 quit()
