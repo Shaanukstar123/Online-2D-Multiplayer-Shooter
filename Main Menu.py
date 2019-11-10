@@ -17,6 +17,8 @@ def menu(start):
     green=(0, 255, 0)
     grey=(128, 128, 128)
 
+    backgrounds=[]
+
     anime1=pygame.image.load("Images/tmp-0.gif")
     anime2=pygame.image.load('Images/tmp-1.gif')
     anime3=pygame.image.load('Images/tmp-2.gif')
@@ -25,8 +27,6 @@ def menu(start):
     anime6=pygame.image.load('Images/tmp-5.gif')
     anime7=pygame.image.load('Images/tmp-6.gif')
     anime8=pygame.image.load('Images/tmp-7.gif')
-
-    backgrounds=[]
 
     backgrounds.append(pygame.transform.scale(anime1,(width,height)))
     backgrounds.append(pygame.transform.scale(anime2,(width,height)))
@@ -49,7 +49,7 @@ def menu(start):
     n=0
     def main_menu(n,start):
 
-        tracker=["start","instructions","quit"]
+        tracker=["start","instructions","highscores","quit"]
         pointer=0
 
         menu=True
@@ -72,7 +72,7 @@ def menu(start):
                         selected=tracker[pointer]
 
                     if event.key==pygame.K_DOWN:
-                        if pointer<2:
+                        if pointer<3:
                             pointer+=1
                         selected=tracker[pointer]
 
@@ -96,6 +96,11 @@ def menu(start):
                 text_quit=process_text("QUIT", font, 35, white)
             else:
                 text_quit = process_text("QUIT", font, 35, yellow)
+            if selected == "highscores":
+                text_highscores=process_text("HIGHSCORES", font, 35, white)
+            else:
+                text_highscores =process_text("HIGHSCORES", font, 35, yellow)
+
             if selected =="instructions":
               text_instructions = process_text("INSTRUCTIONS",font,35,white)
             else:
@@ -104,12 +109,15 @@ def menu(start):
             #title_rect=title.get_rect()
             start_rect=text_start.get_rect()
             quit_rect=text_quit.get_rect()
+            highscores_rect=text_highscores.get_rect()
             instruct_rect=text_instructions.get_rect()
 
+
             #display.blit(title, (450 - (title_rect[2]/2), 80))
-            display.blit(text_start, (450 - (start_rect[2]/2), 120))
-            display.blit(text_instructions, (450 - (instruct_rect[2]/2), 160))
-            display.blit(text_quit, (450 - (quit_rect[2]/2), 200))
+            display.blit(text_start, (450 - (start_rect[2]/2), 100))
+            display.blit(text_instructions, (450 - (instruct_rect[2]/2), 140))
+            display.blit(text_highscores, (450 - (highscores_rect[2]/2),180))
+            display.blit(text_quit, (450 - (quit_rect[2]/2), 220))
             pygame.display.update()
             clock.tick(6)
             pygame.display.set_caption("Python - Pygame Simple Main Menu Selection")
