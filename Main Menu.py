@@ -4,7 +4,7 @@ def menu(start):
     pygame.init()
 
     width = 900
-    height = 600
+    height = 550
     display = pygame.display.set_mode((width, height))
     clock = pygame.time.Clock()
 
@@ -87,24 +87,25 @@ def menu(start):
 
             display.fill(grey)
             display.blit(backgrounds[n],(0,0))
+            font_size=32
             #title=process_text("Some shooting game", font, 70, yellow)
             if selected=="start":
-                text_start=process_text("START", font, 35, white)
+                text_start=process_text("START", font, font_size, white)
             else:
-                text_start = process_text("START", font, 35, yellow)
+                text_start = process_text("START", font, font_size, yellow)
             if selected=="quit":
-                text_quit=process_text("QUIT", font, 35, white)
+                text_quit=process_text("QUIT", font, font_size, white)
             else:
-                text_quit = process_text("QUIT", font, 35, yellow)
+                text_quit = process_text("QUIT", font, font_size, yellow)
             if selected == "highscores":
-                text_highscores=process_text("HIGHSCORES", font, 35, white)
+                text_highscores=process_text("HIGHSCORES", font, font_size, white)
             else:
-                text_highscores =process_text("HIGHSCORES", font, 35, yellow)
+                text_highscores =process_text("HIGHSCORES", font, font_size, yellow)
 
             if selected =="instructions":
-              text_instructions = process_text("INSTRUCTIONS",font,35,white)
+              text_instructions = process_text("INSTRUCTIONS",font,font_size,white)
             else:
-              text_instructions = process_text("INSTRUCTIONS",font,35,yellow)
+              text_instructions = process_text("INSTRUCTIONS",font,font_size,yellow)
 
             #title_rect=title.get_rect()
             start_rect=text_start.get_rect()
@@ -112,12 +113,12 @@ def menu(start):
             highscores_rect=text_highscores.get_rect()
             instruct_rect=text_instructions.get_rect()
 
-
+            pos=width/2
             #display.blit(title, (450 - (title_rect[2]/2), 80))
-            display.blit(text_start, (450 - (start_rect[2]/2), 100))
-            display.blit(text_instructions, (450 - (instruct_rect[2]/2), 140))
-            display.blit(text_highscores, (450 - (highscores_rect[2]/2),180))
-            display.blit(text_quit, (450 - (quit_rect[2]/2), 220))
+            display.blit(text_start, (pos - (start_rect[2]/2), 100))
+            display.blit(text_instructions, ( pos- (instruct_rect[2]/2), 140))
+            display.blit(text_highscores, (pos - (highscores_rect[2]/2),180))
+            display.blit(text_quit, (pos - (quit_rect[2]/2), 220))
             pygame.display.update()
             clock.tick(6)
             pygame.display.set_caption("Python - Pygame Simple Main Menu Selection")
