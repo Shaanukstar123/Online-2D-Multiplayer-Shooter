@@ -33,10 +33,7 @@ def main_game():
 
     gameDisplay = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Client")
-    #background=pygame.image.load('animatedbackground.gif')
-    #gameover=pygame.image.load("gameover.jpg")
-    #gameover=pygame.transform.scale(background,(width,height))
-    #background=pygame.transform.scale(background,(width, height))
+
     def redraw_window(gameDisplay,player, player2,background_index):
         background_index=int(background_index)
         gameDisplay.fill((255,255,255))
@@ -44,8 +41,12 @@ def main_game():
 
         playerObj = player['player']
         secondPlayerObj = player2['player']
-
+        wall1=player['wall']
+        wall2=player['wall']
+        print("{},{}".format(playerObj.x,playerObj.y))
         players=[playerObj, secondPlayerObj]
+        wall1.collision(playerObj)
+        wall2.collision(secondPlayerObj)
 
         if playerObj.dead==True or secondPlayerObj.dead==True:
             endgame()
@@ -58,10 +59,7 @@ def main_game():
             if bullet.should_remove():
                 playerObj.remove_projectile(bullet)
                 continue
-            #if bullet.collided==True: #collisions
-                #playerObj.remove_projectile(bullet)
-                #bullet.collided=False
-                #continue
+
             bullet.draw_bullet(gameDisplay,players)
 
         for bullet in player2['player'].projectiles:
@@ -87,6 +85,7 @@ def main_game():
         print(p)
         print(p['player'])
         playerObj = p['player']
+        wall1 = p['wall']
 
         clock = pygame.time.Clock()
         background_index=-1
@@ -98,6 +97,7 @@ def main_game():
             clock.tick(60)
             p2 = n.send(p)
             secondPlayerObj = p2['player']
+            wall2=p2['wall']
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -105,6 +105,7 @@ def main_game():
 
             playerObj.move()
             p['player'] = playerObj
+            p['wall'] = wall1
             redraw_window(gameDisplay,p, p2,background_index)
             pygame.display.update()
 
