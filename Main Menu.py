@@ -1,4 +1,6 @@
 import pygame
+import os
+import subprocess
 
 def menu(start):
     pygame.init()
@@ -120,8 +122,8 @@ def menu(start):
             display.blit(text_highscores, (pos - (highscores_rect[2]/2),180))
             display.blit(text_quit, (pos - (quit_rect[2]/2), 220))
             pygame.display.update()
-            clock.tick(6)
-            pygame.display.set_caption("Python - Pygame Simple Main Menu Selection")
+            clock.tick(5)
+            pygame.display.set_caption("Main Menu")
 
             #return start
 
