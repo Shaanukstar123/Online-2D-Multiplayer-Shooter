@@ -1,99 +1,169 @@
 import pygame
+width=1300
+height=700
+
 class Player():
-    def __init__(self, x, y,anime,player):
+    def __init__(self, x, y,sprite,player,direction):
         self.x = x
         self.y = y
         self.player=player
-        self.vel = 4
-        self.anime=anime
-        self.projectile="projectile.png"
-        self.projx=0
-        self.projy=0
-        self.bullet_num=0
+        self.projectiles = []
+        self.speed = 5
+        self.sprite=sprite
+        self.direction = direction #1=right, 2=left
+        self.health=100
+        self.display=sprite[direction]
+        self.bullet_count=2 #limits number of bullets per shot
+        self.dead=False
+        self.collision_left=False
+        self.collision_right=False
+        self.collision_up=False
+        self.collision_down=False
 
     def draw(self,gameDisplay):
-        image=pygame.image.load(self.anime)
+        image=pygame.image.load(self.display)
+        rect = pygame.Rect(self.x, self.y, 5, 5)
+        wall = pygame.Rect(400,400,300,100)
+        pygame.draw.rect(gameDisplay,(99,99,99), wall)
+        pygame.draw.rect(gameDisplay,(99,99,99), rect)
         gameDisplay.blit(image,(self.x,self.y))
+        new_font = pygame.font.Font("Images/arcade.TTF", 28)
+        colour=(255,255,255)
+        health = new_font.render(str(self.health), 0, colour)
+        if self.player==1:
+            gameDisplay.blit(health, (230 - (200), 20))
+        elif self.player==2:
+            gameDisplay.blit(health, (width+100 - (200), 20))
 
-
-
-    def move(self):
+    def move(self,events,wall):
+        projectile_sound=pygame.mixer.Sound("laser.wav")
         keys = pygame.key.get_pressed()
+        '''Dont use pygame.key.pressed for projectiles because fps makes more than one bullet shoot at a time'''
+        if self.x==(wall.x-wall.width/2) and (wall.y-(height/2))<self.y<(wall.y+(height/2)):
+            print("collided right")
+            self.collision_right=True
+            #self.collision_left=False
+
+        elif self.x==(wall.x+wall.width/2) and (wall.y-(height/2))<self.y<(wall.y+(height/2)):
+            print("collided left")
+            self.collision_left==True
+            #self.collison_right=False
+        else:
+            self.collision_left = False
+            self.collision_right=False
+        #if self.y<(wall.y+wall.height) and self.y>(wall.y-height):
+            #self.collision_y=True
 
         if keys[pygame.K_LEFT]:
-            self.x -= self.vel
-            if self.player==1:
-                self.anime="left.png"
+            if 0<=self.x and self.collision_left!=True:
+                self.x -= self.speed
+                self.direction=2
+                self.display=self.sprite[2]
 
-        elif keys[pygame.K_RIGHT]:
-            self.x += self.vel
-            if self.player==1:
-                self.anime="right.png"
+        if keys[pygame.K_RIGHT]:
+            #print(self.x)
+            if self.x<=width-50:
+                if self.collision_right==False:
+                    self.x += self.speed
+                    self.direction=1
+                    self.display=self.sprite[1]
 
         if keys[pygame.K_UP]:
-            self.y -= self.vel*3
+            if self.y>0:
+                '''#if self.y<(wall.y-wall.height/2) or self.y>(wall.x+wall.height/2) and self.collision_x==True:
+                    self.collision_x=False
+                    self.collision_y = False
+                else:
+                    self.collision_y=True'''
+            #if self.collision_y==False:
+                self.y -= self.speed*3
 
-        elif keys[pygame.K_DOWN]:
-            self.y += self.vel
-        if keys[pygame.K_SPACE]:
-            bulletnum+=1
-            bullets.append(Projectile(self.x,self.y,5,"right","projectile.png",self.bullet_num))
+        elif keys [pygame.K_DOWN]:
+            if self.y <(height-50):
+                self.y += self.speed
 
-        if self.y <450:
-            self.y+=3
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key==pygame.K_SPACE:
+                    if len(self.projectiles)<4:
+                        projectile_sound.play()
+                        self.projectiles.append(Projectile(self.x, self.y, 15, self.direction, 'projectile1.png', self.player))
 
+        if self.y <(height-80):
+            self.y+=5
 
-        #self.update()
-class Projectile():
-    def __init__(self,x,y,speed,direction,sprite,num):
+    def remove_projectile(self,proj):
+        self.projectiles.remove(proj)
+
+    def damage_taken(self):
+        if self.health<1:
+            self.dead=True
+        self.health-=10
+
+    def update(self):
+        pass
+
+class Projectile(Player):
+    def __init__(self,x,y,speed,direction,sprite,player):
         self.x=x
         self.y=y
         self.direction=direction
-        self.speed=7
+        self.speed=speed
         self.sprite=sprite
-        self.num=num
+        self.player=player
+        self.shouldRemove = False
+        self.hit_radius=50
+        self.collided=False
 
-    def draw_bullet(gameDisplay):
+    def draw_bullet(self, gameDisplay,players):
         proj=pygame.image.load("projectile1.png")
-        pygame.display.blit(proj)
-
-
-    def shoot(self,gameDisplay):
-        if keys[pygame.K_SPACE]:
-            while self.x<500:
-                projectile=pygame.image.load("projectile.png")
-                gameDisplay.blit(projectile,(self.x,self.y))
+        #rect = pygame.Rect(self.x+30, self.y+25, 5, 5)
+        #pygame.draw.rect(gameDisplay,(150,159,159), rect)
+        gameDisplay.blit(proj, (self.x+10, self.y+20))
+        if self.x<width and self.x>0:
+            if self.direction==1:
                 self.x+=self.speed
+            elif self.direction==2:
+                self.x-=self.speed
+        else:
+            self.shouldRemove = True
+            for p in players:
+                p.bullet_count=2
+
+    def should_remove(self):
+        return self.shouldRemove
+
+    def collides(self,players):
+        for p in players:
+            #print(p.health)
+            if self.x<=p.x<(self.x+25) and (self.y-self.hit_radius)<p.y<self.y+40 and self.player!=p.player:
+                self.shouldRemove=True
+                self.collided =True
+                print("collided")
+                p.damage_taken()
+                print(p.health)
+                #if p.health<10:
+                    #print("DEAD")
+            #check the boundaries of the projectile and boundaries of player and if they collide, call player.getdamage()
+
+class Map():
+
+    def __init__(self,x,y,width,height):
+        self.x = x
+        self.y = y
+        self.height = height
+        self.width = width
+        self.image="something.png"
+
+#to stop player from waling through walls, I need a restriction zone
+    def collision(self,player):
+        if (self.x-(self.width/2)<player.x<self.x+(self.width/2)) or(self.y-(self.height/2)<player.y<self.y+(self.height/2)):
+            return True
 
 
+class Collectables():
 
-
-
-
-
-
-
-
-
-
-
-    '''def shoot(self,gameDisplay):
-        projectile=pygame.image.load(self.projectile)
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE]:
-            #pygame.display.update()
-            #self.shoot(gameDisplay)
-            #gameDisplay.blit(projectile,(self.projx,self.projy))
-                #while self.projx<500:
-            gameDisplay.blit(projectile,(self.projx,self.projy))
-            #self.update()
-            #gameDisplay.blit(projectile,(self.projx,self.projy))
-            #pygame.display.update()
-            #self.projx+=5
-            #pygame.display.update()
-            if self.projx<500:
-                #self.shoot(gameDisplay)
-                self.update()
-                gameDisplay.blit(projectile,(self.projx,self.projy))
-    def update(self):
-        self.projx+=5'''
+    def __init__(self,type,item,sprite):
+        self.type=type
+        self.item=item
+        self.sprite=sprite
