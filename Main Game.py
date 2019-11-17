@@ -36,6 +36,10 @@ def main_game():
     pygame.display.set_caption("Client")
 
     def redraw_window(gameDisplay,player, player2,background_index):
+        playerObj = player['player']
+        secondPlayerObj = player2['player']
+        players=[playerObj, secondPlayerObj]
+
         background_index=int(background_index)
         gameDisplay.fill((255,255,255))
         gameDisplay.blit(backgrounds[background_index],(0,0))
@@ -63,7 +67,7 @@ def main_game():
             bullet.draw_bullet(gameDisplay,players)
 
         #pygame.display.update()
-    def threaded_timer(count,gameDisplay,clock):
+    '''def threaded_timer(count,gameDisplay,clock):
         #font = pygame.font.Font("Images/arcade.TTF", 35)
         colour=(255,255,255)
         count=100
@@ -82,7 +86,7 @@ def main_game():
                 count-=(1/65)
                 print(int(count))
                 clock.tick(65)
-            #pygame.display.update()
+            #pygame.display.update()'''
 
 
     '''def display_time(count,gameDisplay):
@@ -120,6 +124,10 @@ def main_game():
         start_check()
 
     def main():
+        stopclock=Timer(100)
+        new_font = pygame.font.Font("Images/arcade.TTF", 50)
+        count=100
+        timer=False
         music=pygame.mixer.music.load("power_music.wav")
         pygame.mixer.music.play(-1)
         host=socket.gethostname()
@@ -139,7 +147,7 @@ def main_game():
         clock = pygame.time.Clock()
         background_index=-1
         movement=True
-        timer=False
+        #timer=False
         while run:
             if background_index>6:
                 background_index=0
@@ -149,10 +157,10 @@ def main_game():
             secondPlayerObj=p2['player']
             #secondPlayerObj = p2['player']
             #wall2=p2['wall']
-            if timer==False:
+            '''if timer==False:
                 if secondPlayerObj.x!=100:
                     start_new_thread(threaded_timer,((100,gameDisplay,clock)))
-                    timer=True
+                    timer=True'''
 
             events=pygame.event.get()
             for event in events:
@@ -176,6 +184,7 @@ def main_game():
 
             playerObj.move(events,wall1)
             redraw_window(gameDisplay,p, p2,background_index)
+            stopclock.show_time(secondPlayerObj,gameDisplay)
             clock.tick(60)
             pygame.display.update()
 
