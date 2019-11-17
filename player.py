@@ -8,7 +8,7 @@ class Player():
         self.y = y
         self.player=player
         self.projectiles = []
-        self.speed = 5
+        self.speed = 4
         self.sprite=sprite
         self.direction = direction #1=right, 2=left
         self.health=100
@@ -24,7 +24,7 @@ class Player():
         image=pygame.image.load(self.display)
         rect = pygame.Rect(self.x, self.y, 5, 5)
         wall = pygame.Rect(400,400,300,100)
-        pygame.draw.rect(gameDisplay,(99,99,99), wall)
+        #pygame.draw.rect(gameDisplay,(99,99,99), wall)
         pygame.draw.rect(gameDisplay,(99,99,99), rect)
         gameDisplay.blit(image,(self.x,self.y))
         new_font = pygame.font.Font("Images/arcade.TTF", 28)
@@ -87,7 +87,7 @@ class Player():
                 if event.key==pygame.K_SPACE:
                     if len(self.projectiles)<4:
                         projectile_sound.play()
-                        self.projectiles.append(Projectile(self.x, self.y, 15, self.direction, 'projectile1.png', self.player))
+                        self.projectiles.append(Projectile(self.x, self.y, self.direction, 'projectile1.png', self.player))
 
         if self.y <(height-80):
             self.y+=5
@@ -104,11 +104,11 @@ class Player():
         pass
 
 class Projectile(Player):
-    def __init__(self,x,y,speed,direction,sprite,player):
+    def __init__(self,x,y,direction,sprite,player):
         self.x=x
         self.y=y
         self.direction=direction
-        self.speed=speed
+        self.speed=20
         self.sprite=sprite
         self.player=player
         self.shouldRemove = False
@@ -162,8 +162,30 @@ class Map():
 
 
 class Collectables():
-
     def __init__(self,type,item,sprite):
         self.type=type
         self.item=item
         self.sprite=sprite
+
+    #def spawn(self):
+class Timer():
+    def __init__ (self,time):
+        self.time=time
+        self.start=False
+        self.font=pygame.font.Font("Images/arcade.TTF", 35)
+
+    def show_time(self,player2,gameDisplay):
+        colour=(255,255,255)
+
+        if self.start==False:
+            if player2.x!=100:
+                self.start=True
+        if self.start==True:
+            if self.time<1:
+                print("Time's up")
+                self.start=False
+            else:
+                timer = self.font.render(str(int(self.time)), 0, colour)
+                gameDisplay.blit(timer, (width/2 - (200), 20))
+                self.time-=(1/60)
+                print(int(self.time))
