@@ -98,25 +98,47 @@ def main_game():
             time.sleep(1)
             break'''
 
-    def endgame(player):
-        gameDisplay.fill((255,255,255))
-        new_font = pygame.font.Font("Images/arcade.TTF", 50)
+    def endgame(player,gameDisplay):
         colour=(0,0,0)
-        game_over = new_font.render(str("GAME OVER"), 0, colour)
-        pygame.mixer.music.stop()
-        print("Game Over")
-        if player.player==1:
-            if player.dead==True:
-                print("player 2 wins!")
+        yellow=(255,255,0)
+        green=(0,255,0)
+        blue=(0, 0, 255)
+        clock = pygame.time.Clock()
+        count=0
+        while True:
+            if count==12:
+                start_check()
+            count+=1
+            gameDisplay.fill((255,255,255))
+            new_font = pygame.font.Font("Images/arcade.TTF", 80)
+            player_font=pygame.font.Font("Images/arcade.TTF", 60)
+
+            game_over = new_font.render(str("GAME OVER"), 0, colour)
+            player2=player_font.render(str("Green   wins!"), 0, green)
+            player1=player_font.render(str("Yellow   wins!"), 0, yellow)
+            gameDisplay.blit(game_over, ((width/2) - (200), (height/2)))
+            tie =player_font.render(str("Match Tied"), 0, blue)
+            pygame.mixer.music.stop()
+            print("Game Over")
+            if player.player==1:
+                if player.dead==True:
+                    gameDisplay.blit(player2, ((width/2) - (200), (height/2+100)))
+                    print("player 2 wins!")
+                else:
+                    print("player 1 wins!")
+            elif player.player ==2:
+                if player.dead==True:
+                    print("player 1 wins!")
+                    gameDisplay.blit(player1, ((width/2) - (200), (height/2+100)))
+                else:
+                    print("player 2 wins!")
             else:
-                print("player 1 wins!")
-        if player.player ==2:
-            if player.dead==True:
-                print("player 1 wins!")
-            else:
-                print("player 2 wins!")
+                gameDisplay.blit(tie, ((width/2) - (200), (height/2+100)))
+
+            clock.tick(2)
+            pygame.display.update()
         #gameDisplay.fill((255,255,255))
-        start_check()
+        #start_check()
         '''Change this to return to main menu'''
     def error():
         print("Cannot connect to server")
@@ -169,7 +191,8 @@ def main_game():
                     pygame.quit()
 
             if playerObj.dead==True or secondPlayerObj.dead==True :
-                endgame(playerObj)
+                run=False
+                endgame(playerObj,gameDisplay)
             '''p['player'] = playerObj
             wall1=p['wall']
             wall2=p2['wall']'''
@@ -185,6 +208,9 @@ def main_game():
             playerObj.move(events,wall1)
             redraw_window(gameDisplay,p, p2,background_index)
             stopclock.show_time(secondPlayerObj,gameDisplay)
+            if stopclock.end==True:
+                run=False
+                endgame(playerObj,gameDisplay)
             clock.tick(60)
             pygame.display.update()
 
