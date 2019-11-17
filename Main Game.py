@@ -3,6 +3,7 @@ import pygame
 from Network import Network
 from player import *
 from MainMenu import menu
+import time
 #import os
 #import subprocess
 import socket
@@ -60,10 +61,57 @@ def main_game():
                 secondPlayerObj.remove_projectile(bullet)
                 continue
             bullet.draw_bullet(gameDisplay,players)
+
         #pygame.display.update()
-    def endgame():
-        print("EndGame")
+    def threaded_timer(count,gameDisplay,clock):
+        #font = pygame.font.Font("Images/arcade.TTF", 35)
+        colour=(255,255,255)
+        count=100
+        print("hello")
+        font = pygame.font.Font("Images/arcade.TTF", 35)
+        while True:
+            #display_time(count,gameDisplay)
+            colour=(255,255,255)
+            timer = font.render(str(int(count)), 0, colour)
+            #gameDisplay.blit(timer, (300 - (200), 20))
+            if count<1:
+                print("Done")
+            else:
+                #time.sleep(1)
+                gameDisplay.blit(timer, (width/2 - (200), 20))
+                count-=(1/65)
+                print(int(count))
+                clock.tick(65)
+            #pygame.display.update()
+
+
+    '''def display_time(count,gameDisplay):
+        colour=(255,255,255)
+        font = pygame.font.Font("Images/arcade.TTF", 35)
+        timer = font.render(str(count), 0, colour)
+        while True:
+            gameDisplay.blit(timer, (300 - (200), 20))
+            time.sleep(1)
+            break'''
+
+    def endgame(player):
         gameDisplay.fill((255,255,255))
+        new_font = pygame.font.Font("Images/arcade.TTF", 50)
+        colour=(0,0,0)
+        game_over = new_font.render(str("GAME OVER"), 0, colour)
+        pygame.mixer.music.stop()
+        print("Game Over")
+        if player.player==1:
+            if player.dead==True:
+                print("player 2 wins!")
+            else:
+                print("player 1 wins!")
+        if player.player ==2:
+            if player.dead==True:
+                print("player 1 wins!")
+            else:
+                print("player 2 wins!")
+        #gameDisplay.fill((255,255,255))
         start_check()
         '''Change this to return to main menu'''
     def error():
@@ -88,10 +136,10 @@ def main_game():
         except:
             print("Cannot connect to server")
             error()
-
         clock = pygame.time.Clock()
         background_index=-1
         movement=True
+        timer=False
         while run:
             if background_index>6:
                 background_index=0
@@ -101,6 +149,11 @@ def main_game():
             secondPlayerObj=p2['player']
             #secondPlayerObj = p2['player']
             #wall2=p2['wall']
+            if timer==False:
+                if secondPlayerObj.x!=100:
+                    start_new_thread(threaded_timer,((100,gameDisplay,clock)))
+                    timer=True
+
             events=pygame.event.get()
             for event in events:
                 if event.type == pygame.QUIT:
@@ -108,12 +161,12 @@ def main_game():
                     pygame.quit()
 
             if playerObj.dead==True or secondPlayerObj.dead==True :
-                endgame()
+                endgame(playerObj)
             '''p['player'] = playerObj
             wall1=p['wall']
             wall2=p2['wall']'''
             #print("{},{}".format(playerObj.x,playerObj.y))
-            print(playerObj.x)
+            #print(playerObj.x)
 
             #if wall.collision(playerObj) ==True:
                 #print("stop")
@@ -126,16 +179,14 @@ def main_game():
             clock.tick(60)
             pygame.display.update()
 
+
     main()
 
-'''def threaded_player():
-    while True:
-        print("Hello")
-start_new_thread(threaded_player,())'''
 def start_check():
     message=menu(False)
     if message==True:
         main_game()
+
 start_check()
 ''' command="Server1.py"
     os.system(command)
