@@ -172,6 +172,7 @@ class Timer():
     def __init__ (self,time):
         self.time=time
         self.start=False
+        self.end=False
         self.font=pygame.font.Font("Images/arcade.TTF", 35)
 
     def show_time(self,player2,gameDisplay):
@@ -189,3 +190,5 @@ class Timer():
                 gameDisplay.blit(timer, (width/2 - (200), 20))
                 self.time-=(1/60)
                 print(int(self.time))
+        if self.time<1:
+            self.end=True
