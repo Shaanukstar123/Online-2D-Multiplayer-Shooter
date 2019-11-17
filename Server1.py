@@ -68,4 +68,4 @@ while True:
 
 
 def error():
-    print("You can't do that :)")
+    print("You can't do that")
