@@ -34,12 +34,14 @@ def main_game():
 
     gameDisplay = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Client")
+    #pygame.display.toggle_fullscreen()
 
-    def redraw_window(gameDisplay,player, player2,background_index):
+    def redraw_window(gameDisplay,player, player2,background_index,wall):
         playerObj = player['player']
         secondPlayerObj = player2['player']
         players=[playerObj, secondPlayerObj]
-
+        #if (pygame.sprite.collide_rect(playerObj.sprite,wall)):
+            #print("Success!")
         background_index=int(background_index)
         gameDisplay.fill((255,255,255))
         gameDisplay.blit(backgrounds[background_index],(0,0))
@@ -48,8 +50,8 @@ def main_game():
         secondPlayerObj = player2['player']
         players=[playerObj, secondPlayerObj]
 
-        playerObj.draw(gameDisplay)
-        secondPlayerObj.draw(gameDisplay)
+        playerObj.draw(gameDisplay,wall)
+        secondPlayerObj.draw(gameDisplay,wall)
 
         for bullet in playerObj.projectiles:
             bullet.collides(players)
@@ -126,12 +128,14 @@ def main_game():
                     print("player 2 wins!")
                 else:
                     print("player 1 wins!")
+                    gameDisplay.blit(player1, ((width/2) - (200), (height/2+100)))
             elif player.player ==2:
                 if player.dead==True:
                     print("player 1 wins!")
                     gameDisplay.blit(player1, ((width/2) - (200), (height/2+100)))
                 else:
                     print("player 2 wins!")
+                    gameDisplay.blit(player2, ((width/2) - (200), (height/2+100)))
             else:
                 gameDisplay.blit(tie, ((width/2) - (200), (height/2+100)))
 
@@ -139,7 +143,20 @@ def main_game():
             pygame.display.update()
         #gameDisplay.fill((255,255,255))
         #start_check()
-        '''Change this to return to main menu'''
+
+    def threaded_collectables(items,gameDisplay,player,wall):
+        for i in items:
+            i.display_items(gameDisplay)
+            random_time=random.randint(0,15)
+            i.generate(wall)
+            time_end = time.time() + 10
+            while time.time() < time_end:
+                i.display_items(gameDisplay)
+                #print("item Displayed!")
+                if i.x==player.x:
+                    print("Object Collected")
+
+        #'''Change this to return to main menu'''
     def error():
         print("Cannot connect to server")
         gameDisplay.fill((255,255,255))
@@ -154,7 +171,14 @@ def main_game():
         pygame.mixer.music.play(-1)
         host=socket.gethostname()
         IP = socket.gethostbyname(host)
-        wall1=Map(400,400,300,100)
+        wall1=Map(400,400,300,100,"wall1.png")
+        wall_rect = pygame.Rect(wall1.x,wall1.y,228,44)
+        health_item=Collectables(1,"sprite.png")
+        random_list=[]
+        item_list=[health_item]
+        #for i in range(0,count+1):
+            #random_list.append(i)
+        #print(random_list)
         run = True
         try:
             n = Network(IP)
@@ -169,6 +193,7 @@ def main_game():
         clock = pygame.time.Clock()
         background_index=-1
         movement=True
+        start_new_thread(threaded_collectables,((item_list,gameDisplay,playerObj,wall_rect)))
         #timer=False
         while run:
             if background_index>6:
@@ -183,7 +208,6 @@ def main_game():
                 if secondPlayerObj.x!=100:
                     start_new_thread(threaded_timer,((100,gameDisplay,clock)))
                     timer=True'''
-
             events=pygame.event.get()
             for event in events:
                 if event.type == pygame.QUIT:
@@ -198,16 +222,17 @@ def main_game():
             wall2=p2['wall']'''
             #print("{},{}".format(playerObj.x,playerObj.y))
             #print(playerObj.x)
-
             #if wall.collision(playerObj) ==True:
                 #print("stop")
-
             #if wall2.collision(secondPlayerObj)==True:
                 #print("stop2")
 
             playerObj.move(events,wall1)
-            redraw_window(gameDisplay,p, p2,background_index)
+            redraw_window(gameDisplay,p, p2,background_index,wall1)
             stopclock.show_time(secondPlayerObj,gameDisplay)
+            #if stopclock.time
+            #health_item.generate(wall_rect)
+            #health_item.display_items(gameDisplay,stopclock.time)
             if stopclock.end==True:
                 run=False
                 endgame(playerObj,gameDisplay)
