@@ -23,30 +23,37 @@ class Player():
         self.collision_down=False
         self.hitbox=rect = pygame.Rect(self.x, self.y, 45, 68)
 
-    def draw(self,gameDisplay,wall):
+
+    def draw(self,gameDisplay,wall,wall2,wallimg):
+        #loaded=[pygame.image.load(sprite[0]),pygame.image.load(sprite[1])]
         image=pygame.image.load(self.display)
-        wall1=pygame.image.load(wall.image)
+        gameDisplay.blit(image,(self.x,self.y))
         rect = pygame.Rect(self.x, self.y, 45, 68)
-        wall = pygame.Rect(wall.x,wall.y,228,44)
-        gameDisplay.blit(wall1,(wall.x,wall.y))
+        #for wall in walls:
+        #wallimg=pygame.image.load(wall.image)
+        gameDisplay.blit(wallimg,(wall.x,wall.y))
+        #wall2img=pygame.image.load(wall2.image)
+        gameDisplay.blit(wallimg,(wall2.x,wall2.y))
         #pygame.draw.rect(gameDisplay,(99,99,99), wall)
         #pygame.draw.rect(gameDisplay,(99,99,99), rect)
-        gameDisplay.blit(image,(self.x,self.y))
-        if rect.colliderect(wall):
-            #print("Success!")
+        if rect.colliderect(wall.rect) or rect.colliderect(wall2.rect):
+        #print("Success!")
             if self.direction==1 and self.collision_down==False:
                 self.collision_right=True
                 self.collision_left=False
                 self.collision_up=False
+                self.collsion_down=False
             if self.direction==2 and self.collision_down==False:
                 self.collision_left=True
                 self.collision_right=False
                 self.collision_up=False
-            if (self.y+40)<(wall.y+wall.height/2) and self.collision_up == False:
+                self.collsion_down=False
+            if (self.y+40)<(wall.y+wall.height/2) or(self.y+40)<(wall.y+wall2.height/2) and self.collision_up == False:
                 self.collision_down=True
                 self.collision_left=False
                 self.collision_right=False
-            if (self.y-20)<(wall.y+wall.height/2) and self.collision_down==False:
+                self.collision_up=False
+            if (self.y-20)<(wall.y+wall.height/2) or (self.y-20)<(wall2.y+wall.height/2) and self.collision_down==False:
                 self.collision_up=True
                 self.collsion_down=False
                 self.collision_right=False
@@ -65,7 +72,7 @@ class Player():
         elif self.player==2:
             gameDisplay.blit(health, (width+100 - (200), 20))
 
-    def move(self,events,wall):
+    def move(self,events):
         projectile_sound=pygame.mixer.Sound("laser.wav")
         keys = pygame.key.get_pressed()
         #if pygame.sprite.collide_rect(self.sprite,wall.image)
@@ -168,7 +175,10 @@ class Projectile(Player):
     def should_remove(self):
         return self.shouldRemove
 
-    def collides(self,players):
+    def collides(self,players,wall,wall2):
+        if self.hitbox.colliderect(wall) or self.hitbox.colliderect(wall2):
+            self.shouldRemove=True
+            self.collided=True
         for p in players:
             #print(p.health)
             if self.x<=p.x<(self.x+25) and (self.y-self.hit_radius)<p.y<self.y+40 and self.player!=p.player:
@@ -188,6 +198,13 @@ class Map():
         self.height = height
         self.width = width
         self.image=image
+        self.rect = pygame.Rect(self.x,self.y,228,44)
+
+    '''def draw(self,gameDisplay):
+        wall1=pygame.image.load(self.image)
+        wall = pygame.Rect(self.x,self.y,228,44)
+        gameDisplay.blit(wall1,(self.x,self.y))'''
+
 
 #to stop player from waling through walls, I need a restriction zone
     def collision(self,player):
@@ -203,16 +220,16 @@ class Collectables():
         self.hitbox=pygame.Rect(self.x,self.y,20,20)
         self.correct_position=False
 
-    def generate(self,wall1):
+    def generate(self,wall):
         self.x=random.randint(0,width)
         self.y=random.randint(0,height)
-        self.hitbox=pygame.Rect(self.x,self.y,20,20)
-        if self.hitbox.colliderect(wall1):
+        self.hitbox=pygame.Rect(self.x,self.y,40,40)
+        if self.hitbox.colliderect(wall):
             self.correct_position=False
         else:
             self.correct_position=True
         if self.correct_position==False:
-            self.generate(wall1)
+            self.generate(wall)
 
     def display_items(self,gameDisplay):
         object = pygame.Rect(self.x,self.y,40,40)
