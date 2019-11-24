@@ -19,6 +19,9 @@ def menu(start):
     green=(0, 255, 0)
     grey=(128, 128, 128)
 
+    music=pygame.mixer.music.load("fire.mp3")
+    pygame.mixer.music.play(-1)
+
     backgrounds=[]
 
     anime1=pygame.image.load("Images/tmp-0.gif")
