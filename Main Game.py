@@ -34,6 +34,20 @@ class Game():
         self.movement=False
         self.events=None
         self.background_index=0
+        self.player1_sprites=["sprite1.png","right.png","left.png"]
+        self.player2_sprites=["sprite2.png","player2right.png","player2left.png"]
+        self.loaded_player1=[]
+        self.loaded_player2=[]
+
+    def load_sprites(self):
+        for i in self.player1_sprites:
+            image=pygame.image.load(i)
+            self.loaded_player1.append(image)
+
+        for j in self.player2_sprites:
+            image=pygame.image.load(j)
+            self.loaded_player2.append(image)
+
     def background_add(self):
         for background in self.backgrounds:
             self.scaled_backgrounds.append(pygame.transform.scale(background,
@@ -44,18 +58,8 @@ class Game():
         index=int(self.background_index)
         print(index)
         self.gameDisplay.blit(self.scaled_backgrounds[index],(0,0))
-        #if (pygame.sprite.collide_rect(playerObj.sprite,wall)):
-            #print("Success!")
-        #background_index=int(background_index)
-        #gameDisplay.fill((255,255,255))
-        #gameDisplay.blit(backgrounds[background_index],(0,0))
-
-        #playerObj = player['player']
-        #secondPlayerObj = player2['player']
-        #players=[playerObj, secondPlayerObj]
-
-        self.playerObj.draw(self.gameDisplay,self.walls[0],self.walls[1],self.wall_img)
-        self.secondPlayerObj.draw(self.gameDisplay,self.walls[0],self.walls[1],self.wall_img)
+        self.playerObj.draw(self)
+        self.secondPlayerObj.draw(self)
 
         '''if len(items) < 5:
             shouldSpawn = random.randint(0,5000)
@@ -94,49 +98,66 @@ class Game():
                 continue
             bullet.draw_bullet(self.gameDisplay,self.players)
         #pygame.display.update()
-    def endgame(self):
+    def endgame(self,player1_dead,player1_health,player2_dead,player2_health):
         colour=(0,0,0)
         yellow=(255,255,0)
         green=(0,255,0)
         blue=(0, 0, 255)
         count=0
+
+        new_font = pygame.font.Font("Images/arcade.TTF", 80)
+        player_font=pygame.font.Font("Images/arcade.TTF", 60)
+
+        game_over = new_font.render(str("GAME OVER"), 0, colour)
+        player1=player_font.render(str("Yellow   wins!"), 0, yellow)
+        player2=player_font.render(str("Green   wins!"), 0, green)
+        tie=player_font.render(str("Match    Tied"), 0, blue)
+
+        player1_wins=False
+        player2_wins=False
+        game_tie=False
+
+        if player1_dead==True:
+            player2_wins=True
+            print("player 2 wins!")
+        elif player2_dead==True:
+            player1_wins=True
+            print("player 1 wins!")
+
+        if player1_dead==False and player2_dead==False:
+            if player1_health>player2_health:
+                player1_wins=True
+                player2_wins=False
+            if player1_health<player2_health:
+                player2_wins=True
+                player1_wins=False
+            else:
+                player1_wins=False
+                player2_wins=False
+                game_tie=True
         while True:
             if count==12:
                 start_check()
             count+=1
             self.gameDisplay.fill((255,255,255))
-            new_font = pygame.font.Font("Images/arcade.TTF", 80)
-            player_font=pygame.font.Font("Images/arcade.TTF", 60)
-
-            game_over = new_font.render(str("GAME OVER"), 0, colour)
-            player2=player_font.render(str("Green   wins!"), 0, green)
-            player1=player_font.render(str("Yellow   wins!"), 0, yellow)
             self.gameDisplay.blit(game_over, ((width/2) - (200), (height/2)))
-            tie =player_font.render(str("Match Tied"), 0, blue)
-            pygame.mixer.self.music.stop()
-            print("Game Over")
-            if self.player.player==1:
-                if self.player.dead==True:
-                    self.gameDisplay.blit(self.player2, ((self.width/2) - (200), (self.height/2+100)))
-                    print("player 2 wins!")
-                else:
-                    print("player 1 wins!")
-                    self.gameDisplay.blit(player1, ((self.width/2) - (200), (self.height/2+100)))
-            elif self.player.player ==2:
-                if self.player.dead==True:
-                    print("player 1 wins!")
-                    self.gameDisplay.blit(player1, ((self.width/2) - (200), (self.height/2+100)))
-                else:
-                    print("player 2 wins!")
-                    self.gameDisplay.blit(player2, ((self.width/2) - (200), (self.height/2+100)))
-            else:
-                self.gameDisplay.blit(tie, ((width/2) - (200), (height/2+100)))
+            if player1_wins==True:
+                self.gameDisplay.blit(player1, ((self.width/2) - (200), (self.height/2+100)))
+            if player2_wins==True:
+                self.gameDisplay.blit(player2, ((self.width/2) - (200), (self.height/2+100)))
+            if game_tie==True:
+                self.gameDisplay.blit(tie, ((self.width/2) - (200), (self.height/2+100)))
 
+            pygame.mixer.music.stop()
+            print("Game Over")
             self.clock.tick(2)
-            self.pygame.display.update()
+            pygame.display.update()
 
     def gameloop(self):
+        self.load_sprites()
         self.background_add()
+        music=self.music
+        pygame.mixer.music.play(-1)
         self.run = True
         try:
             self.n = Network(self.ip)
@@ -171,9 +192,9 @@ class Game():
                     self.run = False
                     pygame.quit()
 
-            if self.playerObj.dead==True: #or self.secondPlayerObj.dead==True :
+            if self.playerObj.dead==True or self.secondPlayerObj.dead==True: #or self.secondPlayerObj.dead==True :
                 self.run=False
-                self.endgame()#(playerObj,gameDisplay)
+                self.endgame(self.playerObj.dead,self.playerObj.health,self.secondPlayerObj.dead,self.secondPlayerObj.health)#(playerObj,gameDisplay)
 
             self.playerObj.move(self.events)
             self.redraw_window()#(gameDisplay,p, p2,background_index,wall1,wall2,wall_image,projimg)
