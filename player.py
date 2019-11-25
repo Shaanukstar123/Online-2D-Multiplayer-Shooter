@@ -24,21 +24,24 @@ class Player():
         self.hitbox=rect = pygame.Rect(self.x, self.y, 45, 68)
 
 
-    def draw(self,gameDisplay,wall,wall2,wallimg):
+    def draw(self,game):
         #loaded=[pygame.image.load(sprite[0]),pygame.image.load(sprite[1])]
         image=pygame.image.load(self.display)
-        gameDisplay.blit(image,(self.x,self.y))
+        if self.player==1:
+            game.gameDisplay.blit(game.loaded_player1[self.direction],(self.x,self.y))
+        elif self.player==2:
+            game.gameDisplay.blit(game.loaded_player2[self.direction],(self.x,self.y))
         rect = pygame.Rect(self.x, self.y, 45, 68)
         #for wall in walls:
         #wallimg=pygame.image.load(wall.image)
-        gameDisplay.blit(wallimg,(wall.x,wall.y))
+        game.gameDisplay.blit(game.wall_img,(game.walls[0].x,game.walls[0].y))
         #wall2img=pygame.image.load(wall2.image)
-        gameDisplay.blit(wallimg,(wall2.x,wall2.y))
+        game.gameDisplay.blit(game.wall_img,(game.walls[1].x,game.walls[1].y))
         #pygame.draw.rect(gameDisplay,(99,99,99), wall)
         #pygame.draw.rect(gameDisplay,(99,99,99), rect)
-        if rect.colliderect(wall.rect) or rect.colliderect(wall2.rect):
+        if rect.colliderect(game.walls[0].rect) or rect.colliderect(game.walls[1].rect):
         #print("Success!")
-            if self.direction==1 and self.collision_down==False:
+            if self.direction==1 and self.collision_down==False: #make setcollision(col_right,col_left...) instead of if statements.
                 self.collision_right=True
                 self.collision_left=False
                 self.collision_up=False
@@ -48,12 +51,12 @@ class Player():
                 self.collision_right=False
                 self.collision_up=False
                 self.collsion_down=False
-            if (self.y+40)<(wall.y+wall.height/2) or(self.y+40)<(wall.y+wall2.height/2) and self.collision_up == False:
+            if (self.y+40)<(game.walls[0].y+game.walls[0].height/2) or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up == False:
                 self.collision_down=True
                 self.collision_left=False
                 self.collision_right=False
                 self.collision_up=False
-            if (self.y-20)<(wall.y+wall.height/2) or (self.y-20)<(wall2.y+wall.height/2) and self.collision_down==False:
+            if (self.y-20)<(game.walls[0].y+game.walls[0].height/2) or (self.y-20)<(game.walls[1].y+game.walls[1].height/2) and self.collision_down==False:
                 self.collision_up=True
                 self.collsion_down=False
                 self.collision_right=False
@@ -68,9 +71,9 @@ class Player():
         colour=(255,255,255)
         health = new_font.render(str(self.health), 0, colour)
         if self.player==1:
-            gameDisplay.blit(health, (230 - (200), 20))
+            game.gameDisplay.blit(health, (230 - (200), 20))
         elif self.player==2:
-            gameDisplay.blit(health, (width+100 - (200), 20))
+            game.gameDisplay.blit(health, (width+100 - (200), 20))
 
     def move(self,events):
         projectile_sound=pygame.mixer.Sound("laser.wav")
@@ -137,7 +140,7 @@ class Player():
         self.projectiles.remove(proj)
 
     def damage_taken(self):
-        if self.health<1:
+        if self.health<2:
             self.dead=True
         self.health-=10
 
@@ -179,6 +182,7 @@ class Projectile(Player):
         if self.hitbox.colliderect(wall) or self.hitbox.colliderect(wall2):
             self.shouldRemove=True
             self.collided=True
+            print(players)
         for p in players:
             #print(p.health)
             if self.x<=p.x<(self.x+25) and (self.y-self.hit_radius)<p.y<self.y+40 and self.player!=p.player:
@@ -210,13 +214,23 @@ class Map():
     def collision(self,player):
         if (self.x-(self.width/2)<player.x<self.x+(self.width/2)) or(self.y-(self.height/2)<player.y<self.y+(self.height/2)):
             return True
+class CollectableList():
+    def __init__(self):
+        self.items = []
 
-class Collectables():
+    def add(self, item):
+        pass
+
+    def get(self, id):
+        pass
+
+class Collectable():
     def __init__(self,item,sprite):
         self.item=item
         self.sprite=sprite
-        self.x=0
-        self.y=0
+        self.x=random.randint(0,width)
+        self.y=random.randint(0,height)
+        self.life = 300
         self.hitbox=pygame.Rect(self.x,self.y,20,20)
         self.correct_position=False
 
@@ -233,6 +247,7 @@ class Collectables():
 
     def display_items(self,gameDisplay):
         object = pygame.Rect(self.x,self.y,40,40)
+        self.life -= 1
         pygame.draw.rect(gameDisplay,(99,99,99), object)
 
     #def spawn(self):
@@ -260,3 +275,18 @@ class Timer():
                 print(int(self.time))
         if self.time<1:
             self.end=True
+
+    def start():
+        pass
+
+    def stop():
+        pass
+
+    def getCurrent():
+        pass
+
+    def hasEnded():
+        pass
+
+    def decr():
+        pass
