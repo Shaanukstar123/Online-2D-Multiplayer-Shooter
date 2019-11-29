@@ -7,7 +7,8 @@ import socket
 from _thread import *
 
 class Game():
-    def __init__(self,ip):
+    def __init__(self,ip,username):
+        self.username=username
         self.width=1300
         self.height=700
         self.gameDisplay = pygame.display.set_mode((self.width, self.height))
@@ -22,7 +23,7 @@ class Game():
         self.p2=None
         self.p=None
         self.n=None
-        self.walls=[Map(400,400,300,100,"wall1.png"),Map(600,600,300,100,"wall1.png")]
+        self.walls=[Map(400,400,44,228,"wall1.png"),Map(600,600,44,228,"wall1.png")]
         self.wall_rect=[self.walls[0].rect,self.walls[1].rect]
         self.wall_img=pygame.image.load("wall1.png")
         #self.items=[Collectables(1,"sprite.png")]
@@ -98,7 +99,7 @@ class Game():
                 continue
             bullet.draw_bullet(self.gameDisplay,self.players)
         #pygame.display.update()
-    def endgame(self,player1_dead,player1_health,player2_dead,player2_health):
+    def endgame(self,player1_dead,player1_health,name1,player2_dead,player2_health,name2):
         colour=(0,0,0)
         yellow=(255,255,0)
         green=(0,255,0)
@@ -109,8 +110,8 @@ class Game():
         player_font=pygame.font.Font("Images/arcade.TTF", 60)
 
         game_over = new_font.render(str("GAME OVER"), 0, colour)
-        player1=player_font.render(str("Yellow   wins!"), 0, yellow)
-        player2=player_font.render(str("Green   wins!"), 0, green)
+        player1=player_font.render(str( name1+"  wins!"), 0, yellow)
+        player2=player_font.render(str(name2+"   wins!"), 0, green)
         tie=player_font.render(str("Match    Tied"), 0, blue)
 
         player1_wins=False
@@ -154,6 +155,7 @@ class Game():
             pygame.display.update()
 
     def gameloop(self):
+        print(self.username)
         self.load_sprites()
         self.background_add()
         music=self.music
@@ -173,6 +175,8 @@ class Game():
         #background_index=-1
         self.movement=True
         while self.run:
+            self.playerObj.username=self.username
+            print(self.playerObj.username)
             if self.background_index>6:
                 self.background_index=0
             else:
@@ -192,28 +196,24 @@ class Game():
                     self.run = False
                     pygame.quit()
 
-            if self.playerObj.dead==True or self.secondPlayerObj.dead==True: #or self.secondPlayerObj.dead==True :
-                self.run=False
-                self.endgame(self.playerObj.dead,self.playerObj.health,self.secondPlayerObj.dead,self.secondPlayerObj.health)#(playerObj,gameDisplay)
-
             self.playerObj.move(self.events)
             self.redraw_window()#(gameDisplay,p, p2,background_index,wall1,wall2,wall_image,projimg)
             self.stopclock.show_time(self.secondPlayerObj,self.gameDisplay)
             #if stopclock.time
             #health_item.generate(wall_rect)
             #health_item.display_items(gameDisplay,stopclock.time)
-            if self.stopclock.end==True:
+            if self.playerObj.dead==True or self.secondPlayerObj.dead==True or self.stopclock.end==True: #or self.secondPlayerObj.dead==True :
                 self.run=False
-                self.endgame()#(playerObj,gameDisplay)
+                self.endgame(self.playerObj.dead,self.playerObj.health,self.playerObj.username,self.secondPlayerObj.dead,self.secondPlayerObj.health,self.secondPlayerObj.username)#(playerObj,gameDisplay)
             self.clock.tick(60)
             pygame.display.update()
 
 
-def start_check():
+def start_check(player):
     host=socket.gethostname()
     ip=socket.gethostbyname(host)
     message=menu(False)
     if message==True:
-        game=Game(ip)
+        game=Game(ip,player)
         game.gameloop()
-start_check()
+#start_check()
