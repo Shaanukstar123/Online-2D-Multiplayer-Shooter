@@ -22,6 +22,7 @@ class Player():
         self.collision_up=False
         self.collision_down=False
         self.hitbox=rect = pygame.Rect(self.x, self.y, 45, 68)
+        self.username=None
 
 
     def draw(self,game):
@@ -32,31 +33,34 @@ class Player():
         elif self.player==2:
             game.gameDisplay.blit(game.loaded_player2[self.direction],(self.x,self.y))
         rect = pygame.Rect(self.x, self.y, 45, 68)
+        rect2=pygame.Rect(game.walls[1].x,game.walls[1].y,25,25)
+
         #for wall in walls:
         #wallimg=pygame.image.load(wall.image)
         game.gameDisplay.blit(game.wall_img,(game.walls[0].x,game.walls[0].y))
         #wall2img=pygame.image.load(wall2.image)
         game.gameDisplay.blit(game.wall_img,(game.walls[1].x,game.walls[1].y))
+        #pygame.draw.rect(game.gameDisplay,(0,255,0),rect2)
         #pygame.draw.rect(gameDisplay,(99,99,99), wall)
         #pygame.draw.rect(gameDisplay,(99,99,99), rect)
         if rect.colliderect(game.walls[0].rect) or rect.colliderect(game.walls[1].rect):
-        #print("Success!")
-            if self.direction==1 and self.collision_down==False: #make setcollision(col_right,col_left...) instead of if statements.
+            #print("Success!")
+            if self.direction==1 and self.collision_down==False and self.collision_left==False: #make setcollision(col_right,col_left...) instead of if statements.
                 self.collision_right=True
                 self.collision_left=False
                 self.collision_up=False
                 self.collsion_down=False
-            if self.direction==2 and self.collision_down==False:
+            elif self.direction==2 and self.collision_down==False and self.collision_right==False:
                 self.collision_left=True
                 self.collision_right=False
                 self.collision_up=False
                 self.collsion_down=False
-            if (self.y+40)<(game.walls[0].y+game.walls[0].height/2) or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up == False:
+            if (self.y+40)<(game.walls[0].y) or (self.y+40)<(game.walls[1].y) and self.collision_up == False:#or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up==False:
                 self.collision_down=True
                 self.collision_left=False
                 self.collision_right=False
                 self.collision_up=False
-            if (self.y-20)<(game.walls[0].y+game.walls[0].height/2) or (self.y-20)<(game.walls[1].y+game.walls[1].height/2) and self.collision_down==False:
+            elif (self.y+20)>(game.walls[0].y+game.walls[0].height) or (self.y+20)>(game.walls[1].y+game.walls[1].height) and self.collision_down==False: #or (self.y)>(game.walls[1].y+game.walls[1].height/2) and
                 self.collision_up=True
                 self.collsion_down=False
                 self.collision_right=False
@@ -66,7 +70,7 @@ class Player():
             self.collision_left=False
             self.collision_up=False
             self.collision_down=False
-
+        #print(self.collision_up,self.collision_down,self.collision_right,self.collision_right)
         new_font = pygame.font.Font("Images/arcade.TTF", 28)
         colour=(255,255,255)
         health = new_font.render(str(self.health), 0, colour)
@@ -146,6 +150,9 @@ class Player():
 
     def update(self):
         pass
+
+    def update_username(self,username):
+        self.username==username
 
 class Projectile(Player):
     def __init__(self,x,y,direction,sprite,player):
@@ -290,3 +297,5 @@ class Timer():
 
     def decr():
         pass
+
+'''single underscore under name = private method/attribute'''
