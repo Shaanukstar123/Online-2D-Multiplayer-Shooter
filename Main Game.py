@@ -39,6 +39,13 @@ class Game():
         self.player2_sprites=["sprite2.png","player2right.png","player2left.png"]
         self.loaded_player1=[]
         self.loaded_player2=[]
+        self.arcade_font=pygame.font.Font("Images/arcade.TTF", 12)
+
+        self.black=(0,0,0)
+        self.yellow=(255,255,0)
+        self.green=(0,255,0)
+        self.blue=(0, 0, 255)
+        self.light_blue=(173, 216, 230)
 
     def load_sprites(self):
         for i in self.player1_sprites:
@@ -54,6 +61,13 @@ class Game():
             self.scaled_backgrounds.append(pygame.transform.scale(background,
             (self.width,self.height)))
 
+    def show_username(self):
+        username = self.arcade_font.render(str(self.username), 0, self.light_blue)
+        player2_username=self.arcade_font.render(str(self.secondPlayerObj.username), 0, self.light_blue)
+        self.gameDisplay.blit(username, (self.playerObj.x,self.playerObj.y-20))
+        self.gameDisplay.blit(player2_username, (self.secondPlayerObj.x,self.secondPlayerObj.y-20))
+
+
     def redraw_window(self):
         self.gameDisplay.fill((255,255,255))
         index=int(self.background_index)
@@ -61,28 +75,6 @@ class Game():
         self.gameDisplay.blit(self.scaled_backgrounds[index],(0,0))
         self.playerObj.draw(self)
         self.secondPlayerObj.draw(self)
-
-        '''if len(items) < 5:
-            shouldSpawn = random.randint(0,5000)
-            if shouldSpawn < SPAWN_PERCENTAGE:
-                newItem = Collectables(1, "sprite.png")
-                items.append(newItem)
-
-        for i in items:
-            if i.life <= 0:
-                items.remove(i)
-                continue
-            #i.display_items(gameDisplay)
-            # random_time=random.randint(0,15)
-            #i.generate(wall)
-            # time_end = time.time() + 5
-            # if time.time() < time_end:
-            i.display_items(gameDisplay)
-                #print("item Displayed!")
-            # TODO: Make it for both players
-            if i.x==playerObj.x:
-                items.remove(i)
-                print("Object Collected")'''
 
         for bullet in self.playerObj.projectiles:
             bullet.collides(self.players,self.walls[0],self.walls[1])
@@ -92,13 +84,33 @@ class Game():
 
             bullet.draw_bullet(self.gameDisplay,self.players)
 
-        for bullet in self.secondPlayerObj.projectiles:
+        '''for bullet in self.secondPlayerObj.projectiles:
             bullet.collides(self.players,self.walls[0],self.walls[1])
             if bullet.should_remove():
                 self.secondPlayerObj.remove_projectile(bullet)
                 continue
-            bullet.draw_bullet(self.gameDisplay,self.players)
-        #pygame.display.update()
+            bullet.draw_bullet(self.gameDisplay,self.players)'''
+        #if len(items) < 5:
+        #shouldSpawn = random.randint(0,5000)
+        #if shouldSpawn < SPAWN_PERCENTAGE:
+        #    newItem = Collectables(1, "sprite.png")
+        #    items.append(newItem)
+
+        #for i in items:
+            #if i.life <= 0:
+                #items.remove(i)
+                #continue
+            #i.display_items(gameDisplay)
+            # random_time=random.randint(0,15)
+            #i.generate(wall)
+            # time_end = time.time() + 5
+            # if time.time() < time_end:
+            #i.display_items(gameDisplay)
+                #print("item Displayed!")
+            # TODO: Make it for both players
+            #if i.x==playerObj.x:
+                #items.remove(i)
+                #print("Object Collected")
     def endgame(self,player1_dead,player1_health,name1,player2_dead,player2_health,name2):
         colour=(0,0,0)
         yellow=(255,255,0)
@@ -175,8 +187,7 @@ class Game():
         #background_index=-1
         self.movement=True
         while self.run:
-            self.playerObj.username=self.username
-            print(self.playerObj.username)
+            #print(self.playerObj.username)
             if self.background_index>6:
                 self.background_index=0
             else:
@@ -184,6 +195,7 @@ class Game():
             self.p2 = self.n.send(self.p)
             self.secondPlayerObj=self.p2['player']
             self.players=[self.playerObj,self.secondPlayerObj]
+
             #secondPlayerObj = p2['player']
             #wall2=p2['wall']
             '''if timer==False:
@@ -199,6 +211,7 @@ class Game():
             self.playerObj.move(self.events)
             self.redraw_window()#(gameDisplay,p, p2,background_index,wall1,wall2,wall_image,projimg)
             self.stopclock.show_time(self.secondPlayerObj,self.gameDisplay)
+            self.show_username()
             #if stopclock.time
             #health_item.generate(wall_rect)
             #health_item.display_items(gameDisplay,stopclock.time)
