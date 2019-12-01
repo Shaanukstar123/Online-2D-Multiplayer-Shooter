@@ -189,7 +189,7 @@ class Projectile(Player):
         if self.hitbox.colliderect(wall) or self.hitbox.colliderect(wall2):
             self.shouldRemove=True
             self.collided=True
-            print(players)
+            #print(players)
         for p in players:
             #print(p.health)
             if self.x<=p.x<(self.x+25) and (self.y-self.hit_radius)<p.y<self.y+40 and self.player!=p.player:
@@ -197,7 +197,7 @@ class Projectile(Player):
                 self.collided =True
                 print("collided")
                 p.damage_taken()
-                print(p.health)
+                #print(p.health)
                 #if p.health<10:
                     #print("DEAD")
             #check the boundaries of the projectile and boundaries of player and if they collide, call player.getdamage()
@@ -279,7 +279,7 @@ class Timer():
                 timer = self.font.render(str(int(self.time)), 0, colour)
                 gameDisplay.blit(timer, (width/2 - (200), 20))
                 self.time-=(1/60)
-                print(int(self.time))
+                #print(int(self.time))
         if self.time<1:
             self.end=True
 
