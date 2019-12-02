@@ -46,6 +46,8 @@ class Game():
         self.green=(0,255,0)
         self.blue=(0, 0, 255)
         self.light_blue=(173, 216, 230)
+        self.player1_score=0
+        self.player2_score=0
 
     def load_sprites(self):
         for i in self.player1_sprites:
@@ -69,27 +71,29 @@ class Game():
 
 
     def redraw_window(self):
+        print("Player1: {} Player2: {}".format(self.player1_score,self.player2_score))
         self.gameDisplay.fill((255,255,255))
         index=int(self.background_index)
-        print(index)
         self.gameDisplay.blit(self.scaled_backgrounds[index],(0,0))
         self.playerObj.draw(self)
         self.secondPlayerObj.draw(self)
 
         for bullet in self.playerObj.projectiles:
-            bullet.collides(self.players,self.walls[0],self.walls[1])
+            if bullet.collides(self)=="hit":
+                self.player1_score+=10                                            #self.players,self.walls[0],self.walls[1])
             if bullet.should_remove():
                 self.playerObj.remove_projectile(bullet)
                 continue
 
             bullet.draw_bullet(self.gameDisplay,self.players)
 
-        '''for bullet in self.secondPlayerObj.projectiles:
-            bullet.collides(self.players,self.walls[0],self.walls[1])
+        for bullet in self.secondPlayerObj.projectiles:
+            if bullet.collides(self)=="hit":
+                self.player2_score+=10#self.players,self.walls[0],self.walls[1])
             if bullet.should_remove():
                 self.secondPlayerObj.remove_projectile(bullet)
                 continue
-            bullet.draw_bullet(self.gameDisplay,self.players)'''
+            bullet.draw_bullet(self.gameDisplay,self.players)
         #if len(items) < 5:
         #shouldSpawn = random.randint(0,5000)
         #if shouldSpawn < SPAWN_PERCENTAGE:
@@ -122,8 +126,8 @@ class Game():
         player_font=pygame.font.Font("Images/arcade.TTF", 60)
 
         game_over = new_font.render(str("GAME OVER"), 0, colour)
-        player1=player_font.render(str( name1+"  wins!"), 0, yellow)
-        player2=player_font.render(str(name2+"   wins!"), 0, green)
+        player1=player_font.render(str(name1 +"  wins!"), 0, yellow)
+        player2=player_font.render(str(name2 +"   wins!"), 0, green)
         tie=player_font.render(str("Match    Tied"), 0, blue)
 
         player1_wins=False
@@ -195,6 +199,8 @@ class Game():
             self.p2 = self.n.send(self.p)
             self.secondPlayerObj=self.p2['player']
             self.players=[self.playerObj,self.secondPlayerObj]
+            #self.playerObj=self.players[0]
+            #self.secondPlayerObj=self.players[1]
 
             #secondPlayerObj = p2['player']
             #wall2=p2['wall']
@@ -217,7 +223,7 @@ class Game():
             #health_item.display_items(gameDisplay,stopclock.time)
             if self.playerObj.dead==True or self.secondPlayerObj.dead==True or self.stopclock.end==True: #or self.secondPlayerObj.dead==True :
                 self.run=False
-                self.endgame(self.playerObj.dead,self.playerObj.health,self.playerObj.username,self.secondPlayerObj.dead,self.secondPlayerObj.health,self.secondPlayerObj.username)#(playerObj,gameDisplay)
+                self.endgame(self.playerObj.dead,self.playerObj.health,str(self.playerObj.username),self.secondPlayerObj.dead,self.secondPlayerObj.health,str(self.secondPlayerObj.username))#(playerObj,gameDisplay)
             self.clock.tick(60)
             pygame.display.update()
 
