@@ -24,8 +24,8 @@ class Player():
         self.hitbox=rect = pygame.Rect(self.x, self.y, 45, 68)
         self.username=None
 
-
     def draw(self,game):
+        self.hitbox=rect = pygame.Rect(self.x, self.y, 45, 68)
         #loaded=[pygame.image.load(sprite[0]),pygame.image.load(sprite[1])]
         image=pygame.image.load(self.display)
         if self.player==1:
@@ -165,12 +165,13 @@ class Projectile(Player):
         self.shouldRemove = False
         self.hit_radius=50
         self.collided=False
-        self.hitbox=rect = pygame.Rect(self.x, self.y, 10, 10)
+        self.hitbox= pygame.Rect(self.x, self.y, 10, 10)
 
     def draw_bullet(self, gameDisplay,players):
+        self.hitbox=pygame.Rect(self.x, self.y, 10, 10)
         proj=pygame.image.load("projectile1.png")
         #rect = pygame.Rect(self.x+30, self.y+25, 5, 5)
-        #pygame.draw.rect(gameDisplay,(150,159,159), rect)
+        #pygame.draw.rect(gameDisplay,(150,159,159), self.hitbox)
         gameDisplay.blit(proj, (self.x+10, self.y+20))
         if self.x<width and self.x>0:
             if self.direction==1:
@@ -185,18 +186,38 @@ class Projectile(Player):
     def should_remove(self):
         return self.shouldRemove
 
-    def collides(self,players,wall,wall2):
-        if self.hitbox.colliderect(wall) or self.hitbox.colliderect(wall2):
+    def collides(self,game):#self,players,wall,wall2):
+        '''if self.hitbox.colliderect(game.walls[0].rect) or self.hitbox.colliderect(game.walls[1].rect):
             self.shouldRemove=True
             self.collided=True
             #print(players)
-        for p in players:
+        if self.x<=p.x<(self.x+25) and (self.y-self.hit_radius)<p.y<self.y+40 and self.player!=p.player:
+            print("collided")
+            game.secondPlayerObj.score+=10
+            game.playerObj.damage_taken()
+            self.collided=True
+        if self.hitbox.colliderect(game.secondPlayerObj.hitbox):
+            print("collided")
+            game.playerObj.score+=10
+            game.secondPlayerObj.damage_taken()
+            self.collided=True'''
+            #if game.playerObj.health<10:
+                #print("DEAD")'''
+
+
+        for p in game.players:
             #print(p.health)
             if self.x<=p.x<(self.x+25) and (self.y-self.hit_radius)<p.y<self.y+40 and self.player!=p.player:
                 self.shouldRemove=True
                 self.collided =True
-                print("collided")
+                print("collided player {}".format(p.player))
+                print(p.player)
                 p.damage_taken()
+
+                if p.player==1:
+                    return ("hit")
+                elif p.player==2:
+                    return("hit")
                 #print(p.health)
                 #if p.health<10:
                     #print("DEAD")
