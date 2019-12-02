@@ -39,15 +39,19 @@ class Game():
         self.player2_sprites=["sprite2.png","player2right.png","player2left.png"]
         self.loaded_player1=[]
         self.loaded_player2=[]
+        self.player1_check=False
+        self.player2_check=False
         self.arcade_font=pygame.font.Font("Images/arcade.TTF", 12)
+        self.text_font=pygame.font.Font("Images/arcade.TTF", 28)
 
         self.black=(0,0,0)
+        self.white=(255,255,255)
         self.yellow=(255,255,0)
         self.green=(0,255,0)
         self.blue=(0, 0, 255)
         self.light_blue=(173, 216, 230)
-        self.player1_score=0
-        self.player2_score=0
+        #self.player1_score=0
+        #self.player2_score=0
 
     def load_sprites(self):
         for i in self.player1_sprites:
@@ -64,6 +68,7 @@ class Game():
             (self.width,self.height)))
 
     def show_username(self):
+        self.playerObj.username=self.username
         username = self.arcade_font.render(str(self.username), 0, self.light_blue)
         player2_username=self.arcade_font.render(str(self.secondPlayerObj.username), 0, self.light_blue)
         self.gameDisplay.blit(username, (self.playerObj.x,self.playerObj.y-20))
@@ -71,16 +76,26 @@ class Game():
 
 
     def redraw_window(self):
-        print("Player1: {} Player2: {}".format(self.player1_score,self.player2_score))
+        #print("Player1: {} Player2: {}".format(self.player1_score,self.player2_score))
+        score1 = self.text_font.render(str(self.playerObj.score), 0, self.white)
+        score2 = self.text_font.render(str(self.secondPlayerObj.score), 0, self.white)
         self.gameDisplay.fill((255,255,255))
         index=int(self.background_index)
         self.gameDisplay.blit(self.scaled_backgrounds[index],(0,0))
+        self.gameDisplay.blit(score1, (20, 50))
+        self.gameDisplay.blit(score2, (self.width-40, 50))
         self.playerObj.draw(self)
         self.secondPlayerObj.draw(self)
 
         for bullet in self.playerObj.projectiles:
             if bullet.collides(self)=="hit":
-                self.player1_score+=10                                            #self.players,self.walls[0],self.walls[1])
+                self.playerObj.score+=10
+                '''if self.playerObj.player==1:
+                    self.player1_score+=10
+                    self.playerObj.score+=10
+                elif self.playerObj.player==2:
+                    self.player2_score+=10
+                    self.secondPlayerObj.score+=10'''                                            #self.players,self.walls[0],self.walls[1])
             if bullet.should_remove():
                 self.playerObj.remove_projectile(bullet)
                 continue
@@ -89,7 +104,13 @@ class Game():
 
         for bullet in self.secondPlayerObj.projectiles:
             if bullet.collides(self)=="hit":
-                self.player2_score+=10#self.players,self.walls[0],self.walls[1])
+                #if self.secondPlayerObj.player==1:
+                    #self.player1_score+=10
+                    #self.playerObj.score+=10
+                #elif self.playerObj.player==2:
+                #self.player2_score+=10
+                self.secondPlayerObj.score+=10
+                #self.players,self.walls[0],self.walls[1])
             if bullet.should_remove():
                 self.secondPlayerObj.remove_projectile(bullet)
                 continue
@@ -187,7 +208,7 @@ class Game():
         except:
             print("Cannot connect to server")
             #self.error()
-
+        self.player1_check=True
         #background_index=-1
         self.movement=True
         while self.run:
