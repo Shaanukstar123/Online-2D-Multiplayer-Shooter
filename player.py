@@ -5,7 +5,7 @@ width=1300
 height=700
 
 class Player():
-    def __init__(self, x, y,sprite,player,direction):
+    def __init__(self, x, y,sprite,player,direction,score):
         self.x = x
         self.y = y
         self.player=player
@@ -23,6 +23,7 @@ class Player():
         self.collision_down=False
         self.hitbox=rect = pygame.Rect(self.x, self.y, 45, 68)
         self.username=None
+        self.score=score
 
     def draw(self,game):
         self.hitbox=rect = pygame.Rect(self.x, self.y, 45, 68)
@@ -75,9 +76,9 @@ class Player():
         colour=(255,255,255)
         health = new_font.render(str(self.health), 0, colour)
         if self.player==1:
-            game.gameDisplay.blit(health, (230 - (200), 20))
+            game.gameDisplay.blit(health, (30, 20))
         elif self.player==2:
-            game.gameDisplay.blit(health, (width+100 - (200), 20))
+            game.gameDisplay.blit(health, (width-110, 20))
 
     def move(self,events):
         projectile_sound=pygame.mixer.Sound("laser.wav")
@@ -152,7 +153,7 @@ class Player():
         pass
 
     def update_username(self,username):
-        self.username==username
+        self.username=username
 
 class Projectile(Player):
     def __init__(self,x,y,direction,sprite,player):
