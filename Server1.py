@@ -9,7 +9,6 @@ port = 5555
 host=socket.gethostname()
 IP = socket.gethostbyname(host)
 server = IP
-
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 try:
@@ -19,14 +18,17 @@ except socket.error as e:
 
 s.listen(2)
 print("Waiting for a connection, Server Started")
-
+#timer = Timer(100)
+#collectables = CollectableList()
 #players=[Player(0,0,"sprite1.png"),Player(100,100,"sprite2.png")]
 all_data = [{
-    'player':Player(0,0,["sprite1.png","right.png","left.png"],1,1)
-
+    'player':Player(0,0,["sprite1.png","right.png","left.png"],1,1,0)#,
+    #"timer": timer#,
+    #"collectables": items
 }, {
-    'player': Player(100,100,["sprite2.png","player2right.png","player2left.png"],2,2)
-
+    'player': Player(100,100,["sprite2.png","player2right.png","player2left.png"],2,2,0)#,
+    #"timer": timer#,
+    #"collectables": items
 }]
 
 #all_data[0]
