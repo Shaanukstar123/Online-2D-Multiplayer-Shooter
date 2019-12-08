@@ -1,3 +1,7 @@
+'''from tkinter import *
+import sqlite3
+from tkinter import messagebox as ms
+from MainMenu import *'''
 import pygame
 from Network import Network
 from classes import *
@@ -27,6 +31,7 @@ class Login_system():
         self.start_game=False
 
     def login(self):
+        #self.widgets()
         with sqlite3.connect("playerdata.db") as db:
             cursor =db.cursor()
         player_search=("SELECT * FROM player WHERE username=?  and password=?")
@@ -42,7 +47,7 @@ class Login_system():
 
         else:
             print("not found")
-            ms.showerror(None,"Account details not found. Please make sure the details are entered properly.")
+            ms.showerror("Error","Account details not found. Please make sure the details are entered properly.")
 
     def create_account(self):
         with sqlite3.connect('playerdata.db') as db:
@@ -51,9 +56,9 @@ class Login_system():
         player_search = ('SELECT * FROM player WHERE username = ?')
         cursor.execute(player_search,[(self.username.get())])
         if cursor.fetchall():
-            ms.showerror("This username has already been taken. Please chose another one")
+            ms.showerror("Error","This username has already been taken. Please chose another one")
         else:
-            ms.showinfo("Account created successfully")
+            ms.showinfo("Success","Account created successfully")
             self.log_frame()
         store = 'INSERT INTO player(username,password) VALUES(?,?)'
         cursor.execute(store,[(self.new_username.get()),(self.new_pass.get())])
