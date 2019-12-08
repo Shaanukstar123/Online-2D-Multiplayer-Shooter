@@ -31,6 +31,7 @@ class Login_system():
         self.start_game=False
 
     def login(self):
+        #self.widgets()
         with sqlite3.connect("playerdata.db") as db:
             cursor =db.cursor()
         player_search=("SELECT * FROM player WHERE username=?  and password=?")
