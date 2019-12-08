@@ -3,7 +3,9 @@ from _thread import *
 import sys
 from player import *
 import pickle
+from timer import *
 
+totalConnections = 0
 #server = "192.168.1.224"
 port = 5555
 host=socket.gethostname()
@@ -18,42 +20,62 @@ except socket.error as e:
 
 s.listen(2)
 print("Waiting for a connection, Server Started")
-#timer = Timer(100)
+timer = Timer()
 #collectables = CollectableList()
 #players=[Player(0,0,"sprite1.png"),Player(100,100,"sprite2.png")]
 all_data = [{
-    'player':Player(0,0,["sprite1.png","right.png","left.png"],1,1,0)#,
-    #"timer": timer#,
+    'player':Player(0,0,["sprite1.png","right.png","left.png"],1,1,0),
+    "timer": timer,
     #"collectables": items
 }, {
-    'player': Player(100,100,["sprite2.png","player2right.png","player2left.png"],2,2,0)#,
-    #"timer": timer#,
+    'player': Player(100,100,["sprite2.png","player2right.png","player2left.png"],2,2,0),
+    "timer": timer,
     #"collectables": items
 }]
-
+'''talk about why parallel data sets not sent due to synch issues and buffer needed'''
 #all_data[0]
 
+timerHasStarted = False
+
 def threaded_client(conn, player):
+    global totalConnections, timerHasStarted, timer
+
     conn.send(pickle.dumps(all_data[player]))
     reply = ""
+    print("TIMER STARTED:" + str(timer.has_started))
     while True:
         try:
-            data = pickle.loads(conn.recv(2048))
+            data = pickle.loads(conn.recv(2048*3))
             all_data[player] = data
 
             if not data:
                 print("Client Disconnected")
+                totalConnections -= 1
                 break
             else:
+                all_data[0]['timer'] = timer
+                all_data[1]['timer'] = timer
+                print("TIMERS =============")
+                print(timer.time_elapsed)
+                print(all_data[0]['timer'].time_elapsed)
+                print("=========================")
+
+                if totalConnections == 2:
+                    if not timerHasStarted:
+                        print("STARTING")
+                        timer.start()
+                        timerHasStarted = True
+
                 if player == 1:
                     reply = all_data[0]
                 else:
                     reply = all_data[1]
 
-                #print("Received: ", data)
-                #print("Sending : ", reply)
 
-            conn.sendall(pickle.dumps(reply))
+                #print("Received: ", data)
+                #pfrint("Sending : ", reply)
+
+                conn.sendall(pickle.dumps(reply))
         except:
             break
 
@@ -64,6 +86,7 @@ currentPlayer = 0
 while True:
     conn, addr = s.accept()
     print("Connected to:", addr)
+    totalConnections += 1
 
     start_new_thread(threaded_client, (conn, currentPlayer))
     currentPlayer += 1
