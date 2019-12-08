@@ -1,7 +1,7 @@
 import socket
 from _thread import *
 import sys
-from player import *
+from classes import *
 import pickle
 from timer import *
 
