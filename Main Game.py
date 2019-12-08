@@ -1,6 +1,6 @@
 import pygame
 from Network import Network
-from player import *
+from classes import *
 from MainMenu import menu
 import time
 import socket
