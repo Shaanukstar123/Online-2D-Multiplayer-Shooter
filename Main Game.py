@@ -15,8 +15,7 @@ class Game():
         self.backgrounds=[pygame.image.load("sprites/Background anime/frame0.gif"),pygame.image.load("sprites/Background anime/frame1.gif"),pygame.image.load("sprites/Background anime/frame2.gif"),pygame.image.load("sprites/Background anime/frame3.gif"),pygame.image.load("sprites/Background anime/frame4.gif"),pygame.image.load("sprites/Background anime/frame5.gif"),pygame.image.load("sprites/Background anime/frame6.gif"),pygame.image.load("sprites/Background anime/frame7.gif")]
         self.scaled_backgrounds=[]
         self.clock=pygame.time.Clock()
-        self.stopclock=Timer(100)
-        self.timer=False
+        self.fps=30
         self.count =100
         self.music=pygame.mixer.music.load("power_music.wav")
         self.ip=ip
@@ -87,6 +86,9 @@ class Game():
         self.playerObj.draw(self)
         self.secondPlayerObj.draw(self)
 
+        time = self.arcade_font.render(str(self.timer.time_elapsed), 0, self.white)
+        self.gameDisplay.blit(time, (self.width/2, 20))
+
         for bullet in self.playerObj.projectiles:
             if bullet.collides(self)=="hit":
                 self.playerObj.score+=10
@@ -145,7 +147,6 @@ class Game():
 
         new_font = pygame.font.Font("Images/arcade.TTF", 80)
         player_font=pygame.font.Font("Images/arcade.TTF", 60)
-
         game_over = new_font.render(str("GAME OVER"), 0, colour)
         player1=player_font.render(str(name1 +"  wins!"), 0, yellow)
         player2=player_font.render(str(name2 +"   wins!"), 0, green)
@@ -204,6 +205,7 @@ class Game():
             print(self.p)
             print(self.p['player'])
             self.playerObj = self.p['player']
+            self.timer = self.p['timer']
 
         except:
             print("Cannot connect to server")
@@ -216,19 +218,19 @@ class Game():
             if self.background_index>6:
                 self.background_index=0
             else:
-                self.background_index+=0.15
+                self.background_index+=0.30
             self.p2 = self.n.send(self.p)
+
             self.secondPlayerObj=self.p2['player']
+            self.timer = self.p2['timer']
+
             self.players=[self.playerObj,self.secondPlayerObj]
+
             #self.playerObj=self.players[0]
             #self.secondPlayerObj=self.players[1]
 
             #secondPlayerObj = p2['player']
             #wall2=p2['wall']
-            '''if timer==False:
-                if secondPlayerObj.x!=100:
-                    start_new_thread(threaded_timer,((100,self.gameDisplay,clock)))
-                    timer=True'''
             self.events=pygame.event.get()
             for event in self.events:
                 if event.type == pygame.QUIT:
@@ -237,21 +239,21 @@ class Game():
 
             self.playerObj.move(self.events)
             self.redraw_window()#(gameDisplay,p, p2,background_index,wall1,wall2,wall_image,projimg)
-            self.stopclock.show_time(self.secondPlayerObj,self.gameDisplay)
+            # self.stopclock.show_time(self.secondPlayerObj,self.gameDisplay)
             self.show_username()
             #if stopclock.time
             #health_item.generate(wall_rect)
             #health_item.display_items(gameDisplay,stopclock.time)
-            if self.playerObj.dead==True or self.secondPlayerObj.dead==True or self.stopclock.end==True: #or self.secondPlayerObj.dead==True :
+            if self.playerObj.dead==True or self.secondPlayerObj.dead==True: #or self.secondPlayerObj.dead==True :
                 self.run=False
                 self.endgame(self.playerObj.dead,self.playerObj.health,str(self.playerObj.username),self.secondPlayerObj.dead,self.secondPlayerObj.health,str(self.secondPlayerObj.username))#(playerObj,gameDisplay)
-            self.clock.tick(60)
+            self.clock.tick(self.fps)
             pygame.display.update()
 
 
 def start_check(player):
     host=socket.gethostname()
-    ip=socket.gethostbyname(host)
+    ip=socket.gethostbyname(host)#'192.168.1.225'
     message=menu(False)
     if message==True:
         game=Game(ip,player)
