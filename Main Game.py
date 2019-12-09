@@ -7,48 +7,61 @@ import socket
 from _thread import *
 
 class Game():
-    def __init__(self,ip,username):
-        self.username=username
-        self.width=1300
-        self.height=700
+    def __init__(self, ip, username):
+        self.username = username
+        self.width = 1300
+        self.height = 700
         self.gameDisplay = pygame.display.set_mode((self.width, self.height))
-        self.backgrounds=[pygame.image.load("sprites/Background anime/frame0.gif"),pygame.image.load("sprites/Background anime/frame1.gif"),pygame.image.load("sprites/Background anime/frame2.gif"),pygame.image.load("sprites/Background anime/frame3.gif"),pygame.image.load("sprites/Background anime/frame4.gif"),pygame.image.load("sprites/Background anime/frame5.gif"),pygame.image.load("sprites/Background anime/frame6.gif"),pygame.image.load("sprites/Background anime/frame7.gif")]
-        self.scaled_backgrounds=[]
-        self.clock=pygame.time.Clock()
-        self.fps=30
-        self.count =100
-        self.music=pygame.mixer.music.load("power_music.wav")
-        self.ip=ip
-        self.p2=None
-        self.p=None
-        self.n=None
-        self.walls=[Map(400,400,44,228,"wall1.png"),Map(600,600,44,228,"wall1.png")]
-        self.wall_rect=[self.walls[0].rect,self.walls[1].rect]
-        self.wall_img=pygame.image.load("wall1.png")
+        self.backgrounds = [
+            pygame.image.load("sprites/Background anime/frame0.gif"),
+            pygame.image.load("sprites/Background anime/frame1.gif"),
+            pygame.image.load("sprites/Background anime/frame2.gif"),
+            pygame.image.load("sprites/Background anime/frame3.gif"),
+            pygame.image.load("sprites/Background anime/frame4.gif"),
+            pygame.image.load("sprites/Background anime/frame5.gif"),
+            pygame.image.load("sprites/Background anime/frame6.gif"),
+            pygame.image.load("sprites/Background anime/frame7.gif")
+        ]
+        self.scaled_backgrounds = []
+        self.clock = pygame.time.Clock()
+        self.fps = 45
+        self.count = 100
+        self.music = pygame.mixer.music.load("power_music.wav")
+        self.ip = ip
+        self.p2 = None
+        self.p = None
+        self.n = None
+        self.walls = [
+            Map(400, 400, 44, 228, "wall1.png"),
+            Map(600, 600, 44, 228, "wall1.png")
+        ]
+        self.wall_rect = [self.walls[0].rect, self.walls[1].rect]
+        self.wall_img = pygame.image.load("wall1.png")
         #self.items=[Collectables(1,"sprite.png")]
-        self.proj_img=pygame.image.load("projectile1.png")
-        self.run=False
-        self.playerObj=None
-        self.secondPlayerObj=None
-        self.players=None
-        self.movement=False
-        self.events=None
-        self.background_index=0
-        self.player1_sprites=["sprite1.png","right.png","left.png"]
-        self.player2_sprites=["sprite2.png","player2right.png","player2left.png"]
-        self.loaded_player1=[]
-        self.loaded_player2=[]
-        self.player1_check=False
-        self.player2_check=False
-        self.arcade_font=pygame.font.Font("Images/arcade.TTF", 12)
-        self.text_font=pygame.font.Font("Images/arcade.TTF", 28)
+        self.proj_img = pygame.image.load("projectile1.png")
+        self.run = False
+        self.playerObj = None
+        self.secondPlayerObj = None
+        self.players = None
+        self.movement = False
+        self.events = None
+        self.background_index = 0
+        self.player1_sprites = ["sprite1.png", "right.png", "left.png"]
+        self.player2_sprites = [
+            "sprite2.png", "player2right.png", "player2left.png"
+        ]
+        self.loaded_player1 = []
+        self.loaded_player2 = []
+        self.arcade_font = pygame.font.Font("Images/arcade.TTF", 12)
+        self.text_font = pygame.font.Font("Images/arcade.TTF", 28)
 
-        self.black=(0,0,0)
-        self.white=(255,255,255)
-        self.yellow=(255,255,0)
-        self.green=(0,255,0)
-        self.blue=(0, 0, 255)
-        self.light_blue=(173, 216, 230)
+        self.black = (0, 0, 0)
+        self.white = (255, 255, 255)
+        self.yellow = (255, 255, 0)
+        self.green = (0, 255, 0)
+        self.blue = (0, 0, 255)
+        self.light_blue = (173, 216, 230)
+
         #self.player1_score=0
         #self.player2_score=0
 
@@ -61,7 +74,7 @@ class Game():
             image=pygame.image.load(j)
             self.loaded_player2.append(image)
 
-    def background_add(self):
+    def background_scale(self):
         for background in self.backgrounds:
             self.scaled_backgrounds.append(pygame.transform.scale(background,
             (self.width,self.height)))
@@ -86,7 +99,7 @@ class Game():
         self.playerObj.draw(self)
         self.secondPlayerObj.draw(self)
 
-        time = self.arcade_font.render(str(self.timer.time_elapsed), 0, self.white)
+        time = self.text_font.render(str(self.timer.time_elapsed), 0, self.white)
         self.gameDisplay.blit(time, (self.width/2, 20))
 
         for bullet in self.playerObj.projectiles:
@@ -97,7 +110,7 @@ class Game():
                     self.playerObj.score+=10
                 elif self.playerObj.player==2:
                     self.player2_score+=10
-                    self.secondPlayerObj.score+=10'''                                            #self.players,self.walls[0],self.walls[1])
+                    self.secondPlayerObj.score+=10'''
             if bullet.should_remove():
                 self.playerObj.remove_projectile(bullet)
                 continue
@@ -195,7 +208,7 @@ class Game():
     def gameloop(self):
         print(self.username)
         self.load_sprites()
-        self.background_add()
+        self.background_scale()
         music=self.music
         pygame.mixer.music.play(-1)
         self.run = True
@@ -209,12 +222,8 @@ class Game():
 
         except:
             print("Cannot connect to server")
-            #self.error()
-        self.player1_check=True
-        #background_index=-1
         self.movement=True
         while self.run:
-            #print(self.playerObj.username)
             if self.background_index>6:
                 self.background_index=0
             else:
