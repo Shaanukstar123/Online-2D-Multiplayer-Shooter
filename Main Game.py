@@ -33,13 +33,14 @@ class Game():
         self.n = None
         self.walls = [
             Map(400, 400, 44, 228, "wall1.png"),
-            Map(600, 600, 44, 228, "wall1.png")
+            Map(600, 250, 44, 228, "wall1.png")
         ]
         self.wall_rect = [self.walls[0].rect, self.walls[1].rect]
         self.wall_img = pygame.image.load("wall1.png")
         #self.items=[Collectables(1,"sprite.png")]
         self.proj_img = pygame.image.load("projectile1.png")
         self.run = False
+        self.countdown_time=100
         self.playerObj = None
         self.secondPlayerObj = None
         self.players = None
@@ -57,13 +58,10 @@ class Game():
 
         self.black = (0, 0, 0)
         self.white = (255, 255, 255)
-        self.yellow = (255, 255, 0)
+        self.yellow = (155,135,12)
         self.green = (0, 255, 0)
         self.blue = (0, 0, 255)
         self.light_blue = (173, 216, 230)
-
-        #self.player1_score=0
-        #self.player2_score=0
 
     def load_sprites(self):
         for i in self.player1_sprites:
@@ -98,8 +96,8 @@ class Game():
         self.gameDisplay.blit(score2, (self.width-40, 50))
         self.playerObj.draw(self)
         self.secondPlayerObj.draw(self)
-
-        time = self.text_font.render(str(self.timer.time_elapsed), 0, self.white)
+        self.backwards_time=(self.countdown_time-(self.timer.time_elapsed))
+        time = self.text_font.render(str(self.backwards_time), 0, self.white)
         self.gameDisplay.blit(time, (self.width/2, 20))
 
         for bullet in self.playerObj.projectiles:
@@ -152,18 +150,14 @@ class Game():
                 #items.remove(i)
                 #print("Object Collected")
     def endgame(self,player1_dead,player1_health,name1,player2_dead,player2_health,name2):
-        colour=(0,0,0)
-        yellow=(255,255,0)
-        green=(0,255,0)
-        blue=(0, 0, 255)
         count=0
 
         new_font = pygame.font.Font("Images/arcade.TTF", 80)
         player_font=pygame.font.Font("Images/arcade.TTF", 60)
-        game_over = new_font.render(str("GAME OVER"), 0, colour)
-        player1=player_font.render(str(name1 +"  wins!"), 0, yellow)
-        player2=player_font.render(str(name2 +"   wins!"), 0, green)
-        tie=player_font.render(str("Match    Tied"), 0, blue)
+        game_over = new_font.render(str("GAME OVER"), 0, self.black)
+        player1=player_font.render(str(name1 +"  wins!"), 0, self.yellow)
+        player2=player_font.render(str(name2 +"   wins!"), 0, self.green)
+        tie=player_font.render(str("Match    Tied"), 0, self.blue)
 
         player1_wins=False
         player2_wins=False
