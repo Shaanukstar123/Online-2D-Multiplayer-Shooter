@@ -26,10 +26,12 @@ class Player():
         self.hitbox=pygame.Rect(self.x, self.y, 45, 68)
         self.username=None
         self.score=score
+        self.jump=False
+        self.jump_position=10
 
     def draw(self,game):
         self.hitbox= pygame.Rect(self.x, self.y, 45, 68)
-        wallie=pygame.Rect(game.walls[1].x, game.walls[1].y+35, 10,10 )
+        wallie=pygame.Rect(game.walls[0].x, game.walls[0].y+35, 10,10 )
         #loaded=[pygame.image.load(sprite[0]),pygame.image.load(sprite[1])]
         image=pygame.image.load(self.display)
         if self.player==1:
@@ -38,49 +40,15 @@ class Player():
             game.gameDisplay.blit(game.loaded_player2[self.direction],(self.x,self.y))
         rect = pygame.Rect(self.x, self.y, 45, 68)
         rect2=pygame.Rect(game.walls[1].x,game.walls[1].y,25,25)
-
         #for wall in walls:
         #wallimg=pygame.image.load(wall.image)
         game.gameDisplay.blit(game.wall_img,(game.walls[0].x,game.walls[0].y))
         #wall2img=pygame.image.load(wall2.image)
         game.gameDisplay.blit(game.wall_img,(game.walls[1].x,game.walls[1].y))
         #pygame.draw.rect(game.gameDisplay,(0,255,0),rect2)
-        pygame.draw.rect(game.gameDisplay,(0,255,0),wallie)
-        #pygame.draw.rect(game.gameDisplay,(99,99,99), rect)
-        if rect.colliderect(game.walls[0].rect) or rect.colliderect(game.walls[1].rect):
-            #print("collided")
-            if self.direction==1 and self.collision_left==False: #make setcollision(col_right,col_left...) instead of if statements.
-                self.collision_right=True
-                self.collision_left=False
-                self.collision_up=False
-                self.collsion_down=False
-            elif self.direction==2 and self.collision_right==False:
-                self.collision_left=True
-                self.collision_right=False
-                self.collision_up=False
-                self.collsion_down=False
-            if (game.walls[0].y>self.y+40) or (game.walls[1].y>self.y+40): #and self.collision_up==False:# #<(game.walls[0].y) or (self.y+40)<(game.walls[1].y) and self.collision_up==False:#or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up==False:
-                self.collision_down=True
-                self.collision_left=False
-                self.collision_right=False
-                self.collision_up=False
-                print("Down")
-            elif (game.walls[0].y+38)<(self.y) or (game.walls[1].y+38)<(self.y): #and self.collision_down==False: #and self.collision_down==False:#<(game.walls[0].y+game.walls[0].height) or (self.y)<(game.walls[1].y+game.walls[1].height): #or (self.y)>(game.walls[1].y+game.walls[1].height/2) and
-                self.collision_up=True
-                self.collsion_down=False
-                self.collision_right=False
-                self.collision_left=False
-                print("UP")
-            elif (game.walls[1].y+38)<(self.y):
-                self.collision_up=True
-                self.collsion_down=False
-                self.collision_right=False
-                self.collision_left=False
-        else:
-            self.collision_right=False
-            self.collision_left=False
-            self.collision_up=False
-            self.collision_down=False
+        pygame.draw.rect(game.gameDisplay,(0,255,0),game.walls[0].rect)
+        #pygame.draw.rect(game.gameDisplay,(99,99,99), wallie)
+        #print(game.walls[0].x,game.walls[0].y,self.y)
             #print("Not collided")
         #print(self.collision_up,self.collision_down,self.collision_right,self.collision_right)
         new_font = pygame.font.Font("Images/arcade.TTF", 28)
@@ -90,26 +58,59 @@ class Player():
             game.gameDisplay.blit(health, (30, 20))
         elif self.player==2:
             game.gameDisplay.blit(health, (width-110, 20))
+        #print("{} {}".format(self.collision_down,self.collision_up))
+
+    def collisions(self,game):
+        for wall in game.walls:
+        #if rect.colliderect(game.walls[0].rect) or rect.colliderect(game.walls[1].rect):
+            if self.hitbox.colliderect(wall):
+                #if wall==game.walls[0]:
+                    #print("collided")
+                if self.direction==1: #make setcollision(col_right,col_left...) instead of if statements.
+                    self.collision_right=True
+                    self.collision_left=False
+                    self.collision_up=False
+                    self.collsion_down=False
+                elif self.direction==2:
+                    self.collision_left=True
+                    self.collision_right=False
+                    self.collision_up=False
+                    self.collsion_down=False
+                if (wall.y>self.y+50) and self.collision_up==False:# #<(game.walls[0].y) or (self.y+40)<(game.walls[1].y) and self.collision_up==False:#or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up==False:
+                    self.collision_down=True
+                    self.collision_left=False
+                    self.collision_right=False
+                    self.collision_up=False
+                    if wall==game.walls[0]:
+                        print("Collided_Down")
+                    else:
+                        print("Not!!!")
+                    print("Down")
+                elif (wall.y)<(self.y) and self.collision_down==False: #or (game.walls[1].y+38)<(self.y): #and self.collision_down==False: #and self.collision_down==False:#<(game.walls[0].y+game.walls[0].height) or (self.y)<(game.walls[1].y+game.walls[1].height): #or (self.y)>(game.walls[1].y+game.walls[1].height/2) and
+                    self.collision_up=True
+                    #self.collsion_down=False
+                    self.collision_right=False
+                    self.collision_left=False
+                    print("UP")
+                '''elif (game.walls[1].y+38)<(self.y):
+                    self.collision_up=True
+                    self.collsion_down=False
+                    self.collision_right=False
+                    self.collision_left=False'''
+            else:
+                self.collision_right=False
+                self.collision_left=False
+                self.collision_up=False
+                self.collision_down=False
+
 
     def move(self,events):
+        if self.y<(height-80):
+            if self.collision_down==False:
+                self.y+=self.gravity
         projectile_sound=pygame.mixer.Sound("laser.wav")
         keys = pygame.key.get_pressed()
         #if pygame.sprite.collide_rect(self.sprite,wall.image)
-        '''Dont use pygame.key.pressed for projectiles because fps makes more than one bullet shoot at a time'''
-        '''if self.x==(wall.x-wall.width/2) and (wall.y-(height/2))<self.y<(wall.y+(height/2)):
-            print("collided right")
-            self.collision_right=True
-            self.collision_left=False
-
-        elif self.x==(wall.x+wall.width/2) and (wall.y-(height/2))<self.y<(wall.y+(height/2)):
-            print("collided left")
-            self.collision_left==True
-            #self.collison_right=False
-        else:
-            self.collision_left = False
-            self.collision_right=False
-        #if self.y<(wall.y+wall.height) and self.y>(wall.y-height):
-            #self.collision_y=True'''
 
         if keys[pygame.K_LEFT]:
             if 0<=self.x and self.collision_left!=True:
@@ -118,29 +119,18 @@ class Player():
                 self.display=self.sprite[2]
 
         if keys[pygame.K_RIGHT]:
-            #print(self.x)
-            if self.x<=width-50:
-                if self.collision_right==False:
-                    self.x += self.speed
-                    self.direction=1
-                    self.display=self.sprite[1]
+            if self.x<=width-50 and self.collision_right==False:
+                self.x += self.speed
+                self.direction=1
+                self.display=self.sprite[1]
 
-        if keys[pygame.K_UP]:
-            if self.collision_up==False:
-                if self.y>0:
-                    self.y -= self.speed*3
-                    '''#if self.y<(wall.y-wall.height/2) or self.y>(wall.x+wall.height/2) and self.collision_x==True:
-                        self.collision_x=False
-                        self.collision_y = False
-                    else:
-                        self.collision_y=True'''
-                #if self.collision_y==False:
+        #if keys[pygame.K_UP]:
+            #if self.y>0 and self.collision_up==False:
+                #self.y -= self.speed*3
 
-
-        elif keys [pygame.K_DOWN]:
-            if self.collision_down==False:
-                if self.y <(height-50):
-                    self.y += self.speed
+        if keys [pygame.K_DOWN]:
+            if self.y <(height-50) and self.collision_down==False:
+                self.y += self.speed
 
         for event in events:
             if event.type == pygame.KEYDOWN:
@@ -149,9 +139,17 @@ class Player():
                         projectile_sound.play()
                         self.projectiles.append(Projectile(self.x, self.y, self.direction, 'projectile1.png', self.player))
 
-        if self.y <(height-80):
-            if self.collision_down==False:
-                self.y+=self.gravity
+                if event.key==pygame.K_UP:
+                    if self.collision_up==False:
+                        self.jump=True
+                        self.jump_positon=self.y
+
+    def jumped(self):
+        self.y-=self.speed*2
+        self.gravity=0
+        if self.y<self.jump_position:
+            self.jump=False
+            self.gravity=8
 
     def remove_projectile(self,proj):
         self.projectiles.remove(proj)
@@ -236,7 +234,6 @@ class Projectile(Player):
                     #print("DEAD")
             #check the boundaries of the projectile and boundaries of player and if they collide, call player.getdamage()
 class Map():
-
     def __init__(self,x,y,width,height,image):
         self.x = x
         self.y = y
