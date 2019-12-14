@@ -32,8 +32,8 @@ class Game():
         self.p = None
         self.n = None
         self.walls = [
-            Map(400, 400, 44, 228, "wall1.png"),
-            Map(600, 250, 44, 228, "wall1.png")
+            Map(450, 400, 44, 228, "wall1.png"),
+            Map(700, 250, 44, 228, "wall1.png")
         ]
         self.wall_rect = [self.walls[0].rect, self.walls[1].rect]
         self.wall_img = pygame.image.load("wall1.png")
@@ -86,6 +86,8 @@ class Game():
 
 
     def redraw_window(self):
+        #if self.secondPlayerObj==True:
+            #self.secondPlayerObj.jump()
         #print("Player1: {} Player2: {}".format(self.player1_score,self.player2_score))
         score1 = self.text_font.render(str(self.playerObj.score), 0, self.white)
         score2 = self.text_font.render(str(self.secondPlayerObj.score), 0, self.white)
@@ -99,6 +101,7 @@ class Game():
         self.backwards_time=(self.countdown_time-(self.timer.time_elapsed))
         time = self.text_font.render(str(self.backwards_time), 0, self.white)
         self.gameDisplay.blit(time, (self.width/2, 20))
+
 
         for bullet in self.playerObj.projectiles:
             if bullet.collides(self)=="hit":
@@ -241,8 +244,10 @@ class Game():
                     pygame.quit()
 
             self.playerObj.move(self.events)
-            self.redraw_window()#(gameDisplay,p, p2,background_index,wall1,wall2,wall_image,projimg)
-            # self.stopclock.show_time(self.secondPlayerObj,self.gameDisplay)
+            self.playerObj.collisions(self)
+            self.redraw_window()
+            if self.playerObj.jump==True:
+                self.playerObj.jumped()
             self.show_username()
             #if stopclock.time
             #health_item.generate(wall_rect)
