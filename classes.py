@@ -11,7 +11,7 @@ class Player():
         self.y = y
         self.player=player
         self.projectiles = []
-        self.speed = 8
+        self.speed = 9
         self.gravity=8
         self.sprite=sprite
         self.direction = direction #1=right, 2=left
@@ -42,9 +42,6 @@ class Player():
         rect2=pygame.Rect(game.walls[1].x,game.walls[1].y,25,25)
         #for wall in walls:
         #wallimg=pygame.image.load(wall.image)
-        game.gameDisplay.blit(game.wall_img,(game.walls[0].x,game.walls[0].y))
-        #wall2img=pygame.image.load(wall2.image)
-        game.gameDisplay.blit(game.wall_img,(game.walls[1].x,game.walls[1].y))
         #pygame.draw.rect(game.gameDisplay,(0,255,0),rect2)
         pygame.draw.rect(game.gameDisplay,(0,255,0),game.walls[0].rect)
         #pygame.draw.rect(game.gameDisplay,(99,99,99), wallie)
@@ -61,48 +58,36 @@ class Player():
         #print("{} {}".format(self.collision_down,self.collision_up))
 
     def collisions(self,game):
+        print("{} {}".format(self.collision_up,self.collision_down))
         for wall in game.walls:
         #if rect.colliderect(game.walls[0].rect) or rect.colliderect(game.walls[1].rect):
             if self.hitbox.colliderect(wall):
                 #if wall==game.walls[0]:
                     #print("collided")
                 if self.direction==1: #make setcollision(col_right,col_left...) instead of if statements.
-                    self.collision_right=True
-                    self.collision_left=False
-                    self.collision_up=False
-                    self.collsion_down=False
-                elif self.direction==2:
-                    self.collision_left=True
-                    self.collision_right=False
-                    self.collision_up=False
-                    self.collsion_down=False
-                if (wall.y>self.y+50) and self.collision_up==False:# #<(game.walls[0].y) or (self.y+40)<(game.walls[1].y) and self.collision_up==False:#or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up==False:
-                    self.collision_down=True
-                    self.collision_left=False
-                    self.collision_right=False
-                    self.collision_up=False
-                    if wall==game.walls[0]:
-                        print("Collided_Down")
-                    else:
-                        print("Not!!!")
-                    print("Down")
-                elif (wall.y)<(self.y) and self.collision_down==False: #or (game.walls[1].y+38)<(self.y): #and self.collision_down==False: #and self.collision_down==False:#<(game.walls[0].y+game.walls[0].height) or (self.y)<(game.walls[1].y+game.walls[1].height): #or (self.y)>(game.walls[1].y+game.walls[1].height/2) and
-                    self.collision_up=True
-                    #self.collsion_down=False
-                    self.collision_right=False
-                    self.collision_left=False
-                    print("UP")
-                '''elif (game.walls[1].y+38)<(self.y):
-                    self.collision_up=True
-                    self.collsion_down=False
-                    self.collision_right=False
-                    self.collision_left=False'''
-            else:
-                self.collision_right=False
-                self.collision_left=False
-                self.collision_up=False
-                self.collision_down=False
+                    self.collision_type(True,False,False,False)
 
+                elif self.direction==2:
+                    self.collision_type(False,True,False,False)
+
+                if (wall.y)<(self.y+15) and self.collision_up==False : #or (game.walls[1].y+38)<(self.y): #and self.collision_down==False: #and self.collision_down==False:#<(game.walls[0].y+game.walls[0].height) or (self.y)<(game.walls[1].y+game.walls[1].height): #or (self.y)>(game.walls[1].y+game.walls[1].height/2) and
+                    self.collision_type(False,False,False,True)
+                    print("UP")
+
+                elif (wall.y>self.y+40) and self.collision_down==False:# #<(game.walls[0].y) or (self.y+40)<(game.walls[1].y) and self.collision_up==False:#or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up==False:
+                    self.collision_type(False,False,True,False)
+
+                    print("Down")
+
+
+            else:
+                self.collision_type(False,False,False,False)
+
+    def collision_type(self,right,left,down,up):
+        self.collision_right = right
+        self.collision_left = left
+        self.collision_down = down
+        self.collision_up = up
 
     def move(self,events):
         if self.y<(height-80):
@@ -113,7 +98,7 @@ class Player():
         #if pygame.sprite.collide_rect(self.sprite,wall.image)
 
         if keys[pygame.K_LEFT]:
-            if 0<=self.x and self.collision_left!=True:
+            if 0<=self.x and self.collision_left==False:
                 self.x -= self.speed
                 self.direction=2
                 self.display=self.sprite[2]
@@ -145,11 +130,13 @@ class Player():
                         self.jump_positon=self.y
 
     def jumped(self):
-        self.y-=self.speed*2
-        self.gravity=0
-        if self.y<self.jump_position:
+        if self.jump==True and self.collision_up==False:
+            self.y-=self.speed*2.5
+        if self.collision_up==True:
             self.jump=False
-            self.gravity=8
+
+        if self.y<self.jump_position+100 and self.jump==True:
+            self.jump=False
 
     def remove_projectile(self,proj):
         self.projectiles.remove(proj)
@@ -241,10 +228,18 @@ class Map():
         self.width = width
         self.image=image
         self.rect = pygame.Rect(self.x,self.y,228,44)
+        self.img = pygame.image.load("wall1.png")
 
     def collision(self,player):
         if (self.x-(self.width/2)<player.x<self.x+(self.width/2)) or(self.y-(self.height/2)<player.y<self.y+(self.height/2)):
             return True
+
+    def draw(self,game):
+        game.gameDisplay.blit(self.img,(self.x, self.y))
+
+        #game.gameDisplay.blit(game.wall_img,(game.walls[0].x,game.walls[0].y))
+        #wall2img=pygame.image.load(wall2.image)
+        #game.gameDisplay.blit(game.wall_img,(game.walls[1].x,game.walls[1].y))
 
     '''def draw(self,gameDisplay):
         wall1=pygame.image.load(self.image)
