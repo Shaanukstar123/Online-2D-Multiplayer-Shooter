@@ -58,7 +58,11 @@ class Player():
         #print("{} {}".format(self.collision_down,self.collision_up))
 
     def collisions(self,game):
-        print("{} {}".format(self.collision_up,self.collision_down))
+        if self.collision_down==True:
+            self.gravity=0
+        else:
+            self.gravity = 8
+
         for wall in game.walls:
         #if rect.colliderect(game.walls[0].rect) or rect.colliderect(game.walls[1].rect):
             if self.hitbox.colliderect(wall):
@@ -72,12 +76,11 @@ class Player():
 
                 if (wall.y)<(self.y+15) and self.collision_up==False : #or (game.walls[1].y+38)<(self.y): #and self.collision_down==False: #and self.collision_down==False:#<(game.walls[0].y+game.walls[0].height) or (self.y)<(game.walls[1].y+game.walls[1].height): #or (self.y)>(game.walls[1].y+game.walls[1].height/2) and
                     self.collision_type(False,False,False,True)
-                    print("UP")
+                    print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
 
-                elif (wall.y>self.y+40) and self.collision_down==False:# #<(game.walls[0].y) or (self.y+40)<(game.walls[1].y) and self.collision_up==False:#or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up==False:
+                elif (wall.y)>(self.y+40) and self.collision_down==False:# #<(game.walls[0].y) or (self.y+40)<(game.walls[1].y) and self.collision_up==False:#or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up==False:
                     self.collision_type(False,False,True,False)
-
-                    print("Down")
+                    print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
 
 
             else:
@@ -90,13 +93,13 @@ class Player():
         self.collision_up = up
 
     def move(self,events):
-        if self.y<(height-80):
-            if self.collision_down==False:
-                self.y+=self.gravity
         projectile_sound=pygame.mixer.Sound("laser.wav")
         keys = pygame.key.get_pressed()
         #if pygame.sprite.collide_rect(self.sprite,wall.image)
-
+        if self.y<(height-80) and self.collision_down==False:
+            self.y+=self.gravity
+        else:
+            print("Cannot Fall")
         if keys[pygame.K_LEFT]:
             if 0<=self.x and self.collision_left==False:
                 self.x -= self.speed
