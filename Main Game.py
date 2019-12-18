@@ -33,7 +33,8 @@ class Game():
         self.n = None
         self.walls = [
             Map(450, 400, 44, 228, "wall1.png"),
-            Map(700, 250, 44, 228, "wall1.png")
+            Map(700, 250, 44, 228, "wall1.png"),
+            Map(200, 500, 44, 22, "wall1.png")
         ]
         self.wall_rect = [self.walls[0].rect, self.walls[1].rect]
         self.wall_img = pygame.image.load("wall1.png")
@@ -86,6 +87,9 @@ class Game():
 
 
     def redraw_window(self):
+        #self.secondPlayerObj.collisions(self)
+        self.playerObj.jumped()
+        self.secondPlayerObj.jumped()
         #if self.secondPlayerObj==True:
             #self.secondPlayerObj.jump()
         #print("Player1: {} Player2: {}".format(self.player1_score,self.player2_score))
@@ -102,6 +106,9 @@ class Game():
         time = self.text_font.render(str(self.backwards_time), 0, self.white)
         self.gameDisplay.blit(time, (self.width/2, 20))
 
+
+        for wall in self.walls:
+            wall.draw(self)
 
         for bullet in self.playerObj.projectiles:
             if bullet.collides(self)=="hit":
@@ -242,12 +249,10 @@ class Game():
                 if event.type == pygame.QUIT:
                     self.run = False
                     pygame.quit()
-
-            self.playerObj.move(self.events)
             self.playerObj.collisions(self)
+            self.playerObj.move(self)
+
             self.redraw_window()
-            if self.playerObj.jump==True:
-                self.playerObj.jumped()
             self.show_username()
             #if stopclock.time
             #health_item.generate(wall_rect)
