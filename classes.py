@@ -28,6 +28,7 @@ class Player():
         self.score=score
         self.jump=False
         self.jump_position=10
+        self.counter=0
 
     def draw(self,game):
         self.hitbox= pygame.Rect(self.x, self.y, 45, 68)
@@ -62,36 +63,33 @@ class Player():
         for wall in game.walls:
         #if rect.colliderect(game.walls[0].rect) or rect.colliderect(game.walls[1].rect):
             if self.hitbox.colliderect(wall):
+                self.counter=0
                 #if wall==game.walls[0]:
                     #print("collided")
                 if self.direction==1: #make setcollision(col_right,col_left...) instead of if statements.
                     self.collision_type(True,False,False,False)
-                else:
-                    self.collision_right=False
 
-                if self.direction==2:
+                elif self.direction==2:
                     self.collision_type(False,True,False,False)
-                else:
-                    self.collision_left=False
-
-                if (wall.y)<(self.y+15): #or (game.walls[1].y+38)<(self.y): #and self.collision_down==False: #and self.collision_down==False:#<(game.walls[0].y+game.walls[0].height) or (self.y)<(game.walls[1].y+game.walls[1].height): #or (self.y)>(game.walls[1].y+game.walls[1].height/2) and
-                    self.collision_type(False,False,False,True)
-                    #print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
-                else:
-                    self.collision_up=False
-                    self.collsion_down=False
 
                 if (wall.y)>(self.y+40):# #<(game.walls[0].y) or (self.y+40)<(game.walls[1].y) and self.collision_up==False:#or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up==False:
                     self.collision_type(False,False,True,False)
-                    #print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
-                else:
-                    self.collision_down=False
-                    self.collision_up=False
+                    print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
 
+                if (wall.y)<(self.y-34): #or (game.walls[1].y+38)<(self.y): #and self.collision_down==False: #and self.collision_down==False:#<(game.walls[0].y+game.walls[0].height) or (self.y)<(game.walls[1].y+game.walls[1].height): #or (self.y)>(game.walls[1].y+game.walls[1].height/2) and
+                    self.collision_type(False,False,False,True)
+                    print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
 
             else:
+                self.counter+=1
+                if self.counter>2:
+                    self.collision_type(False,False,False,False)
+
+                '''if self.x>wall.x+wall.width/2 or self.x<wall.x-wall.width/2:
+                    self.collision_down=False
+                    self.collsion_up=False
                 print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
-                #self.collision_type(False,False,False,False)
+                #self.collision_type(False,False,False,False)'''
 
 
     def collision_type(self,right,left,down,up):
@@ -99,6 +97,13 @@ class Player():
         self.collision_left = left
         self.collision_down = down
         self.collision_up = up
+
+    '''def collision_check(self,wall):
+        if self.x>=wall.x-wall.width/2 and self.x<=wall.x+wall.width/2:
+            if self.y+30<=wall.y+wall.height/2 and self.y-30>=wall.y-wall.height/2:
+                return True
+            else:
+                return False'''
 
     def move(self,game):
 
