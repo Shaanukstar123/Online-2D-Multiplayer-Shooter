@@ -32,11 +32,10 @@ class Game():
         self.p = None
         self.n = None
         self.walls = [
-            Map(450, 400, 44, 228, "wall1.png"),
-            Map(700, 250, 44, 228, "wall1.png"),
-            Map(200, 500, 44, 22, "wall1.png")
+            Map(900, 500, 44, 228, "wall1.png"),
+            Map(600, 250, 44, 228, "wall1.png"),
+            Map(200, 350, 44, 22, "wall1.png")
         ]
-        self.wall_rect = [self.walls[0].rect, self.walls[1].rect]
         self.wall_img = pygame.image.load("wall1.png")
         #self.items=[Collectables(1,"sprite.png")]
         self.proj_img = pygame.image.load("projectile1.png")
@@ -54,6 +53,7 @@ class Game():
         ]
         self.loaded_player1 = []
         self.loaded_player2 = []
+        self.collectable=None
         self.arcade_font = pygame.font.Font("Images/arcade.TTF", 12)
         self.text_font = pygame.font.Font("Images/arcade.TTF", 28)
 
@@ -88,8 +88,8 @@ class Game():
 
     def redraw_window(self):
         #self.secondPlayerObj.collisions(self)
-        self.playerObj.jumped()
-        self.secondPlayerObj.jumped()
+        #self.playerObj.jumped()
+        #self.secondPlayerObj.jumped()
         #if self.secondPlayerObj==True:
             #self.secondPlayerObj.jump()
         #print("Player1: {} Player2: {}".format(self.player1_score,self.player2_score))
@@ -223,6 +223,7 @@ class Game():
             print(self.p['player'])
             self.playerObj = self.p['player']
             self.timer = self.p['timer']
+            self.collectable=self.p['collectable']
 
         except:
             print("Cannot connect to server")
@@ -236,6 +237,7 @@ class Game():
 
             self.secondPlayerObj=self.p2['player']
             self.timer = self.p2['timer']
+            self.collectable = self.p2['collectable']
 
             self.players=[self.playerObj,self.secondPlayerObj]
 
@@ -254,9 +256,6 @@ class Game():
 
             self.redraw_window()
             self.show_username()
-            #if stopclock.time
-            #health_item.generate(wall_rect)
-            #health_item.display_items(gameDisplay,stopclock.time)
             if self.playerObj.dead==True or self.secondPlayerObj.dead==True: #or self.secondPlayerObj.dead==True :
                 self.run=False
                 self.endgame(self.playerObj.dead,self.playerObj.health,str(self.playerObj.username),self.secondPlayerObj.dead,self.secondPlayerObj.health,str(self.secondPlayerObj.username))#(playerObj,gameDisplay)
