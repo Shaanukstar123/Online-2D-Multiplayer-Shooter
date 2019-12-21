@@ -12,7 +12,7 @@ class Player():
         self.player=player
         self.projectiles = []
         self.speed = 9
-        self.gravity=8
+        self.gravity=10
         self.sprite=sprite
         self.direction = direction #1=right, 2=left
         self.health=100
@@ -28,6 +28,8 @@ class Player():
         self.score=score
         self.jump=False
         self.jump_position=10
+        self.jump_speed=10
+        self.jump_direction=None
         self.counter=0
 
     def draw(self,game):
@@ -64,19 +66,18 @@ class Player():
         #if rect.colliderect(game.walls[0].rect) or rect.colliderect(game.walls[1].rect):
             if self.hitbox.colliderect(wall):
                 self.counter=0
-                #if wall==game.walls[0]:
-                    #print("collided")
+
                 if self.direction==1: #make setcollision(col_right,col_left...) instead of if statements.
                     self.collision_type(True,False,False,False)
 
                 elif self.direction==2:
                     self.collision_type(False,True,False,False)
 
-                if (wall.y)>(self.y+40):# #<(game.walls[0].y) or (self.y+40)<(game.walls[1].y) and self.collision_up==False:#or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up==False:
+                if (wall.y)>(self.y+40) or self.y<(game.height-80):# #<(game.walls[0].y) or (self.y+40)<(game.walls[1].y) and self.collision_up==False:#or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up==False:
                     self.collision_type(False,False,True,False)
                     print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
 
-                if (wall.y)<(self.y-34): #or (game.walls[1].y+38)<(self.y): #and self.collision_down==False: #and self.collision_down==False:#<(game.walls[0].y+game.walls[0].height) or (self.y)<(game.walls[1].y+game.walls[1].height): #or (self.y)>(game.walls[1].y+game.walls[1].height/2) and
+                if (wall.y)<(self.y+34): #or (game.walls[1].y+38)<(self.y): #and self.collision_down==False: #and self.collision_down==False:#<(game.walls[0].y+game.walls[0].height) or (self.y)<(game.walls[1].y+game.walls[1].height): #or (self.y)>(game.walls[1].y+game.walls[1].height/2) and
                     self.collision_type(False,False,False,True)
                     print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
 
@@ -84,12 +85,6 @@ class Player():
                 self.counter+=1
                 if self.counter>2:
                     self.collision_type(False,False,False,False)
-
-                '''if self.x>wall.x+wall.width/2 or self.x<wall.x-wall.width/2:
-                    self.collision_down=False
-                    self.collsion_up=False
-                print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
-                #self.collision_type(False,False,False,False)'''
 
 
     def collision_type(self,right,left,down,up):
@@ -107,11 +102,20 @@ class Player():
 
     def move(self,game):
 
-        projectile_sound=pygame.mixer.Sound("laser.wav")
         keys = pygame.key.get_pressed()
+        if self.y<(game.height-80) and self.collision_down==False and self.jump==False:
+            if self.gravity > 0:
+            #self.y+=self.gravity
+                self.y-=(self.gravity ** 2) * 0.1 * (-1)
+                self.gravity -= 0.01
+                print(self.y,game.height-80,self.jump)
+            else:
+                self.gravity=10
+        else:
+            self.gravity=10
+
+        projectile_sound=pygame.mixer.Sound("laser.wav")
         #if pygame.sprite.collide_rect(self.sprite,wall.image)
-        if self.y<(height-80) and self.collision_down==False:
-            self.y+=self.gravity
         if keys[pygame.K_LEFT]:
             if 0<=self.x and self.collision_left==False:
                 self.x -= self.speed
@@ -124,14 +128,28 @@ class Player():
                 self.direction=1
                 self.display=self.sprite[1]
 
-        #if keys[pygame.K_UP]:
-            #if self.y>0 and self.collision_up==False:
-                #self.y -= self.speed*3
+        if self.jump==False:
+            if keys[pygame.K_UP]:
+                self.jump=True
+                #if self.y>0 and self.collision_up==False:
+                    #self.y -= self.speed*3
+            if keys [pygame.K_DOWN]:
+                if self.y <(height-80) and self.collision_down==False:
+                    self.y += self.speed
+        else:
+            if self.jump_speed > -10 and self.collision_up==False and self.y>0 :
+                self.jump_direction=1
+                if self.jump_speed<0:
+                    self.jump_direction=-1
+                self.y -= ((self.jump_speed ** 2) * 0.1 * self.jump_direction)+20
+                self.jump_speed -= 1
 
-        if keys [pygame.K_DOWN]:
-            if self.y <(height-50) and self.collision_down==False:
-                self.y += self.speed
-
+            else:
+                self.jump=False
+                self.jump_speed=10
+                    #if self.collision_up==False:
+                        #self.jump=True
+                        #self.jump_positon=self.y
         for event in game.events:
             if event.type == pygame.KEYDOWN:
                 if event.key==pygame.K_SPACE:
@@ -139,19 +157,18 @@ class Player():
                         projectile_sound.play()
                         self.projectiles.append(Projectile(self.x, self.y, self.direction, 'projectile1.png', self.player))
 
-                if event.key==pygame.K_UP:
-                    if self.collision_up==False:
-                        self.jump=True
-                        self.jump_positon=self.y
+                #if event.key==pygame.K_UP:
+                    #self.jump=True
 
-    def jumped(self):
+    '''def jumped(self):
         if self.jump==True and self.collision_up==False:
             self.y-=self.speed*2.5
         if self.collision_up==True:
             self.jump=False
-
         if self.y<self.jump_position+100 and self.jump==True:
-            self.jump=False
+            self.jump=False'''
+
+    #def acc(self,direction):
 
     def remove_projectile(self,proj):
         self.projectiles.remove(proj)
@@ -260,43 +277,5 @@ class Map():
         wall1=pygame.image.load(self.image)
         wall = pygame.Rect(self.x,self.y,228,44)
         gameDisplay.blit(wall1,(self.x,self.y))'''
-
-class CollectableList():
-    def __init__(self):
-        self.items = []
-
-    def add(self, item):
-        pass
-
-    def get(self, id):
-        pass
-
-class Collectable():
-    def __init__(self,item,sprite):
-        self.item=item
-        self.sprite=sprite
-        self.x=random.randint(0,width)
-        self.y=random.randint(0,height)
-        self.life = 300
-        self.hitbox=pygame.Rect(self.x,self.y,20,20)
-        self.correct_position=False
-
-    def generate(self,wall):
-        self.x=random.randint(0,width)
-        self.y=random.randint(0,height)
-        self.hitbox=pygame.Rect(self.x,self.y,40,40)
-        if self.hitbox.colliderect(wall):
-            self.correct_position=False
-        else:
-            self.correct_position=True
-        if self.correct_position==False:
-            self.generate(wall)
-
-    def display_items(self,gameDisplay):
-        object = pygame.Rect(self.x,self.y,40,40)
-        self.life -= 1
-        pygame.draw.rect(gameDisplay,(99,99,99), object)
-
-    #def spawn(self):
 
 '''single underscore under name = private method/attribute'''
