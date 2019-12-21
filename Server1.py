@@ -4,6 +4,7 @@ import sys
 from classes import *
 import pickle
 from timer import *
+from collectables import *
 
 totalConnections = 0
 #server = "192.168.1.224"
@@ -21,16 +22,17 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection, Server Started")
 timer = Timer()
+item=Collectable()
 #collectables = CollectableList()
 #players=[Player(0,0,"sprite1.png"),Player(100,100,"sprite2.png")]
 all_data = [{
     'player':Player(0,0,["sprite1.png","right.png","left.png"],1,1,0),
     "timer": timer,
-    #"collectables": items
+    "collectable": item
 }, {
     'player': Player(100,100,["sprite2.png","player2right.png","player2left.png"],2,2,0),
     "timer": timer,
-    #"collectables": items
+    "collectable": item
 }]
 '''talk about why parallel data sets not sent due to synch issues and buffer needed'''
 #all_data[0]
@@ -45,7 +47,7 @@ def threaded_client(conn, player):
     print("TIMER STARTED:" + str(timer.has_started))
     while True:
         try:
-            data = pickle.loads(conn.recv(2048*3))
+            data = pickle.loads(conn.recv(2048*2))
             all_data[player] = data
 
             if not data:
