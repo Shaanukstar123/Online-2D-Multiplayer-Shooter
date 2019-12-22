@@ -141,7 +141,7 @@ class Player():
                 self.jump_direction=1
                 if self.jump_speed<0:
                     self.jump_direction=-1
-                self.y -= ((self.jump_speed ** 2) * 0.1 * self.jump_direction)+20
+                self.y -= ((self.jump_speed ** 2) * 0.1 * self.jump_direction)+15
                 self.jump_speed -= 1
 
             else:
