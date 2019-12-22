@@ -42,9 +42,10 @@ class Collectable():
             return True
 
 
-    def display(self,gameDisplay):
+    def display(self,gameDisplay,images,index):
+        for image in images:
+            gameDisplay.blit(images[index],(self.x,self.y))
         object = pygame.Rect(self.x,self.y,40,40)
-        self.life -= 1
-        pygame.draw.rect(gameDisplay,(99,99,99), object)
+        #pygame.draw.rect(gameDisplay,(99,99,99), object)
 
     #def spawn(self):
