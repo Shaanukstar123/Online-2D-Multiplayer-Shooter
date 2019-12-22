@@ -58,6 +58,21 @@ class Game():
         self.arcade_font = pygame.font.Font("Images/arcade.TTF", 12)
         self.text_font = pygame.font.Font("Images/arcade.TTF", 28)
 
+        self.speed_ball=[
+            pygame.image.load("Images/SpeedBall/1.gif"),
+            pygame.image.load("Images/SpeedBall/2.gif"),
+            pygame.image.load("Images/SpeedBall/3.gif"),
+            pygame.image.load("Images/SpeedBall/4.gif"),
+            pygame.image.load("Images/SpeedBall/5.gif"),
+            pygame.image.load("Images/SpeedBall/6.gif"),
+            pygame.image.load("Images/SpeedBall/7.gif"),
+            pygame.image.load("Images/SpeedBall/8.gif"),
+            pygame.image.load("Images/SpeedBall/9.gif"),
+            pygame.image.load("Images/SpeedBall/10.gif")
+        ]
+
+
+        self.image_index = 0
         self.black = (0, 0, 0)
         self.white = (255, 255, 255)
         self.yellow = (155,135,12)
@@ -163,10 +178,13 @@ class Game():
 
 
     def collectables(self):
+        if self.image_index>8:
+            self.image_index=0
+        self.image_index+=1
         if len(self.collectable_list)>0:
             for item in self.collectable_list:
                 print(item.life)
-                item.display(self.gameDisplay)
+                item.display(self.gameDisplay,self.speed_ball,self.image_index)
 
     def endgame(self,player1_dead,player1_health,name1,player2_dead,player2_health,name2):
         count=0
