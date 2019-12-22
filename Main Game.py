@@ -1,6 +1,7 @@
 import pygame
 from Network import Network
 from classes import *
+from collectables import *
 from MainMenu import menu
 import time
 import socket
@@ -53,7 +54,7 @@ class Game():
         ]
         self.loaded_player1 = []
         self.loaded_player2 = []
-        self.collectable=None
+        self.collectable_list=None
         self.arcade_font = pygame.font.Font("Images/arcade.TTF", 12)
         self.text_font = pygame.font.Font("Images/arcade.TTF", 28)
 
@@ -159,6 +160,14 @@ class Game():
             #if i.x==playerObj.x:
                 #items.remove(i)
                 #print("Object Collected")
+
+
+    def collectables(self):
+        if len(self.collectable_list)>0:
+            for item in self.collectable_list:
+                print(item.life)
+                item.display(self.gameDisplay)
+
     def endgame(self,player1_dead,player1_health,name1,player2_dead,player2_health,name2):
         count=0
 
@@ -193,7 +202,7 @@ class Game():
                 game_tie=True
         while True:
             if count==12:
-                start_check()
+                start_check(self.username)
             count+=1
             self.gameDisplay.fill((255,255,255))
             self.gameDisplay.blit(game_over, ((width/2) - (200), (height/2)))
@@ -237,7 +246,8 @@ class Game():
 
             self.secondPlayerObj=self.p2['player']
             self.timer = self.p2['timer']
-            self.collectable = self.p2['collectable']
+            self.collectable_list = self.p2['collectable']
+            #print(self.collectable_list)
 
             self.players=[self.playerObj,self.secondPlayerObj]
 
@@ -256,6 +266,7 @@ class Game():
 
             self.redraw_window()
             self.show_username()
+            self.collectables()
             if self.playerObj.dead==True or self.secondPlayerObj.dead==True: #or self.secondPlayerObj.dead==True :
                 self.run=False
                 self.endgame(self.playerObj.dead,self.playerObj.health,str(self.playerObj.username),self.secondPlayerObj.dead,self.secondPlayerObj.health,str(self.secondPlayerObj.username))#(playerObj,gameDisplay)
