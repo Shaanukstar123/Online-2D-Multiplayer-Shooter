@@ -5,6 +5,8 @@ from classes import *
 import pickle
 from timer import *
 from collectables import *
+import random
+import pygame
 
 totalConnections = 0
 #server = "192.168.1.224"
@@ -22,22 +24,26 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection, Server Started")
 timer = Timer()
-item=Collectable()
+#item=Collectable()
+spawn_chance = 5
+itemlist=[]
 #collectables = CollectableList()
 #players=[Player(0,0,"sprite1.png"),Player(100,100,"sprite2.png")]
 all_data = [{
     'player':Player(0,0,["sprite1.png","right.png","left.png"],1,1,0),
     "timer": timer,
-    "collectable": item
+    "collectable": itemlist
 }, {
     'player': Player(100,100,["sprite2.png","player2right.png","player2left.png"],2,2,0),
     "timer": timer,
-    "collectable": item
+    "collectable": itemlist
 }]
 '''talk about why parallel data sets not sent due to synch issues and buffer needed'''
 #all_data[0]
 
 timerHasStarted = False
+
+walls=[pygame.Rect(900,500,228,44),pygame.Rect(600, 250, 44, 228),pygame.Rect(200,350,228,44)]
 
 def threaded_client(conn, player):
     global totalConnections, timerHasStarted, timer
@@ -57,6 +63,8 @@ def threaded_client(conn, player):
             else:
                 all_data[0]['timer'] = timer
                 all_data[1]['timer'] = timer
+                all_data[0]['collectable'] = itemlist
+                all_data[1]['collectable'] = itemlist
                 print("TIMERS =============")
                 print(timer.time_elapsed)
                 print(all_data[0]['timer'].time_elapsed)
@@ -67,6 +75,14 @@ def threaded_client(conn, player):
                         print("STARTING")
                         timer.start()
                         timerHasStarted = True
+                    shouldSpawn = random.randint(0,5000)
+                    if shouldSpawn < spawn_chance:
+                        item=Collectable()
+                        itemlist.append(item)
+                    for item in itemlist:
+                        item.life-=1
+                        if item.life<=0:
+                            itemlist.remove(item)
 
                 if player == 1:
                     reply = all_data[0]
