@@ -25,7 +25,7 @@ s.listen(2)
 print("Waiting for a connection, Server Started")
 timer = Timer()
 #item=Collectable()
-spawn_chance = 5
+spawn_chance = 15
 itemlist=[]
 #collectables = CollectableList()
 #players=[Player(0,0,"sprite1.png"),Player(100,100,"sprite2.png")]
@@ -63,12 +63,10 @@ def threaded_client(conn, player):
             else:
                 all_data[0]['timer'] = timer
                 all_data[1]['timer'] = timer
-                all_data[0]['collectable'] = itemlist
-                all_data[1]['collectable'] = itemlist
-                print("TIMERS =============")
-                print(timer.time_elapsed)
-                print(all_data[0]['timer'].time_elapsed)
-                print("=========================")
+                #print("TIMERS =============")
+                #print(timer.time_elapsed)
+                #print(all_data[0]['timer'].time_elapsed)
+                #print("=========================")
 
                 if totalConnections == 2:
                     if not timerHasStarted:
@@ -78,11 +76,18 @@ def threaded_client(conn, player):
                     shouldSpawn = random.randint(0,5000)
                     if shouldSpawn < spawn_chance:
                         item=Collectable()
-                        itemlist.append(item)
+                        if item.generate(walls):
+                            itemlist.append(item)
                     for item in itemlist:
+                        print(item.collected)
                         item.life-=1
-                        if item.life<=0:
+                        if item.life<=0 or item.collected==True:
                             itemlist.remove(item)
+                    all_data[0]['collectable'] = itemlist
+                    all_data[1]['collectable'] = itemlist
+                        #if item.collected == True:
+                            #itemlist.remove(item)
+                    print(len((itemlist)))
 
                 if player == 1:
                     reply = all_data[0]
