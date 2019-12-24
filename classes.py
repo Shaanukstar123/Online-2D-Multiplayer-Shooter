@@ -31,6 +31,7 @@ class Player():
         self.jump_speed=10
         self.jump_direction=None
         self.counter=0
+        self.items=[]
 
     def draw(self,game):
         self.hitbox= pygame.Rect(self.x, self.y, 45, 68)
@@ -64,7 +65,7 @@ class Player():
 
         for wall in game.walls:
         #if rect.colliderect(game.walls[0].rect) or rect.colliderect(game.walls[1].rect):
-            if self.hitbox.colliderect(wall):
+            if self.hitbox.colliderect(wall.rect):
                 self.counter=0
 
                 if self.direction==1: #make setcollision(col_right,col_left...) instead of if statements.
@@ -75,11 +76,11 @@ class Player():
 
                 if (wall.y)>(self.y+40) or self.y<(game.height-80):# #<(game.walls[0].y) or (self.y+40)<(game.walls[1].y) and self.collision_up==False:#or(self.y+40)<(game.walls[1].y+game.walls[1].height/2) and self.collision_up==False:
                     self.collision_type(False,False,True,False)
-                    print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
+                    #print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
 
                 if (wall.y)<(self.y+34): #or (game.walls[1].y+38)<(self.y): #and self.collision_down==False: #and self.collision_down==False:#<(game.walls[0].y+game.walls[0].height) or (self.y)<(game.walls[1].y+game.walls[1].height): #or (self.y)>(game.walls[1].y+game.walls[1].height/2) and
                     self.collision_type(False,False,False,True)
-                    print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
+                    #print("UP: {} Down: {}".format(self.collision_up,self.collision_down))
 
             else:
                 self.counter+=1
@@ -108,7 +109,7 @@ class Player():
             #self.y+=self.gravity
                 self.y-=(self.gravity ** 2) * 0.1 * (-1)
                 self.gravity -= 0.01
-                print(self.y,game.height-80,self.jump)
+                #print(self.y,game.height-80,self.jump)
             else:
                 self.gravity=10
         else:
@@ -157,18 +158,25 @@ class Player():
                         projectile_sound.play()
                         self.projectiles.append(Projectile(self.x, self.y, self.direction, 'projectile1.png', self.player))
 
-                #if event.key==pygame.K_UP:
-                    #self.jump=True
-
-    '''def jumped(self):
-        if self.jump==True and self.collision_up==False:
-            self.y-=self.speed*2.5
-        if self.collision_up==True:
-            self.jump=False
-        if self.y<self.jump_position+100 and self.jump==True:
-            self.jump=False'''
-
-    #def acc(self,direction):
+    '''def collectables(self,game):
+        if game.image_index>8:
+            game.image_index=0
+        game.image_index+=1
+        if len(self.items)>0:
+            for item in self.items:
+                if item is None:
+                    continue
+                else:
+                    item.generate(game.walls)
+                    if item.collect(self):
+                        #self.items.remove(item)
+                        #self.items.remove(item)
+                        #self.items.append(item.type)
+                        print(self.items)
+                        #self.collectable_list.remove(item)
+                        print(len(self.items))
+                    else:
+                        item.display(game.gameDisplay,game.speed_ball,game.image_index)'''
 
     def remove_projectile(self,proj):
         self.projectiles.remove(proj)
