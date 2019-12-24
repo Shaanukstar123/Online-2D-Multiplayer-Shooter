@@ -121,6 +121,9 @@ class Game():
         self.backwards_time=(self.countdown_time-(self.timer.time_elapsed))
         time = self.text_font.render(str(self.backwards_time), 0, self.white)
         self.gameDisplay.blit(time, (self.width/2, 20))
+        self.collectables()
+        #self.playerObj.collectables(self)
+        #self.secondPlayerObj.collectables(self)
 
 
         for wall in self.walls:
@@ -176,15 +179,21 @@ class Game():
                 #items.remove(i)
                 #print("Object Collected")
 
-
     def collectables(self):
         if self.image_index>8:
             self.image_index=0
         self.image_index+=1
         if len(self.collectable_list)>0:
             for item in self.collectable_list:
-                print(item.life)
-                item.display(self.gameDisplay,self.speed_ball,self.image_index)
+                    if item.collect(self.playerObj):
+                        self.playerObj.items.append(item.type)
+                        self.collectable_list.remove(item)
+                        continue
+                        #self.collectable_list.remove(item)
+                    if item.collected==False:
+                        item.display(self.gameDisplay,self.speed_ball,self.image_index)
+                    print(item.collected)
+                    print(len(self.collectable_list))
 
     def endgame(self,player1_dead,player1_health,name1,player2_dead,player2_health,name2):
         count=0
@@ -250,7 +259,7 @@ class Game():
             print(self.p['player'])
             self.playerObj = self.p['player']
             self.timer = self.p['timer']
-            self.collectable=self.p['collectable']
+            self.collectable_list = self.p['collectable']
 
         except:
             print("Cannot connect to server")
@@ -261,7 +270,6 @@ class Game():
             else:
                 self.background_index+=0.30
             self.p2 = self.n.send(self.p)
-
             self.secondPlayerObj=self.p2['player']
             self.timer = self.p2['timer']
             self.collectable_list = self.p2['collectable']
@@ -281,10 +289,8 @@ class Game():
                     pygame.quit()
             self.playerObj.collisions(self)
             self.playerObj.move(self)
-
             self.redraw_window()
             self.show_username()
-            self.collectables()
             if self.playerObj.dead==True or self.secondPlayerObj.dead==True: #or self.secondPlayerObj.dead==True :
                 self.run=False
                 self.endgame(self.playerObj.dead,self.playerObj.health,str(self.playerObj.username),self.secondPlayerObj.dead,self.secondPlayerObj.health,str(self.secondPlayerObj.username))#(playerObj,gameDisplay)
