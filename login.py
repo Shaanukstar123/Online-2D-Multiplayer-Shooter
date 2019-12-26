@@ -35,7 +35,7 @@ class Login_system():
         with sqlite3.connect("playerdata.db") as db:
             cursor =db.cursor()
         player_search=("SELECT * FROM player WHERE username=?  and password=?")
-        cursor.execute(player_search,[self.username.get(),self.password.get ()])
+        cursor.execute(player_search,[self.username.get(),self.encrypt(self.password.get ())])
         returned = cursor.fetchall()
         if returned:
             self.logframe.pack_forget()
@@ -61,8 +61,17 @@ class Login_system():
             ms.showinfo("Success","Account created successfully")
             self.log_frame()
         store = 'INSERT INTO player(username,password) VALUES(?,?)'
-        cursor.execute(store,[(self.new_username.get()),(self.new_pass.get())])
+        cursor.execute(store,[(self.new_username.get()),self.encrypt((self.new_pass.get()))])
         db.commit()
+
+    def encrypt(self,password):
+        password_list  = [ord(i) for i in password]
+        new_password_list=[]
+        for char in password_list:
+            new_password_list.append(char+2)
+        new_pass=''.join(chr(i) for i in new_password_list)
+        return new_pass
+
 
     def log_frame(self):
         self.username.set('')
