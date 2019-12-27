@@ -16,7 +16,7 @@ from MainGame import *
 
 with sqlite3.connect("playerdata.db") as db:
     cursor =db.cursor()
-cursor.execute ("CREATE TABLE IF NOT EXISTS player(username TEXT NOT NULL, password TEXT NOT NULL, highscores INTEGER)")
+cursor.execute ("CREATE TABLE IF NOT EXISTS player(username TEXT NOT NULL, password TEXT NOT NULL, highscores INTEGER NOT NULL)")
 db.commit()
 db.close()
 
