@@ -1,6 +1,9 @@
 import pygame
 import os
 import subprocess
+from highscores import Records
+from tkinter import*
+import sqlite3
 
 def menu(start):
     pygame.init()
@@ -25,13 +28,13 @@ def menu(start):
     backgrounds=[]
 
     anime1=pygame.image.load("Images/tmp-0.gif")
-    anime2=pygame.image.load('Images/tmp-1.gif')
-    anime3=pygame.image.load('Images/tmp-2.gif')
-    anime4=pygame.image.load('Images/tmp-3.gif')
-    anime5=pygame.image.load('Images/tmp-4.gif')
-    anime6=pygame.image.load('Images/tmp-5.gif')
-    anime7=pygame.image.load('Images/tmp-6.gif')
-    anime8=pygame.image.load('Images/tmp-7.gif')
+    anime2=pygame.image.load("Images/tmp-1.gif")
+    anime3=pygame.image.load("Images/tmp-2.gif")
+    anime4=pygame.image.load("Images/tmp-3.gif")
+    anime5=pygame.image.load("Images/tmp-4.gif")
+    anime6=pygame.image.load("Images/tmp-5.gif")
+    anime7=pygame.image.load("Images/tmp-6.gif")
+    anime8=pygame.image.load("Images/tmp-7.gif")
 
     backgrounds.append(pygame.transform.scale(anime1,(width,height)))
     backgrounds.append(pygame.transform.scale(anime2,(width,height)))
@@ -104,6 +107,8 @@ def menu(start):
                 text_quit = process_text("QUIT", font, font_size, yellow)
             if selected == "highscores":
                 text_highscores=process_text("HIGHSCORES", font, font_size, white)
+                root=Tk()
+                Records(root)
             else:
                 text_highscores =process_text("HIGHSCORES", font, font_size, yellow)
 
