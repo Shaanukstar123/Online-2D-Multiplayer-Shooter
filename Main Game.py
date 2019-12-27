@@ -6,6 +6,7 @@ from MainMenu import menu
 import time
 import socket
 from _thread import *
+import sqlite3
 
 class Game():
     def __init__(self, ip, username):
@@ -183,7 +184,7 @@ class Game():
         if self.image_index>8:
             self.image_index=0
         self.image_index+=1
-        if len(self.collectable_list)>0:
+        '''if len(self.collectable_list)>0:
             for item in self.collectable_list:
                     if item.collect(self.playerObj):
                         self.playerObj.items.append(item.type)
@@ -191,9 +192,7 @@ class Game():
                         continue
                         #self.collectable_list.remove(item)
                     if item.collected==False:
-                        item.display(self.gameDisplay,self.speed_ball,self.image_index)
-                    print(item.collected)
-                    print(len(self.collectable_list))
+                        item.display(self.gameDisplay,self.speed_ball,self.image_index)'''
 
     def endgame(self,player1_dead,player1_health,name1,player2_dead,player2_health,name2):
         count=0
@@ -245,6 +244,19 @@ class Game():
             self.clock.tick(2)
             pygame.display.update()
 
+    def save_score(self):
+        with sqlite3.connect('playerdata.db') as db:
+            cursor = db.cursor()
+
+        player_search = ('SELECT * FROM player WHERE username = ?')
+        cursor.execute(player_search,[(self.username)])
+        print(cursor.fetchall())
+        #store_score = 'INSERT INTO player(highscore) VALUES(?)'
+        #cursor.execute(store_score,[(self.playerObj.score)])
+        update_score = 'UPDATE player SET highscores = ? WHERE username = ? AND highscores > ?'
+        cursor.execute(update_score,[(self.playerObj.score),(self.username),(self.playerObj.score)])
+        db.commit()
+
     def gameloop(self):
         print(self.username)
         self.load_sprites()
@@ -292,8 +304,10 @@ class Game():
             self.redraw_window()
             self.show_username()
             if self.playerObj.dead==True or self.secondPlayerObj.dead==True: #or self.secondPlayerObj.dead==True :
+                print(self.playerObj.score)
+                self.save_score()
                 self.run=False
-                self.endgame(self.playerObj.dead,self.playerObj.health,str(self.playerObj.username),self.secondPlayerObj.dead,self.secondPlayerObj.health,str(self.secondPlayerObj.username))#(playerObj,gameDisplay)
+                self.endgame(self.playerObj.dead,self.playerObj.health,str(self.playerObj.username),self.secondPlayerObj.dead,self.secondPlayerObj.health,str(self.secondPlayerObj.username))
             self.clock.tick(self.fps)
             pygame.display.update()
 
