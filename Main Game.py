@@ -72,7 +72,6 @@ class Game():
             pygame.image.load("Images/SpeedBall/10.gif")
         ]
 
-
         self.image_index = 0
         self.black = (0, 0, 0)
         self.white = (255, 255, 255)
@@ -253,7 +252,7 @@ class Game():
         print(cursor.fetchall())
         #store_score = 'INSERT INTO player(highscore) VALUES(?)'
         #cursor.execute(store_score,[(self.playerObj.score)])
-        update_score = 'UPDATE player SET highscores = ? WHERE username = ? AND highscores > ?'
+        update_score = 'UPDATE player SET highscores = ? WHERE username = ? AND highscores < ?'
         cursor.execute(update_score,[(self.playerObj.score),(self.username),(self.playerObj.score)])
         db.commit()
 
