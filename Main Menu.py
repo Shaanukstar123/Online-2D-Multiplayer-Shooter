@@ -1,9 +1,10 @@
 import pygame
 import os
 import subprocess
-from highscores import Records
 from tkinter import*
 import sqlite3
+from highscores import *
+from _thread import *
 
 def menu(start):
     pygame.init()
@@ -92,6 +93,8 @@ def menu(start):
                             print("start")
                             start=True
                             return start
+                        if selected == "highscores":
+                            start_new_thread(run_table,())
 
             display.fill(grey)
             display.blit(backgrounds[n],(0,0))
@@ -107,8 +110,7 @@ def menu(start):
                 text_quit = process_text("QUIT", font, font_size, yellow)
             if selected == "highscores":
                 text_highscores=process_text("HIGHSCORES", font, font_size, white)
-                root=Tk()
-                Records(root)
+
             else:
                 text_highscores =process_text("HIGHSCORES", font, font_size, yellow)
 
