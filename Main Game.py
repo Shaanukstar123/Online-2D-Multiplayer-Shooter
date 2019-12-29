@@ -131,7 +131,8 @@ class Game():
 
         for bullet in self.playerObj.projectiles:
             if bullet.collides(self)=="hit":
-                self.playerObj.score+=10
+                if self.timer.has_started==True:
+                    self.playerObj.score+=10
                 '''if self.playerObj.player==1:
                     self.player1_score+=10
                     self.playerObj.score+=10
@@ -151,7 +152,10 @@ class Game():
                     #self.playerObj.score+=10
                 #elif self.playerObj.player==2:
                 #self.player2_score+=10
-                self.secondPlayerObj.score+=10
+                if self.timer.has_started==True:
+                    self.secondPlayerObj.score+=10
+                else:
+                    print("Can't score yet")
                 #self.players,self.walls[0],self.walls[1])
             if bullet.should_remove():
                 self.secondPlayerObj.remove_projectile(bullet)
