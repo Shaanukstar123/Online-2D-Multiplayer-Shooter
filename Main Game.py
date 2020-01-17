@@ -131,6 +131,10 @@ class Game():
             wall.draw(self)
 
         self.collectables()
+        self.playerObj.item_use()
+        self.playerObj.stop_item_usage()
+        self.secondPlayerObj.item_use()
+        self.secondPlayerObj.stop_item_usage()
 
         for bullet in self.playerObj.projectiles:
             if bullet.collides(self)=="hit":
@@ -187,17 +191,6 @@ class Game():
                 #print("Object Collected")
 
     def collectables(self):
-        '''shouldSpawn = random.randint(0,5000)
-        if shouldSpawn < spawn_chance:
-            item=Collectable()
-            if item.generate(walls):
-                itemlist.items.append(item)
-        for item in itemlist.items:
-            print(item.collected)
-            #print(item.collected)
-            item.life-=1
-            if item.life<=0 or item.collected==True:
-                itemlist.items.remove(item)'''
         if self.image_index>8:
             self.image_index=0
         self.image_index+=1
@@ -206,7 +199,10 @@ class Game():
             if item.time < self.timer.time_elapsed:
 
                 if item.hitbox.colliderect(self.playerObj.hitbox):
-                    print("Collided")
+                    self.playerObj.items.append(item)
+                    self.collectable_list.remove(item)
+                elif item.hitbox.colliderect(self.secondPlayerObj.hitbox):
+                    self.secondPlayerObj.items.append(item)
                     self.collectable_list.remove(item)
                 if item.life>0:# or not(item.hitbox.colliderect(self.playerObj.hitbox)):
                     item.display(self.gameDisplay,self.speed_ball,self.image_index)
@@ -349,8 +345,7 @@ class Game():
 
             self.show_username()
 
-            if self.playerObj.dead==True or self.secondPlayerObj.dead==True: #or self.secondPlayerObj.dead==True :
-                print(self.playerObj.score)
+            if self.playerObj.dead==True or self.secondPlayerObj.dead==True or self.time_elapsed>self.countdown_time): #or self.secondPlayerObj.dead==True :
                 self.save_score()
                 self.run=False
                 self.endgame(self.playerObj.dead,self.playerObj.health,str(self.playerObj.username),self.secondPlayerObj.dead,self.secondPlayerObj.health,str(self.secondPlayerObj.username))
