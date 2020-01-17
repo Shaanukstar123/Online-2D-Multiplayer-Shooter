@@ -48,6 +48,7 @@ class Game():
         self.players = None
         self.movement = False
         self.events = None
+        self.loop_count = 0
         self.background_index = 0
         self.player1_sprites = ["sprite1.png", "right.png", "left.png"]
         self.player2_sprites = [
@@ -55,7 +56,7 @@ class Game():
         ]
         self.loaded_player1 = []
         self.loaded_player2 = []
-        self.collectable_list=None
+        self.collectable_list=[]
         self.arcade_font = pygame.font.Font("Images/arcade.TTF", 12)
         self.text_font = pygame.font.Font("Images/arcade.TTF", 28)
 
@@ -129,6 +130,8 @@ class Game():
         for wall in self.walls:
             wall.draw(self)
 
+        self.collectables()
+
         for bullet in self.playerObj.projectiles:
             if bullet.collides(self)=="hit":
                 if self.timer.has_started==True:
@@ -199,14 +202,17 @@ class Game():
             self.image_index=0
         self.image_index+=1
         for item in self.collectable_list:
-            if item.time ==self.timer.time_elapsed:
-                item.active =True
-            if item.active==True:
-                if item.life>0 or not(item.hitbox.colliderect(self.playerObj.hitbox)):
+            item.hitbox=pygame.Rect(item.x,item.y,25,25)
+            if item.time < self.timer.time_elapsed:
+
+                if item.hitbox.colliderect(self.playerObj.hitbox):
+                    print("Collided")
+                    self.collectable_list.remove(item)
+                if item.life>0:# or not(item.hitbox.colliderect(self.playerObj.hitbox)):
                     item.display(self.gameDisplay,self.speed_ball,self.image_index)
-                    item.life-=10
+                    item.life-=1
                 else:
-                    del(item)
+                    self.collectable_list.remove(item)
 
         '''if len(self.collectable_list)>0:
             for item in self.collectable_list:
@@ -298,12 +304,16 @@ class Game():
             print(self.p['player'])
             self.playerObj = self.p['player']
             self.timer = self.p['timer']
-            self.collectable_list = self.p['collectable']
+            self.collectable_data= self.p['collectable']
+
 
         except:
             print("Cannot connect to server")
         self.movement=True
         while self.run:
+            self.loop_count+=1
+
+
             if self.background_index>6:
                 self.background_index=0
             else:
@@ -311,8 +321,14 @@ class Game():
             self.p2 = self.n.send(self.p)
             self.secondPlayerObj=self.p2['player']
             self.timer = self.p2['timer']
-            self.collectable_list = self.p2['collectable']
-            print(len(self.collectable_list))
+            self.collectable_data= self.p2['collectable']
+
+            if self.loop_count == 1:
+                for data in self.collectable_data:
+                    item=Collectable()
+                    item.recreate(data[0],data[1],data[2],data[3],data[4])
+                    self.collectable_list.append(item)
+                    print(self.collectable_list)
             #print(self.collectable_list)
 
             self.players=[self.playerObj,self.secondPlayerObj]
@@ -330,7 +346,7 @@ class Game():
             self.playerObj.collisions(self)
             self.playerObj.move(self)
             self.redraw_window()
-            self.collectables()
+
             self.show_username()
 
             if self.playerObj.dead==True or self.secondPlayerObj.dead==True: #or self.secondPlayerObj.dead==True :
