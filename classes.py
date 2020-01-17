@@ -31,16 +31,19 @@ class Player():
         self.jump_speed=10
         self.jump_direction=None
         self.counter=0
+        self.visible = True
         self.items=[]
+        self.speed_power_timer = 0
+        self.invisibility_timer = 0
 
     def draw(self,game):
         self.hitbox= pygame.Rect(self.x, self.y, 45, 68)
         wallie=pygame.Rect(game.walls[0].x, game.walls[0].y+35, 10,10 )
         #loaded=[pygame.image.load(sprite[0]),pygame.image.load(sprite[1])]
         image=pygame.image.load(self.display)
-        if self.player==1:
+        if self.player==1 and self.visible==True:
             game.gameDisplay.blit(game.loaded_player1[self.direction],(self.x,self.y))
-        elif self.player==2:
+        elif self.player==2 and self.visible==True:
             game.gameDisplay.blit(game.loaded_player2[self.direction],(self.x,self.y))
         rect = pygame.Rect(self.x, self.y, 45, 68)
         rect2=pygame.Rect(game.walls[1].x,game.walls[1].y,25,25)
@@ -60,6 +63,30 @@ class Player():
         elif self.player==2:
             game.gameDisplay.blit(health, (width-110, 20))
         #print("{} {}".format(self.collision_down,self.collision_up))
+
+    def item_use(self):
+        for item in self.items:
+            if item.type==1:
+                self.health+=50
+                self.items.remove(item)
+            if item.type==2:
+                self.visible = False
+                self.items.remove(item)
+            if item.type == 3:
+                self.speed = 15
+                self.items.remove(item)
+
+    def stop_item_usage(self):
+        if self.visible == False:
+            self.invisibility_timer+=1
+            if self.invisibility_timer > 300:
+                self.visible = True
+
+        if self.speed > 14:
+            self.speed_power_timer+=1
+            if self.speed_power_timer>300:
+                self.speed = 9
+
 
     def collisions(self,game):
 
