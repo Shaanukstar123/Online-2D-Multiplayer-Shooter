@@ -50,7 +50,7 @@ walls=[pygame.Rect(900,500,228,44),pygame.Rect(600, 250, 44, 228),pygame.Rect(20
 for i in range(random.randint(20,40)):
     item = Collectable()
     if item.generate(walls):
-        collectable_data.append(item)
+        collectable_data.append([item.x,item.y,item.time,item.life,item.type])
 
 
 def threaded_client(conn, player):
