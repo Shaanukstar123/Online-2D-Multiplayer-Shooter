@@ -121,7 +121,7 @@ class Game():
         self.backwards_time=(self.countdown_time-(self.timer.time_elapsed))
         time = self.text_font.render(str(self.backwards_time), 0, self.white)
         self.gameDisplay.blit(time, (self.width/2, 20))
-        self.collectables()
+
         #self.playerObj.collectables(self)
         #self.secondPlayerObj.collectables(self)
 
@@ -184,17 +184,41 @@ class Game():
                 #print("Object Collected")
 
     def collectables(self):
+        '''shouldSpawn = random.randint(0,5000)
+        if shouldSpawn < spawn_chance:
+            item=Collectable()
+            if item.generate(walls):
+                itemlist.items.append(item)
+        for item in itemlist.items:
+            print(item.collected)
+            #print(item.collected)
+            item.life-=1
+            if item.life<=0 or item.collected==True:
+                itemlist.items.remove(item)'''
         if self.image_index>8:
             self.image_index=0
         self.image_index+=1
+        for item in self.collectable_list:
+            if item.time ==self.timer.time_elapsed:
+                item.active =True
+            if item.active==True:
+                if item.life>0 or not(item.hitbox.colliderect(self.playerObj.hitbox)):
+                    item.display(self.gameDisplay,self.speed_ball,self.image_index)
+                    item.life-=10
+                else:
+                    del(item)
+
         '''if len(self.collectable_list)>0:
             for item in self.collectable_list:
-                    if item.collect(self.playerObj):
-                        self.playerObj.items.append(item.type)
-                        self.collectable_list.remove(item)
-                        continue
-                        #self.collectable_list.remove(item)
-                    if item.collected==False:
+                item.id = "21"
+                if item.hitbox.colliderect(self.playerObj.hitbox):
+                    item.collected=True
+                    item.life=0
+                    self.vanish=True
+                    self.playerObj.items.append(item.type)
+                    #self.collectable_list.remove(item)
+                else:
+                    if not item.vanish:
                         item.display(self.gameDisplay,self.speed_ball,self.image_index)'''
 
     def endgame(self,player1_dead,player1_health,name1,player2_dead,player2_health,name2):
@@ -288,6 +312,7 @@ class Game():
             self.secondPlayerObj=self.p2['player']
             self.timer = self.p2['timer']
             self.collectable_list = self.p2['collectable']
+            print(len(self.collectable_list))
             #print(self.collectable_list)
 
             self.players=[self.playerObj,self.secondPlayerObj]
@@ -305,7 +330,9 @@ class Game():
             self.playerObj.collisions(self)
             self.playerObj.move(self)
             self.redraw_window()
+            self.collectables()
             self.show_username()
+
             if self.playerObj.dead==True or self.secondPlayerObj.dead==True: #or self.secondPlayerObj.dead==True :
                 print(self.playerObj.score)
                 self.save_score()
@@ -323,3 +350,11 @@ def start_check(player):
         game=Game(ip,player)
         game.gameloop()
 #start_check()
+
+'''Things to still fix:
+
+Collectable items
+Projectiles going through walls
+Disable double jump
+Talk about problems with collectables (sending list data instead of running it on the server)
+'''
