@@ -24,19 +24,20 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection, Server Started")
 timer = Timer()
+collectable_data = []
 #item=Collectable()
-spawn_chance = 20
-itemlist=Collectable_list()
+#spawn_chance = 20
+#itemlist=Collectable_list()
 #collectables = CollectableList()
 #players=[Player(0,0,"sprite1.png"),Player(100,100,"sprite2.png")]
 all_data = [{
     'player':Player(0,0,["sprite1.png","right.png","left.png"],1,1,0),
     "timer": timer,
-    "collectable": itemlist.items
+    "collectable": collectable_data
 }, {
     'player': Player(100,100,["sprite2.png","player2right.png","player2left.png"],2,2,0),
     "timer": timer,
-    "collectable": itemlist.items
+    "collectable": collectable_data
 }]
 '''talk about why parallel data sets not sent due to synch issues and buffer needed'''
 #all_data[0]
@@ -44,6 +45,13 @@ all_data = [{
 timerHasStarted = False
 
 walls=[pygame.Rect(900,500,228,44),pygame.Rect(600, 250, 44, 228),pygame.Rect(200,350,228,44)]
+
+
+for i in range(random.randint(20,40)):
+    item = Collectable()
+    if item.generate(walls):
+        collectable_data.append(item)
+
 
 def threaded_client(conn, player):
     global totalConnections, timerHasStarted, timer
@@ -73,22 +81,23 @@ def threaded_client(conn, player):
                         print("STARTING")
                         timer.start()
                         timerHasStarted = True
-                    shouldSpawn = random.randint(0,5000)
+                    '''shouldSpawn = random.randint(0,5000)
                     if shouldSpawn < spawn_chance:
                         item=Collectable()
                         if item.generate(walls):
                             itemlist.items.append(item)
                     for item in itemlist.items:
+
                         item.levitate()
                         print(item.collected)
                         #print(item.collected)
                         item.life-=1
+                        print(item.id)
                         if item.life<=0 or item.collected==True:
                             itemlist.items.remove(item)
-
-
-                    all_data[0]['collectable'] = itemlist.items
-                    all_data[1]['collectable'] = itemlist.items
+                        all_data[0]['collectable'] = itemlist.items
+                        all_data[1]['collectable'] = itemlist.items
+                        print(item.id)'''
                         #if item.collected == True:
                             #itemlist.remove(item)
                 #print(itemlist.items)
