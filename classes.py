@@ -11,7 +11,7 @@ class Player():
         self.y = y
         self.player=player
         self.projectiles = []
-        self.speed = 9
+        self.speed = 10
         self.gravity=10
         self.sprite=sprite
         self.direction = direction #1=right, 2=left
@@ -73,7 +73,7 @@ class Player():
                 self.visible = False
                 self.items.remove(item)
             if item.type == 3:
-                self.speed = 15
+                self.speed = 18
                 self.items.remove(item)
 
     def stop_item_usage(self):
@@ -81,11 +81,13 @@ class Player():
             self.invisibility_timer+=1
             if self.invisibility_timer > 300:
                 self.visible = True
+                self.invisibility_timer=0
 
         if self.speed > 14:
             self.speed_power_timer+=1
             if self.speed_power_timer>300:
                 self.speed = 9
+                self.speed_power_timer=0
 
 
     def collisions(self,game):
