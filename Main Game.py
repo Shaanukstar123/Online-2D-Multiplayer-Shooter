@@ -72,6 +72,8 @@ class Game():
             pygame.image.load("Images/SpeedBall/9.gif"),
             pygame.image.load("Images/SpeedBall/10.gif")
         ]
+        self.invis_potion=pygame.image.load("Images/invisibilitypotion.png")
+        self.heart_img = pygame.image.load("Images/heart.png")
 
         self.image_index = 0
         self.black = (0, 0, 0)
@@ -204,8 +206,17 @@ class Game():
                 elif item.hitbox.colliderect(self.secondPlayerObj.hitbox):
                     self.secondPlayerObj.items.append(item)
                     self.collectable_list.remove(item)
-                if item.life>0:# or not(item.hitbox.colliderect(self.playerObj.hitbox)):
-                    item.display(self.gameDisplay,self.speed_ball,self.image_index)
+                if item.life>0:
+                    item.levitate()
+                    if item.type == 1:
+                        item.display(self.gameDisplay,self.heart_img)
+
+                    if item.type == 2:
+                        item.display(self.gameDisplay,self.invis_potion)
+
+                    if item.type == 3:
+                        item.display_anime(self.gameDisplay,self.speed_ball,self.image_index)
+
                     item.life-=1
                 else:
                     self.collectable_list.remove(item)
@@ -345,7 +356,7 @@ class Game():
 
             self.show_username()
 
-            if self.playerObj.dead==True or self.secondPlayerObj.dead==True or self.time_elapsed>self.countdown_time): #or self.secondPlayerObj.dead==True :
+            if self.playerObj.dead==True or self.secondPlayerObj.dead==True or self.timer.time_elapsed>self.countdown_time:
                 self.save_score()
                 self.run=False
                 self.endgame(self.playerObj.dead,self.playerObj.health,str(self.playerObj.username),self.secondPlayerObj.dead,self.secondPlayerObj.health,str(self.secondPlayerObj.username))
