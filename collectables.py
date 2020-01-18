@@ -29,8 +29,12 @@ class Collectable():
         self.collected=False
         self.counter=0
         self.vanish=False
+        self.id = random.randint(0,10)
+        self.time = random.randint(0,100) #Indicates at what time from timer the item will spawn
+        self.active=None
 
     def generate(self,walls):
+        self.type = random.randint(1,3)
         self.x=random.randint(0,width-50)
         self.y=random.randint(0,height-50)
         self.hitbox=pygame.Rect(self.x,self.y,25,25)
@@ -43,6 +47,12 @@ class Collectable():
             else:
                 self.correct_position=True
                 return True
+    def recreate(self,x,y,time,life,type):
+        self.x = x
+        self.y = y
+        self.time = time
+        self.life = life
+        self.type = type
 
     def levitate(self):
         self.counter+=1
@@ -60,8 +70,11 @@ class Collectable():
             print("Item Collected")
             return True'''
 
+    def display(self,gameDisplay,image):
+        gameDisplay.blit(image,(self.x,self.y))
 
-    def display(self,gameDisplay,images,index):
+
+    def display_anime(self,gameDisplay,images,index):
         for image in images:
             gameDisplay.blit(images[index],(self.x,self.y))
             #pygame.draw.rect(gameDisplay,(99,99,99), self.hitbox)
