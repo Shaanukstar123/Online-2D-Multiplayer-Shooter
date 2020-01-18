@@ -72,7 +72,7 @@ class Game():
             pygame.image.load("Images/SpeedBall/9.gif"),
             pygame.image.load("Images/SpeedBall/10.gif")
         ]
-        self.invis_potion=pygame.image.load("Images/invisibilitypotion.png")
+        self.invis_potion=pygame.image.load("Images/invisiblepotion.png")
         self.heart_img = pygame.image.load("Images/heart.png")
 
         self.image_index = 0
