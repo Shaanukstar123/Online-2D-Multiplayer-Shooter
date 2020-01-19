@@ -28,6 +28,7 @@ class Game():
         self.clock = pygame.time.Clock()
         self.fps = 45
         self.count = 100
+        self.heartbeat_sound = pygame.mixer.music.load("heartbeat.wav")
         self.music = pygame.mixer.music.load("power_music.wav")
         self.ip = ip
         self.p2 = None
@@ -36,7 +37,7 @@ class Game():
         self.walls = [
             Map(900, 500, 44, 228, "wall1.png"),
             Map(600, 250, 44, 228, "wall1.png"),
-            Map(200, 350, 44, 22, "wall1.png")
+            Map(200, 375, 44, 22, "wall1.png")
         ]
         self.wall_img = pygame.image.load("wall1.png")
         #self.items=[Collectables(1,"sprite.png")]
@@ -82,6 +83,7 @@ class Game():
         self.green = (0, 255, 0)
         self.blue = (0, 0, 255)
         self.light_blue = (173, 216, 230)
+        self.changed=False
 
     def load_sprites(self):
         for i in self.player1_sprites:
@@ -102,16 +104,11 @@ class Game():
         username = self.arcade_font.render(str(self.username), 0, self.light_blue)
         player2_username=self.arcade_font.render(str(self.secondPlayerObj.username), 0, self.light_blue)
         self.gameDisplay.blit(username, (self.playerObj.x,self.playerObj.y-20))
-        self.gameDisplay.blit(player2_username, (self.secondPlayerObj.x,self.secondPlayerObj.y-20))
+        if self.secondPlayerObj.visible==True:
+            self.gameDisplay.blit(player2_username, (self.secondPlayerObj.x,self.secondPlayerObj.y-20))
 
 
     def redraw_window(self):
-        #self.secondPlayerObj.collisions(self)
-        #self.playerObj.jumped()
-        #self.secondPlayerObj.jumped()
-        #if self.secondPlayerObj==True:
-            #self.secondPlayerObj.jump()
-        #print("Player1: {} Player2: {}".format(self.player1_score,self.player2_score))
         score1 = self.text_font.render(str(self.playerObj.score), 0, self.white)
         score2 = self.text_font.render(str(self.secondPlayerObj.score), 0, self.white)
         self.gameDisplay.fill((255,255,255))
@@ -297,12 +294,18 @@ class Game():
         cursor.execute(update_score,[(self.playerObj.score),(self.username),(self.playerObj.score)])
         db.commit()
 
+    '''def sound_effects(self):
+        if self.playerObj.health<31:
+            pygame.mixer.music.stop()'''
+
+
     def gameloop(self):
         print(self.username)
         self.load_sprites()
         self.background_scale()
-        music=self.music
         pygame.mixer.music.play(-1)
+
+
         self.run = True
         try:
             self.n = Network(self.ip)
@@ -319,8 +322,6 @@ class Game():
         self.movement=True
         while self.run:
             self.loop_count+=1
-
-
             if self.background_index>6:
                 self.background_index=0
             else:
@@ -335,7 +336,6 @@ class Game():
                     item=Collectable()
                     item.recreate(data[0],data[1],data[2],data[3],data[4])
                     self.collectable_list.append(item)
-                    print(self.collectable_list)
             #print(self.collectable_list)
 
             self.players=[self.playerObj,self.secondPlayerObj]
@@ -353,6 +353,8 @@ class Game():
             self.playerObj.collisions(self)
             self.playerObj.move(self)
             self.redraw_window()
+            #self.sound_effects()
+
 
             self.show_username()
 
@@ -362,6 +364,8 @@ class Game():
                 self.endgame(self.playerObj.dead,self.playerObj.health,str(self.playerObj.username),self.secondPlayerObj.dead,self.secondPlayerObj.health,str(self.secondPlayerObj.username))
             self.clock.tick(self.fps)
             pygame.display.update()
+
+
 
 
 def start_check(player):
