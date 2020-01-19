@@ -30,6 +30,7 @@ class Player():
         self.jump_position=10
         self.jump_speed=10
         self.jump_direction=None
+        self.free_fall = False
         self.counter=0
         self.visible = True
         self.items=[]
@@ -50,7 +51,7 @@ class Player():
         #for wall in walls:
         #wallimg=pygame.image.load(wall.image)
         #pygame.draw.rect(game.gameDisplay,(0,255,0),rect2)
-        pygame.draw.rect(game.gameDisplay,(0,255,0),game.walls[0].rect)
+        #pygame.draw.rect(game.gameDisplay,(0,255,0),game.walls[0].rect)
         #pygame.draw.rect(game.gameDisplay,(99,99,99), wallie)
         #print(game.walls[0].x,game.walls[0].y,self.y)
             #print("Not collided")
@@ -79,13 +80,13 @@ class Player():
     def stop_item_usage(self):
         if self.visible == False:
             self.invisibility_timer+=1
-            if self.invisibility_timer > 300:
+            if self.invisibility_timer > 200:
                 self.visible = True
                 self.invisibility_timer=0
 
         if self.speed > 14:
             self.speed_power_timer+=1
-            if self.speed_power_timer>300:
+            if self.speed_power_timer>200:
                 self.speed = 9
                 self.speed_power_timer=0
 
@@ -131,6 +132,10 @@ class Player():
                 return False'''
 
     def move(self,game):
+        if self.y>(game.height-100) or self.collision_down == True:
+            self.free_fall=False
+        if self.collision_up == True:
+            self.free_fall=True
 
         keys = pygame.key.get_pressed()
         if self.y<(game.height-80) and self.collision_down==False and self.jump==False:
@@ -159,8 +164,10 @@ class Player():
                 self.display=self.sprite[1]
 
         if self.jump==False:
-            if keys[pygame.K_UP]:
-                self.jump=True
+            if self.free_fall==False:
+                if keys[pygame.K_UP]:
+                    self.jump=True
+                    self.free_fall==True
                 #if self.y>0 and self.collision_up==False:
                     #self.y -= self.speed*3
             if keys [pygame.K_DOWN]:
@@ -170,11 +177,14 @@ class Player():
             if self.jump_speed > -10 and self.collision_up==False and self.y>0 :
                 self.jump_direction=1
                 if self.jump_speed<0:
+                    self.free_fall = True
                     self.jump_direction=-1
                 self.y -= ((self.jump_speed ** 2) * 0.1 * self.jump_direction)+15
                 self.jump_speed -= 1
 
+
             else:
+
                 self.jump=False
                 self.jump_speed=10
                     #if self.collision_up==False:
@@ -254,24 +264,6 @@ class Projectile(Player):
         return self.shouldRemove
 
     def collides(self,game):#self,players,wall,wall2):
-        '''if self.hitbox.colliderect(game.walls[0].rect) or self.hitbox.colliderect(game.walls[1].rect):
-            self.shouldRemove=True
-            self.collided=True
-            #print(players)
-        if self.x<=p.x<(self.x+25) and (self.y-self.hit_radius)<p.y<self.y+40 and self.player!=p.player:
-            print("collided")
-            game.secondPlayerObj.score+=10
-            game.playerObj.damage_taken()
-            self.collided=True
-        if self.hitbox.colliderect(game.secondPlayerObj.hitbox):
-            print("collided")
-            game.playerObj.score+=10
-            game.secondPlayerObj.damage_taken()
-            self.collided=True'''
-            #if game.playerObj.health<10:
-                #print("DEAD")'''
-
-
         for p in game.players:
             #print(p.health)
             if self.x<=p.x<(self.x+25) and (self.y-self.hit_radius)<p.y<self.y+40 and self.player!=p.player:
@@ -289,6 +281,12 @@ class Projectile(Player):
                 #if p.health<10:
                     #print("DEAD")
             #check the boundaries of the projectile and boundaries of player and if they collide, call player.getdamage()
+        for wall in game.walls:
+            if self.hitbox.colliderect(wall.rect):
+                self.shouldRemove = True
+                self.collided = True
+
+
 class Map():
     def __init__(self,x,y,width,height,image):
         self.x = x
