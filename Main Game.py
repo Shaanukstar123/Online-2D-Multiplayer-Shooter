@@ -25,10 +25,11 @@ class Game():
             pygame.image.load("sprites/Background anime/frame7.gif")
         ]
         self.scaled_backgrounds = []
+        self.waiting_screen = pygame.image.load("Images/waitingscreen1.0.png")
         self.clock = pygame.time.Clock()
         self.fps = 45
         self.count = 100
-        self.heartbeat_sound = pygame.mixer.music.load("heartbeat.wav")
+        #self.heartbeat_sound = pygame.mixer.music.load("heartbeat.wav")
         self.music = pygame.mixer.music.load("power_music.wav")
         self.ip = ip
         self.p2 = None
@@ -297,6 +298,12 @@ class Game():
     '''def sound_effects(self):
         if self.playerObj.health<31:
             pygame.mixer.music.stop()'''
+    def waiting_for_player(self):
+        self.gameDisplay.fill((255,255,255))
+        self.gameDisplay.blit(self.waiting_screen,(0,0))
+        print("Waiting for player 2")
+        self.clock.tick(2)
+        pygame.display.update()
 
 
     def gameloop(self):
@@ -304,8 +311,6 @@ class Game():
         self.load_sprites()
         self.background_scale()
         pygame.mixer.music.play(-1)
-
-
         self.run = True
         try:
             self.n = Network(self.ip)
@@ -321,6 +326,8 @@ class Game():
             print("Cannot connect to server")
         self.movement=True
         while self.run:
+            while self.secondPlayerObj == True and self.playerObj.player ==1:
+                self.waiting_for_player()
             self.loop_count+=1
             if self.background_index>6:
                 self.background_index=0
