@@ -85,6 +85,7 @@ class Game():
         self.blue = (0, 0, 255)
         self.light_blue = (173, 216, 230)
         self.changed=False
+        self.start_round=False
 
     def load_sprites(self):
         for i in self.player1_sprites:
@@ -99,6 +100,7 @@ class Game():
         for background in self.backgrounds:
             self.scaled_backgrounds.append(pygame.transform.scale(background,
             (self.width,self.height)))
+        self.waiting_screen=(pygame.transform.scale(self.waiting_screen,(self.width,self.height)))
 
     def show_username(self):
         self.playerObj.username=self.username
@@ -310,7 +312,7 @@ class Game():
         print(self.username)
         self.load_sprites()
         self.background_scale()
-        pygame.mixer.music.play(-1)
+        #pygame.mixer.music.play(-1)
         self.run = True
         try:
             self.n = Network(self.ip)
@@ -321,24 +323,32 @@ class Game():
             self.timer = self.p['timer']
             self.collectable_data= self.p['collectable']
 
-
         except:
             print("Cannot connect to server")
         self.movement=True
         while self.run:
-            while self.secondPlayerObj == True and self.playerObj.player ==1:
+            while self.start_round == False: #and self.playerObj.player == 1:
                 self.waiting_for_player()
+                self.p2 = self.n.send(self.p)
+                self.secondPlayerObj=self.p2['player']
+                self.timer = self.p2['timer']
+                self.collectable_data= self.p2['collectable']
+                print(self.secondPlayerObj)
+                if self.timer.started==True:
+                    self.start_round = True
+                    break
             self.loop_count+=1
             if self.background_index>6:
                 self.background_index=0
             else:
                 self.background_index+=0.30
-            self.p2 = self.n.send(self.p)
-            self.secondPlayerObj=self.p2['player']
-            self.timer = self.p2['timer']
-            self.collectable_data= self.p2['collectable']
+            #self.p2 = self.n.send(self.p)
+            #self.secondPlayerObj=self.p2['player']
+            #self.timer = self.p2['timer']
+            #self.collectable_data= self.p2['collectable']
 
             if self.loop_count == 1:
+                pygame.mixer.music.play(-1)
                 for data in self.collectable_data:
                     item=Collectable()
                     item.recreate(data[0],data[1],data[2],data[3],data[4])
