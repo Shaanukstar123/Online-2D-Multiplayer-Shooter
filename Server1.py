@@ -47,7 +47,7 @@ timerHasStarted = False
 walls=[pygame.Rect(900,500,228,44),pygame.Rect(600, 250, 44, 228),pygame.Rect(200,350,228,44)]
 
 
-for i in range(random.randint(20,40)):
+for i in range(random.randint(10,20)):
     item = Collectable()
     if item.generate(walls):
         collectable_data.append([item.x,item.y,item.time,item.life,item.type])
@@ -61,7 +61,7 @@ def threaded_client(conn, player):
     print("TIMER STARTED:" + str(timer.has_started))
     while True:
         try:
-            data = pickle.loads(conn.recv(2048*2))
+            data = pickle.loads(conn.recv(2048*3))
             all_data[player] = data
 
             if not data:
@@ -81,26 +81,6 @@ def threaded_client(conn, player):
                         print("STARTING")
                         timer.start()
                         timerHasStarted = True
-                    '''shouldSpawn = random.randint(0,5000)
-                    if shouldSpawn < spawn_chance:
-                        item=Collectable()
-                        if item.generate(walls):
-                            itemlist.items.append(item)
-                    for item in itemlist.items:
-
-                        item.levitate()
-                        print(item.collected)
-                        #print(item.collected)
-                        item.life-=1
-                        print(item.id)
-                        if item.life<=0 or item.collected==True:
-                            itemlist.items.remove(item)
-                        all_data[0]['collectable'] = itemlist.items
-                        all_data[1]['collectable'] = itemlist.items
-                        print(item.id)'''
-                        #if item.collected == True:
-                            #itemlist.remove(item)
-                #print(itemlist.items)
                 if player == 1:
                     reply = all_data[0]
                 else:
