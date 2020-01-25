@@ -4,9 +4,11 @@ class Timer(object):
     def __init__(self):
         self.start_time = None
         self.stop_time = None
+        self.started = False
 
     def start(self):
         self.start_time = time.time()
+        self.started=True
 
     def stop(self):
         self.stop_time = time.time()
