@@ -1,9 +1,8 @@
 import sqlite3
 from tkinter import *
 
-class Records():
+class Highscores():
 
-     #class created to see records that have been previously inputted#
     def __init__(self,master,run):
         self.run = run
         self.master=master
@@ -86,7 +85,7 @@ class Records():
 
 def run_table():
     root=Tk()
-    instance = Records(root,True)
+    instance = Highscores(root,True)
     root.mainloop()
 
 #instance = Records(root,True)
