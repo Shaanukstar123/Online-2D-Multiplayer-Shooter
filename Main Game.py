@@ -48,7 +48,6 @@ class Game():
         self.playerObj = None
         self.secondPlayerObj = None
         self.players = None
-        self.movement = False
         self.events = None
         self.loop_count = 0
         self.background_index = 0
@@ -112,13 +111,18 @@ class Game():
 
 
     def redraw_window(self):
-        score1 = self.text_font.render(str(self.playerObj.score), 0, self.white)
-        score2 = self.text_font.render(str(self.secondPlayerObj.score), 0, self.white)
         self.gameDisplay.fill((255,255,255))
+        if self.playerObj.player==1:
+            score1 = self.text_font.render(str(self.playerObj.score), 0, self.light_blue)
+            score2 = self.text_font.render(str(self.secondPlayerObj.score), 0, self.light_blue)
+        else:
+            score1 = self.text_font.render(str(self.secondPlayerObj.score), 0, self.light_blue)
+            score2 = self.text_font.render(str(self.playerObj.score), 0, self.light_blue)
+
         index=int(self.background_index)
         self.gameDisplay.blit(self.scaled_backgrounds[index],(0,0))
         self.gameDisplay.blit(score1, (20, 50))
-        self.gameDisplay.blit(score2, (self.width-40, 50))
+        self.gameDisplay.blit(score2, (self.width-55, 50))
         self.playerObj.draw(self)
         self.secondPlayerObj.draw(self)
         self.backwards_time=(self.countdown_time-(self.timer.time_elapsed))
@@ -139,7 +143,8 @@ class Game():
         self.secondPlayerObj.stop_item_usage()
 
         for bullet in self.playerObj.projectiles:
-            if bullet.collides(self)=="hit":
+            bullet.draw_bullet(self.gameDisplay,self.players)
+            if bullet.collides(self)==True:
                 if self.timer.has_started==True:
                     self.playerObj.score+=10
                 '''if self.playerObj.player==1:
@@ -152,10 +157,11 @@ class Game():
                 self.playerObj.remove_projectile(bullet)
                 continue
 
-            bullet.draw_bullet(self.gameDisplay,self.players)
+
 
         for bullet in self.secondPlayerObj.projectiles:
-            if bullet.collides(self)=="hit":
+            bullet.draw_bullet(self.gameDisplay,self.players)
+            if bullet.collides(self)==True:
                 #if self.secondPlayerObj.player==1:
                     #self.player1_score+=10
                     #self.playerObj.score+=10
@@ -169,28 +175,7 @@ class Game():
             if bullet.should_remove():
                 self.secondPlayerObj.remove_projectile(bullet)
                 continue
-            bullet.draw_bullet(self.gameDisplay,self.players)
-        #if len(items) < 5:
-        #shouldSpawn = random.randint(0,5000)
-        #if shouldSpawn < SPAWN_PERCENTAGE:
-        #    newItem = Collectables(1, "sprite.png")
-        #    items.append(newItem)
-
-        #for i in items:
-            #if i.life <= 0:
-                #items.remove(i)
-                #continue
-            #i.display_items(gameDisplay)
-            # random_time=random.randint(0,15)
-            #i.generate(wall)
-            # time_end = time.time() + 5
-            # if time.time() < time_end:
-            #i.display_items(gameDisplay)
-                #print("item Displayed!")
-            # TODO: Make it for both players
-            #if i.x==playerObj.x:
-                #items.remove(i)
-                #print("Object Collected")
+            #bullet.draw_bullet(self.gameDisplay,self.players)
 
     def collectables(self):
         if self.image_index>8:
@@ -300,10 +285,10 @@ class Game():
     '''def sound_effects(self):
         if self.playerObj.health<31:
             pygame.mixer.music.stop()'''
+
     def waiting_for_player(self):
         self.gameDisplay.fill((255,255,255))
         self.gameDisplay.blit(self.waiting_screen,(0,0))
-        print("Waiting for player 2")
         self.clock.tick(2)
         pygame.display.update()
 
@@ -325,15 +310,13 @@ class Game():
 
         except:
             print("Cannot connect to server")
-        self.movement=True
         while self.run:
             while self.start_round == False: #and self.playerObj.player == 1:
                 self.waiting_for_player()
                 self.p2 = self.n.send(self.p)
-                self.secondPlayerObj=self.p2['player']
                 self.timer = self.p2['timer']
-                self.collectable_data= self.p2['collectable']
-                print(self.secondPlayerObj)
+                if self.timer==None:
+                    continue
                 if self.timer.started==True:
                     self.start_round = True
                     break
@@ -342,10 +325,10 @@ class Game():
                 self.background_index=0
             else:
                 self.background_index+=0.30
-            #self.p2 = self.n.send(self.p)
-            #self.secondPlayerObj=self.p2['player']
-            #self.timer = self.p2['timer']
-            #self.collectable_data= self.p2['collectable']
+            self.p2 = self.n.send(self.p)
+            self.secondPlayerObj=self.p2['player']
+            self.timer = self.p2['timer']
+            self.collectable_data= self.p2['collectable']
 
             if self.loop_count == 1:
                 pygame.mixer.music.play(-1)
