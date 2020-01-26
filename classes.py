@@ -6,7 +6,7 @@ width=1300
 height=700
 
 class Player():
-    def __init__(self, x, y,sprite,player,direction,score):
+    def __init__(self, x, y,sprite,player,direction,score,health):
         self.x = x
         self.y = y
         self.player=player
@@ -15,7 +15,7 @@ class Player():
         self.gravity=10
         self.sprite=sprite
         self.direction = direction #1=right, 2=left
-        self.health=100
+        self.health=health
         self.display=sprite[direction]
         self.bullet_count=2 #limits number of bullets per shot
         self.dead=False
@@ -48,17 +48,10 @@ class Player():
             game.gameDisplay.blit(game.loaded_player2[self.direction],(self.x,self.y))
         rect = pygame.Rect(self.x, self.y, 45, 68)
         rect2=pygame.Rect(game.walls[1].x,game.walls[1].y,25,25)
-        #for wall in walls:
-        #wallimg=pygame.image.load(wall.image)
-        #pygame.draw.rect(game.gameDisplay,(0,255,0),rect2)
-        #pygame.draw.rect(game.gameDisplay,(0,255,0),game.walls[0].rect)
-        #pygame.draw.rect(game.gameDisplay,(99,99,99), wallie)
-        #print(game.walls[0].x,game.walls[0].y,self.y)
-            #print("Not collided")
-        #print(self.collision_up,self.collision_down,self.collision_right,self.collision_right)
+
         new_font = pygame.font.Font("Images/arcade.TTF", 28)
         colour=(255,255,255)
-        health = new_font.render((str(self.health)+"%"), 0, colour)
+        health = new_font.render("HP "+(str(self.health)), 0, colour)
         if self.player==1:
             game.gameDisplay.blit(health, (30, 20))
         elif self.player==2:
@@ -124,12 +117,6 @@ class Player():
         self.collision_down = down
         self.collision_up = up
 
-    '''def collision_check(self,wall):
-        if self.x>=wall.x-wall.width/2 and self.x<=wall.x+wall.width/2:
-            if self.y+30<=wall.y+wall.height/2 and self.y-30>=wall.y-wall.height/2:
-                return True
-            else:
-                return False'''
 
     def move(self,game):
         if self.y>(game.height-100) or self.collision_down == True:
@@ -197,33 +184,16 @@ class Player():
                         projectile_sound.play()
                         self.projectiles.append(Projectile(self.x, self.y, self.direction, 'projectile1.png', self.player))
 
-    '''def collectables(self,game):
-        if game.image_index>8:
-            game.image_index=0
-        game.image_index+=1
-        if len(self.items)>0:
-            for item in self.items:
-                if item is None:
-                    continue
-                else:
-                    item.generate(game.walls)
-                    if item.collect(self):
-                        #self.items.remove(item)
-                        #self.items.remove(item)
-                        #self.items.append(item.type)
-                        print(self.items)
-                        #self.collectable_list.remove(item)
-                        print(len(self.items))
-                    else:
-                        item.display(game.gameDisplay,game.speed_ball,game.image_index)'''
-
     def remove_projectile(self,proj):
         self.projectiles.remove(proj)
 
     def damage_taken(self):
+        print("health reduced")
+        self.health-=5
         if self.health<2:
             self.dead=True
-        self.health-=10
+            print("Dead")
+        print(self.health)
 
     def update(self):
         pass
@@ -264,19 +234,25 @@ class Projectile(Player):
         return self.shouldRemove
 
     def collides(self,game):#self,players,wall,wall2):
+        self.hitbox=pygame.Rect(self.x, self.y, 10, 10)
+        #self.hitbox= pygame.Rect(self.x, self.y, 10, 10)
         for p in game.players:
+
             #print(p.health)
-            if self.x<=p.x<(self.x+25) and (self.y-self.hit_radius)<p.y<self.y+40 and self.player!=p.player:
+            #if (p.x-22)<self.x<(p.x+22) and (p.y+5)<self.y<(p.y+63):
+            #if self.x<=p.x<(self.x+25) and (self.y-self.hit_radius)<p.y<self.y+40 and self.player!=p.player:
+            if self.hitbox.colliderect(p.hitbox) and self.player!=p.player:
+
                 self.shouldRemove=True
                 self.collided =True
                 print("collided player {}".format(p.player))
                 print(p.player)
                 p.damage_taken()
-
+                print("Damage taken")
                 if p.player==1:
-                    return ("hit")
+                    return True
                 elif p.player==2:
-                    return("hit")
+                    return True
                 #print(p.health)
                 #if p.health<10:
                     #print("DEAD")
