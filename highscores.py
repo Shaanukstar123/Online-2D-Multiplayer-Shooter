@@ -33,7 +33,6 @@ class Records():
                 self.sorted_scores[pointer]=0
         print(self.sorted_scores)
         self.sorted_scores=self.merge_sort(self.sorted_scores)
-        self.sorted_scores = self.sorted_scores[::-1]
 
 
         for score in self.sorted_scores:
@@ -70,7 +69,7 @@ class Records():
       right_pointer = 0
 
       while left_pointer<len(left) and right_pointer < len(right):
-        if left[left_pointer]< right[right_pointer]:
+        if left[left_pointer]> right[right_pointer]:
           final_list.append(left[left_pointer])
           left_pointer +=1
         else:
