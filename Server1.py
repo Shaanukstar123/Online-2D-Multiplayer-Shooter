@@ -31,11 +31,11 @@ collectable_data = []
 #collectables = CollectableList()
 #players=[Player(0,0,"sprite1.png"),Player(100,100,"sprite2.png")]
 all_data = [{
-    'player':Player(0,0,["sprite1.png","right.png","left.png"],1,1,0),
+    'player':Player(0,0,["sprite1.png","right.png","left.png"],1,1,0,100),
     "timer": timer,
     "collectable": collectable_data
 }, {
-    'player': Player(100,100,["sprite2.png","player2right.png","player2left.png"],2,2,0),
+    'player': Player(100,100,["sprite2.png","player2right.png","player2left.png"],2,2,0,100),
     "timer": timer,
     "collectable": collectable_data
 }]
@@ -71,10 +71,6 @@ def threaded_client(conn, player):
             else:
                 all_data[0]['timer'] = timer
                 all_data[1]['timer'] = timer
-                #print("TIMERS =============")
-                #print(timer.time_elapsed)
-                #print(all_data[0]['timer'].time_elapsed)
-                #print("=========================")
 
                 if totalConnections == 2:
                     if not timerHasStarted:
