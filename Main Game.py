@@ -269,6 +269,10 @@ class Game():
             self.clock.tick(2)
             pygame.display.update()
 
+    def score_generator(self):
+        health_diff=(self.playerObj.health - self.secondPlayerObj.health)
+        if health_diff>0:
+            self.playerObj.score+= (health_diff*3)
     def save_score(self):
         with sqlite3.connect('playerdata.db') as db:
             cursor = db.cursor()
@@ -278,7 +282,7 @@ class Game():
         print(cursor.fetchall())
         #store_score = 'INSERT INTO player(highscore) VALUES(?)'
         #cursor.execute(store_score,[(self.playerObj.score)])
-        update_score = 'UPDATE player SET highscores = ? WHERE username = ? AND highscores < ?'
+        update_score = 'UPDATE player SET highscore = ? WHERE username = ? AND highscore < ?'
         cursor.execute(update_score,[(self.playerObj.score),(self.username),(self.playerObj.score)])
         db.commit()
 
@@ -359,6 +363,8 @@ class Game():
             self.show_username()
 
             if self.playerObj.dead==True or self.secondPlayerObj.dead==True or self.timer.time_elapsed>self.countdown_time:
+                self.score_generator()
+                print("Player 1 score: {}, Player 2 score: {}".format(self.playerObj.score,self.secondPlayerObj.score))
                 self.save_score()
                 self.run=False
                 self.endgame(self.playerObj.dead,self.playerObj.health,str(self.playerObj.username),self.secondPlayerObj.dead,self.secondPlayerObj.health,str(self.secondPlayerObj.username))
