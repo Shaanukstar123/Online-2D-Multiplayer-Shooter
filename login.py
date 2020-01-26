@@ -16,7 +16,7 @@ from MainGame import *
 
 with sqlite3.connect("playerdata.db") as db:
     cursor =db.cursor()
-cursor.execute ("CREATE TABLE IF NOT EXISTS player(username TEXT NOT NULL, password TEXT NOT NULL, highscores INTEGER NOT NULL)")
+cursor.execute ("CREATE TABLE IF NOT EXISTS player(username TEXT NOT NULL, password TEXT NOT NULL, highscore INTEGER NOT NULL)")
 db.commit()
 db.close()
 
@@ -60,7 +60,7 @@ class Login_system():
         else:
             ms.showinfo("Success","Account created successfully")
             self.log_frame()
-        store = 'INSERT INTO player(username,password) VALUES(?,?)'
+        store = 'INSERT INTO player(username,password,highscore) VALUES(?,?,0)'
         cursor.execute(store,[(self.new_username.get()),self.encrypt((self.new_pass.get()))])
         db.commit()
 
