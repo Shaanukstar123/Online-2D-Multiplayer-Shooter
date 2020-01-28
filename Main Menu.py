@@ -5,6 +5,7 @@ from tkinter import*
 import sqlite3
 from highscores import *
 from _thread import *
+from Server1 import *
 
 def menu(start):
     pygame.init()
@@ -58,7 +59,7 @@ def menu(start):
     n=0
     def main_menu(n,start):
 
-        tracker=["start","instructions","highscores","quit"]
+        tracker=["start","Create Server","instructions","highscores","quit"]
         pointer=0
 
         menu=True
@@ -81,7 +82,7 @@ def menu(start):
                         selected=tracker[pointer]
 
                     if event.key==pygame.K_DOWN:
-                        if pointer<3:
+                        if pointer<4:
                             pointer+=1
                         selected=tracker[pointer]
 
@@ -89,21 +90,24 @@ def menu(start):
                         if selected=="quit":
                             pygame.quit()
                             quit()
-                        if selected=="start":
+                        if selected =="start":
                             print("start")
                             start=True
                             return start
                         if selected == "highscores":
                             start_new_thread(run_table,())
 
+                        if selected =="Create Server":
+                            start_new_thread(run,())
+
             display.fill(grey)
             display.blit(backgrounds[n],(0,0))
             font_size=32
             #title=process_text("Some shooting game", font, 70, yellow)
             if selected=="start":
-                text_start=process_text("START", font, font_size, white)
+                text_start=process_text("JOIN GAME", font, font_size, white)
             else:
-                text_start = process_text("START", font, font_size, yellow)
+                text_start = process_text("JOIN GAME", font, font_size, yellow)
             if selected=="quit":
                 text_quit=process_text("QUIT", font, font_size, white)
             else:
@@ -119,18 +123,26 @@ def menu(start):
             else:
               text_instructions = process_text("INSTRUCTIONS",font,font_size,yellow)
 
+            if selected == "Create Server":
+                 text_createserver = process_text("CREATE  SERVER",font,font_size,white)
+            else:
+                text_createserver = process_text("CREATE  SERVER",font,font_size,yellow)
+
+
             #title_rect=title.get_rect()
             start_rect=text_start.get_rect()
             quit_rect=text_quit.get_rect()
             highscores_rect=text_highscores.get_rect()
             instruct_rect=text_instructions.get_rect()
+            create_rect = text_createserver.get_rect()
 
             pos=width/2
             #display.blit(title, (450 - (title_rect[2]/2), 80))
-            display.blit(text_start, (pos - (start_rect[2]/2), 100))
-            display.blit(text_instructions, ( pos- (instruct_rect[2]/2), 140))
-            display.blit(text_highscores, (pos - (highscores_rect[2]/2),180))
-            display.blit(text_quit, (pos - (quit_rect[2]/2), 220))
+            display.blit(text_start, (pos - (start_rect[2]/2), 80))
+            display.blit(text_createserver,(pos - (create_rect[2]/2),120))
+            display.blit(text_instructions, ( pos- (instruct_rect[2]/2), 160))
+            display.blit(text_highscores, (pos - (highscores_rect[2]/2),200))
+            display.blit(text_quit, (pos -(quit_rect[2]/2),240))
             pygame.display.update()
             clock.tick(5)
             pygame.display.set_caption("Main Menu")
