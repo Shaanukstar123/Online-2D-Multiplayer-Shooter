@@ -8,7 +8,15 @@ from collectables import *
 import random
 import pygame
 
-def run():
+def run(name):
+    UDP_IP = ("127.0.0.1")
+    UDP_PORT = 5005
+    MESSAGE = name
+
+    print ("UDP target IP:", UDP_IP)
+    print ("UDP target port:", UDP_PORT)
+    print ("Servers", MESSAGE)
+
     global all_data,timer, totalConnections, timerHasStarted, timer
 
     totalConnections = 0
@@ -57,6 +65,9 @@ def run():
 
     currentPlayer = 0
     while True:
+        sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) # UDP
+        sock.sendto((str.encode(MESSAGE)), (UDP_IP, UDP_PORT))
+
         conn, addr = s.accept()
         print("Connected to:", addr)
         totalConnections += 1
@@ -108,5 +119,3 @@ def threaded_client(conn, player):
 
 def error():
     print("You can't do that")
-
-run()
