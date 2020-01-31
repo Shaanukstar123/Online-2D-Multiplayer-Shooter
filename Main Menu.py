@@ -6,6 +6,7 @@ import sqlite3
 from highscores import *
 from _thread import *
 from Server1 import *
+import socket
 
 def menu(start):
     pygame.init()
@@ -58,6 +59,13 @@ def menu(start):
     font = "Images/arcade.TTF"
     n=0
     def main_menu(n,start):
+        servers = []
+        UDP_IP = "127.0.0.1"
+        UDP_PORT = 5005
+
+        sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) # UDP
+        sock.bind((UDP_IP, UDP_PORT))
+        server_started = False
 
         tracker=["start","Create Server","instructions","highscores","quit"]
         pointer=0
@@ -92,13 +100,24 @@ def menu(start):
                             quit()
                         if selected =="start":
                             print("start")
-                            start=True
-                            return start
+                            while True:
+                                data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
+                                if data not in servers:
+                                    servers.append(data)
+                                    print ("received message:", data)
+                                    server_choice = input("Select a server: ")
+                                    start=True
+                                    return start
                         if selected == "highscores":
                             start_new_thread(run_table,())
 
                         if selected =="Create Server":
-                            start_new_thread(run,())
+                            name=input("Server name: ")
+                            if server_started == False:
+                                server_started = True
+                                start_new_thread(run,(name,))
+                            else:
+                                print("Server already started")
 
             display.fill(grey)
             display.blit(backgrounds[n],(0,0))
