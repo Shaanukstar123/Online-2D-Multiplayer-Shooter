@@ -58,13 +58,25 @@ def menu(start):
 
     font = "Images/arcade.TTF"
     n=0
-    def main_menu(n,start):
-        servers = []
-        UDP_IP = "127.0.0.1"
-        UDP_PORT = 5005
 
-        sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) # UDP
-        sock.bind((UDP_IP, UDP_PORT))
+
+    def main_menu(n,start):
+        multicast_group = '224.3.29.71'
+        server_address = ('', 10000)
+
+        # Create the socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        # Bind to the server address
+        sock.bind(server_address)
+
+        # Tell the operating system to add the socket to the multicast group
+        # on all interfaces.
+        group = socket.inet_aton(multicast_group)
+        mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+        sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+        global servers
+        servers = {}
         server_started = False
 
         tracker=["start","Create Server","instructions","highscores","quit"]
@@ -74,6 +86,7 @@ def menu(start):
         selected="start"
 
         while menu:
+
             if n>6:
               n=0
             else:
@@ -100,19 +113,23 @@ def menu(start):
                             quit()
                         if selected =="start":
                             print("start")
-                            while True:
-                                data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-                                if data not in servers:
-                                    servers.append(data)
-                                    print ("received message:", data)
-                                    server_choice = input("Select a server: ")
-                                    start=True
-                                    return start
+                            address_of_server=run_scan(multicast_group,server_address,group,mreq,sock)
+                            start=True
+                            print("Servers: ")
+                            for server in servers:
+                                print(server)
+                            selected = input("Chose a server: ")
+                            if selected in servers:
+                                return [start,servers[selected]]
+                            else:
+                                print(servers)
+                                print("Server does not exists")
                         if selected == "highscores":
                             start_new_thread(run_table,())
 
                         if selected =="Create Server":
-                            name=input("Server name: ")
+                            #name=input("Server name: ")
+                            name = input("Server Name: ")
                             if server_started == False:
                                 server_started = True
                                 start_new_thread(run,(name,))
@@ -173,5 +190,19 @@ def menu(start):
 
     return main_menu(n,start)
     pygame.quit()
-#menu(start)
-#quit()
+    #menu(start)
+    #quit()
+#def server_scan():
+
+    # Receive/respond loop
+def run_scan(multicast_group,server_address,group,mreq,sock):
+    print (sys.stderr, '\nwaiting to receive message')
+    data, address = sock.recvfrom(1024)
+
+    print (sys.stderr, 'received %s bytes from %s' % (len(data), address))
+    print (sys.stderr, data)
+    data = data.decode("utf-8")
+    servers.update({data:address[0]})
+
+    print (sys.stderr, 'sending acknowledgement to', address)
+    sock.sendto('ack'.encode("utf-8"), address)
