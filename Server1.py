@@ -7,15 +7,11 @@ from timer import *
 from collectables import *
 import random
 import pygame
+import sys
+import struct
 
 def run(name):
-    UDP_IP = ("127.0.0.1")
-    UDP_PORT = 5005
-    MESSAGE = name
-
-    print ("UDP target IP:", UDP_IP)
-    print ("UDP target port:", UDP_PORT)
-    print ("Servers", MESSAGE)
+    start_new_thread(multicast,(name,))
 
     global all_data,timer, totalConnections, timerHasStarted, timer
 
@@ -24,7 +20,7 @@ def run(name):
     port = 5555
     host=socket.gethostname()
     IP = socket.gethostbyname(host)
-    server = IP
+    server = ""
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     try:
@@ -65,8 +61,6 @@ def run(name):
 
     currentPlayer = 0
     while True:
-        sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) # UDP
-        sock.sendto((str.encode(MESSAGE)), (UDP_IP, UDP_PORT))
 
         conn, addr = s.accept()
         print("Connected to:", addr)
@@ -115,7 +109,47 @@ def threaded_client(conn, player):
     print("Lost connection")
     conn.close()
 
+def multicast(name):
 
+    message = name
+    multicast_group = ('224.3.29.71', 10000)
+
+    # Create the datagram socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    # Set a timeout so the socket does not block indefinitely when trying
+    # to receive data.
+    sock.settimeout(0.2)
+
+    # Set the time-to-live for messages to 1 so they do not go past the
+    # local network segment.
+    ttl = struct.pack('b', 1)
+    sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+    try:
+        while True:
+            # Send data to the multicast group
+            print (sys.stderr, 'sending "%s"' % message)
+            sent = sock.sendto(message.encode("utf-8"), multicast_group)
+
+            # Look for responses from all recipients
+            while True:
+                print (sys.stderr, 'waiting to receive')
+                try:
+                    data, server = sock.recvfrom(16)
+                except socket.timeout:
+                    print (sys.stderr, 'timed out, no more responses')
+                    break
+                else:
+                    print (sys.stderr, 'received "%s" from %s' % (data, server))
+            if totalConnections == 2:
+                break
+
+    finally:
+        print (sys.stderr, 'closing socket')
+        sock.close()
 
 def error():
     print("You can't do that")
+
+
+#run("server1")
