@@ -128,19 +128,20 @@ def multicast(name):
     try:
         while True:
             # Send data to the multicast group
-            print (sys.stderr, 'sending "%s"' % message)
+            #print (sys.stderr, 'sending "%s"' % message)
             sent = sock.sendto(message.encode("utf-8"), multicast_group)
 
             # Look for responses from all recipients
             while True:
-                print (sys.stderr, 'waiting to receive')
+                #print (sys.stderr, 'waiting to receive')
                 try:
                     data, server = sock.recvfrom(16)
                 except socket.timeout:
-                    print (sys.stderr, 'timed out, no more responses')
+                    #print (sys.stderr, 'timed out, no more responses')
                     break
                 else:
-                    print (sys.stderr, 'received "%s" from %s' % (data, server))
+                    pass
+                    #print (sys.stderr, 'received "%s" from %s' % (data, server))
             if totalConnections == 2:
                 break
 
