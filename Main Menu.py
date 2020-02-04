@@ -7,6 +7,7 @@ from highscores import *
 from _thread import *
 from Server1 import *
 import socket
+from socket import timeout as TimeoutError
 
 def menu(start):
     pygame.init()
@@ -84,9 +85,8 @@ def menu(start):
 
         menu=True
         selected="start"
-
+        start_scan = False
         while menu:
-
             if n>6:
               n=0
             else:
@@ -112,18 +112,22 @@ def menu(start):
                             pygame.quit()
                             quit()
                         if selected =="start":
-                            print("start")
                             address_of_server=run_scan(multicast_group,server_address,group,mreq,sock)
-                            start=True
-                            print("Servers: ")
-                            for server in servers:
-                                print(server)
-                            selected = input("Chose a server: ")
-                            if selected in servers:
-                                return [start,servers[selected]]
+                            print("start")
+                            start_scan=True
+                            if len(servers)>0:
+                                print("Servers: ")
+                                for server in servers:
+                                    print(server)
+                                selected = input("Chose a server: ")
+                                if selected in servers:
+                                    start=True
+                                    return [start,servers[selected]]
+                                else:
+                                    print(servers)
+                                    print("Server does not exists")
                             else:
-                                print(servers)
-                                print("Server does not exists")
+                                print("No servers running")
                         if selected == "highscores":
                             start_new_thread(run_table,())
 
@@ -196,13 +200,19 @@ def menu(start):
 
     # Receive/respond loop
 def run_scan(multicast_group,server_address,group,mreq,sock):
+    data = []
+    address = None
+    sock.settimeout(5)
     print (sys.stderr, '\nwaiting to receive message')
-    data, address = sock.recvfrom(1024)
+    try:
+        data, address = sock.recvfrom(1024)
+        #print (sys.stderr, 'received %s bytes from %s' % (len(data), address))
+        #print (sys.stderr, data)
+        data = data.decode("utf-8")
+        servers.update({data:address[0]})
 
-    print (sys.stderr, 'received %s bytes from %s' % (len(data), address))
-    print (sys.stderr, data)
-    data = data.decode("utf-8")
-    servers.update({data:address[0]})
-
-    print (sys.stderr, 'sending acknowledgement to', address)
-    sock.sendto('ack'.encode("utf-8"), address)
+        #print (sys.stderr, 'sending acknowledgement to', address)
+        sock.sendto('ack'.encode("utf-8"), address)
+    except TimeoutError:
+        print("No servers found")
+        end = input("Enter c to cancel search ")
