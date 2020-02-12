@@ -6,7 +6,7 @@ import sqlite3
 from highscores import *
 from _thread import *
 from Server1 import *
-import socket
+from socket import *
 from socket import timeout as TimeoutError
 
 def menu(start):
@@ -29,6 +29,8 @@ def menu(start):
     music=pygame.mixer.music.load("fire.wav")
     pygame.mixer.music.play(-1)
 
+    server_background = pygame.image.load("Images/ServerWall.jpg")
+    server_background = pygame.transform.scale(server_background,(width,height))
     backgrounds=[]
 
     anime1=pygame.image.load("Images/tmp-0.gif")
@@ -60,32 +62,98 @@ def menu(start):
     font = "Images/arcade.TTF"
     n=0
 
+    def create_server_screen():
+        while True:
+            display.fill((255,255,255))
+            display.blit(server_background,(0,0))
+            clock.tick(10)
+            pygame.display.update()
+
+    def server_screen(server_address):
+        server_background = pygame.image.load("Images/ServerWall.jpg")
+        server_background = pygame.transform.scale(server_background,(width,height))
+        address_of_server=run_scan(server_address)#multicast_group,server_address,group,mreq,sock)
+        server_list_position=[]
+        print("addr",server_address)
+        if len(servers)>0:
+            print("Servers: ")
+            x = 450
+            y = 80
+            pointer = 0
+            while True:
+                for event in pygame.event.get():
+                    if event.type==pygame.KEYDOWN:
+                        if event.key==pygame.K_BACKSPACE:
+                            return None
+                    display.fill((255,255,255))
+                    display.blit(server_background,(0,0))
+
+                    for server in servers:
+                        y+=20
+                        server_list_position.append(y)
+                    index=0
+                    tracker  = []
+                    for server in servers:
+                        tracker.append(server)
+                        print(server)
+                        server_name=process_text(server, font, 32, white)
+                        display.blit(server_name, (x, server_list_position[index]))
+                        index+=1
+                    pointer = 0
+                    if event.type==pygame.KEYDOWN:
+                        if event.key==pygame.K_UP:
+                            if pointer>0:
+                                pointer-=1
+
+                        if event.key==pygame.K_DOWN:
+                            if pointer<(len(tracker))-1:
+                                pointer+=1
+
+                        if event.key==pygame.K_RETURN:
+                            return tracker[pointer]
+
+
+                    pygame.display.update()
+                    #selected = input("Chose a server: ")
+                    '''if selected in servers:
+                        start=True
+                        return [start,servers[selected]]
+                    else:
+                        print(servers)
+                        print("Server does not exists")'''
+                    clock.tick(10)
+                    pygame.display.update()
+        else:
+            print("No servers running")
+            return None
+
+
 
     def main_menu(n,start):
-        multicast_group = '224.3.29.71'
+        global servers,server_address,sock
+        #multicast_group = '224.3.29.71'
         server_address = ('', 10000)
-
-        # Create the socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock = socket(AF_INET, SOCK_DGRAM)
+        #sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        #sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         # Bind to the server address
-        sock.bind(server_address)
 
         # Tell the operating system to add the socket to the multicast group
         # on all interfaces.
-        group = socket.inet_aton(multicast_group)
-        mreq = struct.pack('4sL', group, socket.INADDR_ANY)
-        sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
-        global servers
+        #group = socket.inet_aton(multicast_group)
+        #mreq = struct.pack('4sL', group, socket.INADDR_ANY)
+        #sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
+
         servers = {}
         server_started = False
+
 
         tracker=["start","Create Server","instructions","highscores","quit"]
         pointer=0
 
         menu=True
         selected="start"
-        start_scan = False
         while menu:
             if n>6:
               n=0
@@ -112,22 +180,10 @@ def menu(start):
                             pygame.quit()
                             quit()
                         if selected =="start":
-                            address_of_server=run_scan(multicast_group,server_address,group,mreq,sock)
-                            print("start")
-                            start_scan=True
-                            if len(servers)>0:
-                                print("Servers: ")
-                                for server in servers:
-                                    print(server)
-                                selected = input("Chose a server: ")
-                                if selected in servers:
-                                    start=True
-                                    return [start,servers[selected]]
-                                else:
-                                    print(servers)
-                                    print("Server does not exists")
-                            else:
-                                print("No servers running")
+                            result=server_screen(server_address)#multicast_group,server_address)
+                            if result != None:
+                                return [True,servers[result]]
+
                         if selected == "highscores":
                             start_new_thread(run_table,())
 
@@ -199,13 +255,19 @@ def menu(start):
 #def server_scan():
 
     # Receive/respond loop
-def run_scan(multicast_group,server_address,group,mreq,sock):
+
+
+
+def run_scan(server_address):
     data = []
     address = None
+    sock.bind(server_address)
     sock.settimeout(5)
     print (sys.stderr, '\nwaiting to receive message')
     try:
         data, address = sock.recvfrom(1024)
+        #m=m.decode("utf-8")
+        #data, address = sock.recvfrom(1024)
         #print (sys.stderr, 'received %s bytes from %s' % (len(data), address))
         #print (sys.stderr, data)
         data = data.decode("utf-8")
