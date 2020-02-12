@@ -1,4 +1,4 @@
-import socket
+from socket import *
 from _thread import *
 import sys
 from classes import *
@@ -11,21 +11,21 @@ import sys
 import struct
 
 def run(name):
-    start_new_thread(multicast,(name,))
+    start_new_thread(broadcast,(name,))
 
     global all_data,timer, totalConnections, timerHasStarted, timer
 
     totalConnections = 0
     #server = "192.168.1.224"
     port = 5555
-    host=socket.gethostname()
-    IP = socket.gethostbyname(host)
+    host=gethostname()
+    IP = gethostbyname(host)
     server = ""
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s = socket(AF_INET,SOCK_STREAM)
 
     try:
         s.bind((server, port))
-    except socket.error as e:
+    except error as e:
         str(e)
 
     s.listen(2)
@@ -109,34 +109,35 @@ def threaded_client(conn, player):
     print("Lost connection")
     conn.close()
 
-def multicast(name):
+def broadcast(name):
 
     message = name
-    multicast_group = ('224.3.29.71', 10000)
+    broadcast_address = ('255.255.255.255', 10000)
 
     # Create the datagram socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
+    #sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock=socket(AF_INET, SOCK_DGRAM)
+    sock.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
     # Set a timeout so the socket does not block indefinitely when trying
     # to receive data.
     sock.settimeout(0.2)
 
     # Set the time-to-live for messages to 1 so they do not go past the
     # local network segment.
-    ttl = struct.pack('b', 1)
-    sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+    #ttl = struct.pack('b', 1)
+    #sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
     try:
         while True:
             # Send data to the multicast group
             #print (sys.stderr, 'sending "%s"' % message)
-            sent = sock.sendto(message.encode("utf-8"), multicast_group)
+            sent = sock.sendto(message.encode("utf-8"), broadcast_address)
 
             # Look for responses from all recipients
             while True:
                 #print (sys.stderr, 'waiting to receive')
                 try:
                     data, server = sock.recvfrom(16)
-                except socket.timeout:
+                except timeout:
                     #print (sys.stderr, 'timed out, no more responses')
                     break
                 else:
