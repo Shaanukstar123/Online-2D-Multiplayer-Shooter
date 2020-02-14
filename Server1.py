@@ -9,6 +9,7 @@ import random
 import pygame
 import sys
 import struct
+import random
 
 def run(name):
     start_new_thread(broadcast,(name,))
