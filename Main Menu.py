@@ -105,9 +105,9 @@ def menu(start):
                             tracker.append(key)
                         print(key)
                         if tracker[pointer] == key:
-                            server_name=process_text(key, font, 32, turquoise)
-                        else:
                             server_name=process_text(key, font, 32, white)
+                        else:
+                            server_name=process_text(key, font, 32, yellow)
                         display.blit(server_name, (x, server_list_position[index]))
                         index+=1
                     pointer = 0
@@ -284,9 +284,9 @@ def run_scan():#server_address):
     while True:
         n+=1
         print(n)
-        if n>100:
+        if n>50:
             break
-        data, address = sock.recvfrom(1024)
+        data, address = sock.recvfrom(2048)
         #m=m.decode("utf-8")
         #data, address = sock.recvfrom(1024)
         #print (sys.stderr, 'received %s bytes from %s' % (len(data), address))
