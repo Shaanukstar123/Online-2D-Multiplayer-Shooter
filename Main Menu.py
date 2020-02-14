@@ -72,7 +72,7 @@ def menu(start):
     def server_screen(server_address):
         server_background = pygame.image.load("Images/ServerWall.jpg")
         server_background = pygame.transform.scale(server_background,(width,height))
-        address_of_server=run_scan(server_address)#multicast_group,server_address,group,mreq,sock)
+        run_scan()#server_address)#multicast_group,server_address,group,mreq,sock)
         server_list_position=[]
         print("addr",server_address)
         if len(servers)>0:
@@ -80,6 +80,7 @@ def menu(start):
             x = 450
             y = 80
             pointer = 0
+            tracker  = []
             while True:
                 for event in pygame.event.get():
                     if event.type==pygame.KEYDOWN:
@@ -92,11 +93,13 @@ def menu(start):
                         y+=20
                         server_list_position.append(y)
                     index=0
-                    tracker  = []
-                    for server in servers:
-                        tracker.append(server)
-                        print(server)
-                        server_name=process_text(server, font, 32, white)
+                    print(tracker)
+                    for key in servers:
+                        print(key)
+                        if key not in tracker:
+                            tracker.append(key)
+                        print(key)
+                        server_name=process_text(key, font, 32, white)
                         display.blit(server_name, (x, server_list_position[index]))
                         index+=1
                     pointer = 0
@@ -110,7 +113,10 @@ def menu(start):
                                 pointer+=1
 
                         if event.key==pygame.K_RETURN:
-                            return tracker[pointer]
+                            if tracker[pointer] in servers:
+                                ip = (servers[tracker[pointer]])[0]
+                                print(ip)
+                                return ip
 
 
                     pygame.display.update()
@@ -134,6 +140,7 @@ def menu(start):
         #multicast_group = '224.3.29.71'
         server_address = ('', 10000)
         sock = socket(AF_INET, SOCK_DGRAM)
+        sock.bind(server_address)
         #sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         #sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
@@ -182,7 +189,7 @@ def menu(start):
                         if selected =="start":
                             result=server_screen(server_address)#multicast_group,server_address)
                             if result != None:
-                                return [True,servers[result]]
+                                return [True,result]
 
                         if selected == "highscores":
                             start_new_thread(run_table,())
@@ -258,23 +265,36 @@ def menu(start):
 
 
 
-def run_scan(server_address):
+def run_scan():#server_address):
     data = []
     address = None
-    sock.bind(server_address)
-    sock.settimeout(5)
+    #sock.settimeout(3)
     print (sys.stderr, '\nwaiting to receive message')
-    try:
+    server_list =[]
+    n=0
+    #try:
+    while True:
+        n+=1
+        print(n)
+        if n>100:
+            break
         data, address = sock.recvfrom(1024)
         #m=m.decode("utf-8")
         #data, address = sock.recvfrom(1024)
         #print (sys.stderr, 'received %s bytes from %s' % (len(data), address))
         #print (sys.stderr, data)
         data = data.decode("utf-8")
-        servers.update({data:address[0]})
+        if data not in server_list:
+            server_list.append(data)
+        servers[data] = address
+        print(server_list)
+        #print(servers[data])
+            #print(servers[data])
+        #servers.update({data:address[0]})
+            #print(servers)
 
         #print (sys.stderr, 'sending acknowledgement to', address)
         sock.sendto('ack'.encode("utf-8"), address)
-    except TimeoutError:
-        print("No servers found")
-        end = input("Enter c to cancel search ")
+    #except TimeoutError:
+        #print("No servers found")
+        #end = input("Enter c to cancel search ")
