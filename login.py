@@ -29,6 +29,7 @@ class Login_system():
         self.new_pass=StringVar()
         self.widgets()
         self.start_game=False
+        self.hash = {}
 
     def login(self):
         #self.widgets()
@@ -87,27 +88,27 @@ class Login_system():
         self.createframe.pack(fill="both", expand=True)
 
     def widgets(self):
-        self.header = Label(self.root,text = 'Login',font = ('',35),pady = 10)
+        self.header = Label(self.root,text = 'Login',font = ("fixedsys",35),pady = 10)
         self.header.pack()
         self.logframe = Frame(self.root,padx =10,pady = 10)
-        Label(self.logframe,text = 'username: ',font = ('',20),pady=20,padx=55).grid(sticky = W)
-        Entry(self.logframe,textvariable = self.username,bd = 5,font = ('',15)).grid(row=0,column=1)
-        Label(self.logframe,text = 'Password: ',font = ('',20),pady=20,padx=55).grid(sticky = W)
-        Entry(self.logframe,textvariable = self.password,bd = 5,font = ('',15),show = '*').grid(row=1,column=1)
-        Button(self.logframe,text = ' Login ',bd = 3 ,font = ('',15),padx=5,pady=5,command=self.login).grid()
-        Button(self.logframe,text = ' Create Account ',bd = 3 ,font = ('',15),padx=5,pady=5,command=self.create_frame).grid(row=2,column=1)
+        Label(self.logframe,text = 'username: ',font = ("fixedsys",20),pady=20,padx=55).grid(sticky = W)
+        Entry(self.logframe,textvariable = self.username,bd = 5,font = ("fixedsys",15)).grid(row=0,column=1)
+        Label(self.logframe,text = 'Password: ',font = ("fixedsys",20),pady=20,padx=55).grid(sticky = W)
+        Entry(self.logframe,textvariable = self.password,bd = 5,font = ("fixedsys",15),show = '*').grid(row=1,column=1)
+        Button(self.logframe,text = ' Login ',bd = 3 ,font = ("fixedsys",15),padx=5,pady=5,command=self.login).grid()
+        Button(self.logframe,text = ' Create Account ',bd = 3 ,font = ("fixedsys",15),padx=5,pady=5,command=self.create_frame).grid(row=2,column=1)
         self.logframe.pack(fill="both", expand=True)
 
         self.createframe = Frame(self.root,padx =10,pady = 10)
-        Label(self.createframe,text = 'username: ',font = ('',20),pady=5,padx=5).grid(sticky = W)
-        Entry(self.createframe,textvariable = self.new_username,bd = 5,font = ('',15)).grid(row=0,column=1)
-        Label(self.createframe,text = 'Password: ',font = ('',20),pady=5,padx=5).grid(sticky = W)
-        Entry(self.createframe,textvariable = self.new_pass,bd = 5,font = ('',15),show = '*').grid(row=1,column=1)
-        Button(self.createframe,text = 'Create Account',bd = 3 ,font = ('',15),padx=5,pady=5,command=self.create_account).grid()
-        Button(self.createframe,text = 'Go to Login',bd = 3 ,font = ('',15),padx=5,pady=5,command=self.log_frame).grid(row=2,column=1)
+        Label(self.createframe,text = 'username: ',font = ("fixedsys",20),pady=5,padx=5).grid(sticky = W)
+        Entry(self.createframe,textvariable = self.new_username,bd = 5,font = ("fixedsys",15)).grid(row=0,column=1)
+        Label(self.createframe,text = 'Password: ',font = ("fixedsys",20),pady=5,padx=5).grid(sticky = W)
+        Entry(self.createframe,textvariable = self.new_pass,bd = 5,font = ("fixedsys",15),show = '*').grid(row=1,column=1)
+        Button(self.createframe,text = 'Create Account',bd = 3 ,font = ("fixedsys",15),padx=5,pady=5,command=self.create_account).grid()
+        Button(self.createframe,text = 'Go to Login',bd = 3 ,font = ("fixedsys",15),padx=5,pady=5,command=self.log_frame).grid(row=2,column=1)
 
 root=Tk()
-root.geometry("700x400")
+root.geometry("600x350")
 login=Login_system(root)
 #Login_system(root)
 root.mainloop()
