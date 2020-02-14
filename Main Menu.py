@@ -33,6 +33,7 @@ def menu(start):
     music=pygame.mixer.music.load("fire.wav")
     pygame.mixer.music.play(-1)
 
+    instructions = pygame.image.load("Images/instructions.png")
     server_background = pygame.image.load("Images/ServerWall.jpg")
     server_background = pygame.transform.scale(server_background,(width,height))
     backgrounds=[]
@@ -142,6 +143,17 @@ def menu(start):
             print("No servers running")
             return None
 
+    def instructions_page(display):
+        while True:
+            display.fill(black)
+            display.blit(instructions,(0,0))
+
+
+            for event in pygame.event.get():
+                if event.type==pygame.KEYDOWN:
+                    if event.key==pygame.K_BACKSPACE:
+                        return None
+            pygame.display.update()
 
 
     def main_menu(n,start):
@@ -211,6 +223,9 @@ def menu(start):
                                 start_new_thread(run,(name,))
                             else:
                                 print("Server already started")
+
+                        if selected == "instructions":
+                            instructions_page(display)
 
             display.fill(grey)
             display.blit(backgrounds[n],(0,0))
