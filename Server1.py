@@ -11,6 +11,9 @@ import sys
 import struct
 import random
 
+host=gethostname()
+IP = gethostbyname(host)
+
 def run(name):
     start_new_thread(broadcast,(name,))
 
@@ -19,8 +22,7 @@ def run(name):
     totalConnections = 0
     #server = "192.168.1.224"
     port = 5555
-    host=gethostname()
-    IP = gethostbyname(host)
+
     server = ""
     s = socket(AF_INET,SOCK_STREAM)
 
@@ -111,9 +113,13 @@ def threaded_client(conn, player):
     conn.close()
 
 def broadcast(name):
+    broadcast_ip = IP.split(".")
+    broadcast_ip[3] = "255"
+
+    broadcast_ip = ".".join(broadcast_ip)
 
     message = name
-    broadcast_address = ('255.255.255.255', 10000)
+    broadcast_address = (broadcast_ip, 10000)
 
     # Create the datagram socket
     #sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
