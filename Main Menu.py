@@ -25,6 +25,7 @@ def menu(start):
     blue=(0, 0, 255)
     green=(0, 255, 0)
     grey=(128, 128, 128)
+    turquoise = (0,255,239)
 
     music=pygame.mixer.music.load("fire.wav")
     pygame.mixer.music.play(-1)
@@ -77,20 +78,24 @@ def menu(start):
         print("addr",server_address)
         if len(servers)>0:
             print("Servers: ")
-            x = 450
-            y = 80
+            x = 360
+            y = 100
             pointer = 0
             tracker  = []
+            colour = white
+            title=process_text("Servers", font, 42, yellow)
             while True:
+
                 for event in pygame.event.get():
                     if event.type==pygame.KEYDOWN:
                         if event.key==pygame.K_BACKSPACE:
                             return None
                     display.fill((255,255,255))
                     display.blit(server_background,(0,0))
+                    display.blit(title, (380, 40))
 
                     for server in servers:
-                        y+=20
+                        y+=50
                         server_list_position.append(y)
                     index=0
                     print(tracker)
@@ -99,18 +104,21 @@ def menu(start):
                         if key not in tracker:
                             tracker.append(key)
                         print(key)
-                        server_name=process_text(key, font, 32, white)
+                        if tracker[pointer] == key:
+                            server_name=process_text(key, font, 32, turquoise)
+                        else:
+                            server_name=process_text(key, font, 32, white)
                         display.blit(server_name, (x, server_list_position[index]))
                         index+=1
                     pointer = 0
                     if event.type==pygame.KEYDOWN:
                         if event.key==pygame.K_UP:
                             if pointer>0:
-                                pointer-=1
+                                pointer+=1
 
                         if event.key==pygame.K_DOWN:
                             if pointer<(len(tracker))-1:
-                                pointer+=1
+                                pointer-=1
 
                         if event.key==pygame.K_RETURN:
                             if tracker[pointer] in servers:
@@ -288,13 +296,14 @@ def run_scan():#server_address):
             server_list.append(data)
         servers[data] = address
         print(server_list)
+        sock.sendto('ack'.encode("utf-8"), address)
         #print(servers[data])
             #print(servers[data])
         #servers.update({data:address[0]})
             #print(servers)
 
         #print (sys.stderr, 'sending acknowledgement to', address)
-        sock.sendto('ack'.encode("utf-8"), address)
+
     #except TimeoutError:
         #print("No servers found")
         #end = input("Enter c to cancel search ")
