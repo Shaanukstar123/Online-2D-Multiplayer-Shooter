@@ -7,7 +7,10 @@ from highscores import *
 from _thread import *
 from Server1 import *
 from socket import *
+from textbox import *
 from socket import timeout as TimeoutError
+import time
+font = "Images/arcade.TTF"
 
 def menu(start):
     pygame.init()
@@ -59,8 +62,6 @@ def menu(start):
 
         return edited
 
-
-    font = "Images/arcade.TTF"
     n=0
 
     def create_server_screen():
@@ -73,7 +74,7 @@ def menu(start):
     def server_screen(server_address):
         server_background = pygame.image.load("Images/ServerWall.jpg")
         server_background = pygame.transform.scale(server_background,(width,height))
-        run_scan()#server_address)#multicast_group,server_address,group,mreq,sock)
+        run_scan(display)#server_address)#multicast_group,server_address,group,mreq,sock)
         server_list_position=[]
         print("addr",server_address)
         if len(servers)>0:
@@ -83,7 +84,7 @@ def menu(start):
             pointer = 0
             tracker  = []
             colour = white
-            title=process_text("Servers", font, 42, yellow)
+            title=process_text("S E R V E R S", font, 42, yellow)
             while True:
 
                 for event in pygame.event.get():
@@ -92,7 +93,7 @@ def menu(start):
                             return None
                     display.fill((255,255,255))
                     display.blit(server_background,(0,0))
-                    display.blit(title, (380, 40))
+                    display.blit(title, (365, 40))
 
                     for server in servers:
                         y+=50
@@ -204,7 +205,7 @@ def menu(start):
 
                         if selected =="Create Server":
                             #name=input("Server name: ")
-                            name = input("Server Name: ")
+                            name = run_textbox(display)
                             if server_started == False:
                                 server_started = True
                                 start_new_thread(run,(name,))
@@ -273,30 +274,59 @@ def menu(start):
 
 
 
-def run_scan():#server_address):
+def run_scan(display):#server_address):
     data = []
     address = None
-    #sock.settimeout(3)
+    sock.settimeout(1)
     print (sys.stderr, '\nwaiting to receive message')
     server_list =[]
     n=0
+    message = "SCANNING FOR SERVERS . . ."
+    text_font = pygame.font.Font(font, 50)
+
+
     #try:
     while True:
+        text = text_font.render(message, 0, white)
+        display.fill(black)
+        display.blit(text,(200,275))
+        pygame.display.update()
+
         n+=1
         print(n)
         if n>50:
             break
-        data, address = sock.recvfrom(2048)
-        #m=m.decode("utf-8")
-        #data, address = sock.recvfrom(1024)
-        #print (sys.stderr, 'received %s bytes from %s' % (len(data), address))
-        #print (sys.stderr, data)
-        data = data.decode("utf-8")
-        if data not in server_list:
-            server_list.append(data)
-        servers[data] = address
-        print(server_list)
-        sock.sendto('ack'.encode("utf-8"), address)
+        try:
+            data, address = sock.recvfrom(2048)
+
+            print(data)
+            if data != None:
+                #m=m.decode("utf-8")
+                #data, address = sock.recvfrom(1024)
+                #print (sys.stderr, 'received %s bytes from %s' % (len(data), address))
+                #print (sys.stderr, data)
+                data = data.decode("utf-8")
+                if data not in server_list:
+                    server_list.append(data)
+                servers[data] = address
+                print(server_list)
+                sock.sendto('ack'.encode("utf-8"), address)
+
+        except TimeoutError:
+            display.fill(black)
+            message = "NO  SERVERS  AVAILABLE"
+            text = text_font.render(message, 0, white)
+            display.blit(text,(200,275))
+            pygame.display.update()
+            time.sleep(2)
+            break
+
+
+
+
+
+
+
         #print(servers[data])
             #print(servers[data])
         #servers.update({data:address[0]})
