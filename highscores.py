@@ -6,15 +6,16 @@ class Highscores():
     def __init__(self,master,run):
         self.run = run
         self.master=master
-        self.master.geometry('450x200+100+200')
+        self.height = 250
+        self.master.geometry('650x'+(str(self.height))+'+100+200')
         self.master.title('Highscore')
         self.connection = sqlite3.connect('playerdata.db')
         self.cursor = self.connection.cursor()
-        self.username_label = Label(self.master, text="Username", width=20)
+        self.username_label = Label(self.master, text="Username",font = ("fixedsys",22), width=20)
         self.username_label.grid(row=0, column=0)
         #self.password_label = Label(self.master, text="Password", width=10)
         #self.password_label.grid(row=0, column=1)
-        self.score_label = Label(self.master, text="Highscores", width=20)
+        self.score_label = Label(self.master, text="Highscores",font = ("fixedsys",22), width=20)
         self.score_label.grid(row=0, column=2)
         self.sorted_scores= []
         self.player_dict ={}
@@ -25,23 +26,30 @@ class Highscores():
         data = self.readfromdatabase()
         for array in data:
             self.sorted_scores.append(array[2])
-            self.player_dict[array[2]] = array[0]
+            self.player_dict[array[0]] = array[2]
         for score in self.sorted_scores:
             if score is None:
                 pointer = self.sorted_scores.index(score)
                 self.sorted_scores[pointer]=0
-        print(self.sorted_scores)
         self.sorted_scores=self.merge_sort(self.sorted_scores)
 
+        no_score = []
+        no_score_count=-1
+        for key in self.player_dict:
+            if self.player_dict[key] == 0:
+                no_score.append(key)
 
         for score in self.sorted_scores:
-            index+=1
+            index+=2
             if score == 0:
-                Label(self.master, text=self.player_dict[None]).grid(row=index, column=0)
-                Label(self.master, text=0).grid(row=index, column=2)
+                no_score_count+=1
+                print(self.player_dict)
+                Label(self.master, text=no_score[no_score_count],font = ("fixedsys",16)).grid(row=index, column=0)
+                Label(self.master, text=0,font = ("fixedsys",16)).grid(row=index, column=2)
             else:
-                Label(self.master, text=self.player_dict[score]).grid(row=index, column=0)
-                Label(self.master, text=score).grid(row=index, column=2)
+                player_name = (list(self.player_dict.keys())[list(self.player_dict.values()).index(score)])
+                Label(self.master, text=player_name,font = ("fixedsys",16)).grid(row=index, column=0)
+                Label(self.master, text=score,font = ("fixedsys",16)).grid(row=index, column=2)
 
         '''for index, dat in enumerate(data):
             Label(self.master, text=dat[0]).grid(row=index+1, column=0)
