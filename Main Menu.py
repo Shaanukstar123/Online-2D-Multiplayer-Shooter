@@ -309,10 +309,10 @@ def run_scan(display):#server_address):
 
         n+=1
         print(n)
-        if n>50:
+        if n>35:
             break
         try:
-            data, address = sock.recvfrom(2048)
+            data, address = sock.recvfrom(2048*2)
 
             print(data)
             if data != None:
