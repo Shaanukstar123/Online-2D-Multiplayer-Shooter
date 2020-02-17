@@ -10,8 +10,9 @@ from socket import *
 from textbox import *
 from socket import timeout as TimeoutError
 import time
-font = "Images/arcade.TTF"
 
+font = "Images/arcade.TTF"
+clock = pygame.time.Clock()
 def menu(start):
     pygame.init()
 
@@ -75,7 +76,7 @@ def menu(start):
     def server_screen(server_address):
         server_background = pygame.image.load("Images/ServerWall.jpg")
         server_background = pygame.transform.scale(server_background,(width,height))
-        run_scan(display)#server_address)#multicast_group,server_address,group,mreq,sock)
+        run_scan(display)
         server_list_position=[]
         print("addr",server_address)
         if len(servers)>0:
@@ -87,7 +88,6 @@ def menu(start):
             colour = white
             title=process_text("S E R V E R S", font, 42, yellow)
             while True:
-
                 for event in pygame.event.get():
                     if event.type==pygame.KEYDOWN:
                         if event.key==pygame.K_BACKSPACE:
@@ -95,7 +95,6 @@ def menu(start):
                     display.fill((255,255,255))
                     display.blit(server_background,(0,0))
                     display.blit(title, (365, 40))
-
                     for server in servers:
                         y+=50
                         server_list_position.append(y)
@@ -128,16 +127,7 @@ def menu(start):
                                 print(ip)
                                 return ip
 
-
-                    pygame.display.update()
-                    #selected = input("Chose a server: ")
-                    '''if selected in servers:
-                        start=True
-                        return [start,servers[selected]]
-                    else:
-                        print(servers)
-                        print("Server does not exists")'''
-                    clock.tick(10)
+                    clock.tick(60)
                     pygame.display.update()
         else:
             print("No servers running")
@@ -148,7 +138,6 @@ def menu(start):
             display.fill(black)
             display.blit(instructions,(0,0))
 
-
             for event in pygame.event.get():
                 if event.type==pygame.KEYDOWN:
                     if event.key==pygame.K_BACKSPACE:
@@ -158,20 +147,9 @@ def menu(start):
 
     def main_menu(n,start):
         global servers,server_address,sock
-        #multicast_group = '224.3.29.71'
         server_address = ('', 10000)
         sock = socket(AF_INET, SOCK_DGRAM)
         sock.bind(server_address)
-        #sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        #sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
-        # Bind to the server address
-
-        # Tell the operating system to add the socket to the multicast group
-        # on all interfaces.
-        #group = socket.inet_aton(multicast_group)
-        #mreq = struct.pack('4sL', group, socket.INADDR_ANY)
-        #sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
         servers = {}
         server_started = False
@@ -274,22 +252,13 @@ def menu(start):
             clock.tick(5)
             pygame.display.set_caption("Main Menu")
 
-            #return start
-
-            #def return_start(start):
-                #return start
 
     return main_menu(n,start)
     pygame.quit()
-    #menu(start)
-    #quit()
-#def server_scan():
-
-    # Receive/respond loop
 
 
 
-def run_scan(display):#server_address):
+def run_scan(display):
     data = []
     address = None
     sock.settimeout(1)
@@ -299,8 +268,6 @@ def run_scan(display):#server_address):
     message = "SCANNING FOR SERVERS . . ."
     text_font = pygame.font.Font(font, 50)
 
-
-    #try:
     while True:
         text = text_font.render(message, 0, white)
         display.fill(black)
@@ -309,17 +276,13 @@ def run_scan(display):#server_address):
 
         n+=1
         print(n)
-        if n>35:
+        if n>25:
             break
         try:
             data, address = sock.recvfrom(2048*2)
 
             print(data)
             if data != None:
-                #m=m.decode("utf-8")
-                #data, address = sock.recvfrom(1024)
-                #print (sys.stderr, 'received %s bytes from %s' % (len(data), address))
-                #print (sys.stderr, data)
                 data = data.decode("utf-8")
                 if data not in server_list:
                     server_list.append(data)
@@ -327,6 +290,8 @@ def run_scan(display):#server_address):
                 print(server_list)
                 sock.sendto('ack'.encode("utf-8"), address)
 
+            clock.tick(60)
+            pygame.display.update()
         except TimeoutError:
             display.fill(black)
             message = "NO  SERVERS  AVAILABLE"
@@ -335,20 +300,3 @@ def run_scan(display):#server_address):
             pygame.display.update()
             time.sleep(2)
             break
-
-
-
-
-
-
-
-        #print(servers[data])
-            #print(servers[data])
-        #servers.update({data:address[0]})
-            #print(servers)
-
-        #print (sys.stderr, 'sending acknowledgement to', address)
-
-    #except TimeoutError:
-        #print("No servers found")
-        #end = input("Enter c to cancel search ")
