@@ -38,25 +38,30 @@ class Player():
         self.invisibility_timer = 0
 
     def draw(self,game):
+        colour=(255,255,255)
         self.hitbox= pygame.Rect(self.x, self.y, 45, 68)
-        wallie=pygame.Rect(game.walls[0].x, game.walls[0].y+35, 10,10 )
-        #loaded=[pygame.image.load(sprite[0]),pygame.image.load(sprite[1])]
         image=pygame.image.load(self.display)
         if self.player==1 and self.visible==True:
             game.gameDisplay.blit(game.loaded_player1[self.direction],(self.x,self.y))
         elif self.player==2 and self.visible==True:
             game.gameDisplay.blit(game.loaded_player2[self.direction],(self.x,self.y))
         rect = pygame.Rect(self.x, self.y, 45, 68)
-        rect2=pygame.Rect(game.walls[1].x,game.walls[1].y,25,25)
 
         new_font = pygame.font.Font("Images/arcade.TTF", 28)
-        colour=(255,255,255)
         health = new_font.render("HP "+(str(self.health)), 0, colour)
         if self.player==1:
             game.gameDisplay.blit(health, (30, 20))
         elif self.player==2:
             game.gameDisplay.blit(health, (width-110, 20))
-        #print("{} {}".format(self.collision_down,self.collision_up))
+
+    def alpha_transparency(self,target, source, location, opacity):
+        x = location[0]
+        y = location[1]
+        temp = pygame.Surface((source.get_width(), source.get_height())).convert()
+        temp.blit(target, (-x, -y))
+        temp.blit(source, (0, 0))
+        temp.set_alpha(opacity)
+        target.blit(temp, location)
 
     def item_use(self):
         for item in self.items:
@@ -253,9 +258,7 @@ class Projectile(Player):
                     return True
                 elif p.player==2:
                     return True
-                #print(p.health)
-                #if p.health<10:
-                    #print("DEAD")
+
             #check the boundaries of the projectile and boundaries of player and if they collide, call player.getdamage()
         for wall in game.walls:
             if self.hitbox.colliderect(wall.rect):
@@ -280,9 +283,6 @@ class Map():
     def draw(self,game):
         game.gameDisplay.blit(self.img,(self.x, self.y))
 
-        #game.gameDisplay.blit(game.wall_img,(game.walls[0].x,game.walls[0].y))
-        #wall2img=pygame.image.load(wall2.image)
-        #game.gameDisplay.blit(game.wall_img,(game.walls[1].x,game.walls[1].y))
 
     '''def draw(self,gameDisplay):
         wall1=pygame.image.load(self.image)
