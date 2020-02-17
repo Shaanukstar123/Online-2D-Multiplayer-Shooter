@@ -111,7 +111,9 @@ class Game():
         self.gameDisplay.blit(username, (self.playerObj.x,self.playerObj.y-20))
         if self.secondPlayerObj.visible==True:
             self.gameDisplay.blit(player2_username, (self.secondPlayerObj.x,self.secondPlayerObj.y-20))
-
+    def invisibility(self):
+        if self.playerObj.visible == False:
+            self.playerObj.alpha_transparency(self.gameDisplay,self.loaded_player1[self.playerObj.direction],(self.playerObj.x,self.playerObj.y),130)
 
     def redraw_window(self):
         self.gameDisplay.fill((255,255,255))
@@ -135,6 +137,7 @@ class Game():
         #self.playerObj.collectables(self)
         #self.secondPlayerObj.collectables(self)
 
+        self.invisibility()
 
         for wall in self.walls:
             wall.draw(self)
