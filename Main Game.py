@@ -11,7 +11,6 @@ import sqlite3
 class Game():
     def __init__(self, username,ip):
         self.client = False
-        self.negative_client = False
         self.time_addition = 0
         self.time_elapsed = 0
         self.username = username
@@ -333,8 +332,6 @@ class Game():
             self.time_elapsed = self.timer.time_elapsed
             if self.client == True:
                 self.time_elapsed+=self.time_addition
-            #if self.negative_client == True:
-                #self.time_elapsed+=26
             print("After Timer: ", self.timer.time_elapsed)
             self.collectable_data= self.p2['collectable']
             if self.loop_count == 1:
@@ -361,7 +358,7 @@ class Game():
 
             if self.playerObj.dead==True or self.secondPlayerObj.dead==True or self.time_elapsed>self.countdown_time:
                 if self.secondPlayerObj.dead==True:
-                    self.playerObj.score += (100-(self.timer.time_elapsed))*5
+                    self.playerObj.score += (100-(self.time_elapsed))*5
 
                 self.score_generator()
                 print("Player 1 score: {}, Player 2 score: {}".format(self.playerObj.score,self.secondPlayerObj.score))
