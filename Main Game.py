@@ -9,7 +9,11 @@ from _thread import *
 import sqlite3
 
 class Game():
-    def __init__(self, ip, username):
+    def __init__(self, username,ip):
+        self.client = False
+        self.negative_client = False
+        self.time_addition = 0
+        self.time_elapsed = 0
         self.username = username
         self.width = 1300
         self.height = 700
@@ -31,7 +35,7 @@ class Game():
         self.count = 100
         #self.heartbeat_sound = pygame.mixer.music.load("heartbeat.wav")
         self.music = pygame.mixer.music.load("power_music.wav")
-        self.ip = ip
+        self.ip = ip#"192.168.1.225"#"134.209.20.155"
         self.p2 = None
         self.p = None
         self.n = None
@@ -125,7 +129,7 @@ class Game():
         self.gameDisplay.blit(score2, (self.width-55, 50))
         self.playerObj.draw(self)
         self.secondPlayerObj.draw(self)
-        self.backwards_time=(self.countdown_time-(self.timer.time_elapsed))
+        self.backwards_time=(self.countdown_time-(self.time_elapsed))
         time = self.text_font.render(str(self.backwards_time), 0, self.white)
         self.gameDisplay.blit(time, (self.width/2, 20))
 
@@ -183,11 +187,11 @@ class Game():
         self.image_index+=1
         for item in self.collectable_list:
             item.hitbox=pygame.Rect(item.x,item.y,25,25)
-            if item.time < self.timer.time_elapsed:
-
+            if item.time < self.time_elapsed:
                 if item.hitbox.colliderect(self.playerObj.hitbox):
                     self.playerObj.items.append(item)
                     self.collectable_list.remove(item)
+                    self.playerObj.score+=20
                 elif item.hitbox.colliderect(self.secondPlayerObj.hitbox):
                     self.secondPlayerObj.items.append(item)
                     self.collectable_list.remove(item)
@@ -205,19 +209,6 @@ class Game():
                     item.life-=1
                 else:
                     self.collectable_list.remove(item)
-
-        '''if len(self.collectable_list)>0:
-            for item in self.collectable_list:
-                item.id = "21"
-                if item.hitbox.colliderect(self.playerObj.hitbox):
-                    item.collected=True
-                    item.life=0
-                    self.vanish=True
-                    self.playerObj.items.append(item.type)
-                    #self.collectable_list.remove(item)
-                else:
-                    if not item.vanish:
-                        item.display(self.gameDisplay,self.speed_ball,self.image_index)'''
 
     def endgame(self,player1_dead,player1_health,name1,player2_dead,player2_health,name2):
         count=0
@@ -319,11 +310,18 @@ class Game():
                 self.waiting_for_player()
                 self.p2 = self.n.send(self.p)
                 self.timer = self.p2['timer']
+                print("initial: ",self.timer.time_elapsed)
+                if self.timer.time_elapsed !=0:
+                    self.time_addition = 0-self.timer.time_elapsed
+                    self.client = True
+                #if self.timer.time_elapsed== -26:
+                    #self.negative_client = True
                 if self.timer==None:
                     continue
-                if self.timer.started==True:
-                    self.start_round = True
-                    break
+                else:
+                    if self.timer.started==True:
+                        self.start_round = True
+                        break
             self.loop_count+=1
             if self.background_index>6:
                 self.background_index=0
@@ -332,23 +330,22 @@ class Game():
             self.p2 = self.n.send(self.p)
             self.secondPlayerObj=self.p2['player']
             self.timer = self.p2['timer']
+            self.time_elapsed = self.timer.time_elapsed
+            if self.client == True:
+                self.time_elapsed+=self.time_addition
+            #if self.negative_client == True:
+                #self.time_elapsed+=26
+            print("After Timer: ", self.timer.time_elapsed)
             self.collectable_data= self.p2['collectable']
-
             if self.loop_count == 1:
                 pygame.mixer.music.play(-1)
                 for data in self.collectable_data:
                     item=Collectable()
                     item.recreate(data[0],data[1],data[2],data[3],data[4])
                     self.collectable_list.append(item)
-            #print(self.collectable_list)
 
             self.players=[self.playerObj,self.secondPlayerObj]
 
-            #self.playerObj=self.players[0]
-            #self.secondPlayerObj=self.players[1]
-
-            #secondPlayerObj = p2['player']
-            #wall2=p2['wall']
             self.events=pygame.event.get()
             for event in self.events:
                 if event.type == pygame.QUIT:
@@ -362,7 +359,10 @@ class Game():
 
             self.show_username()
 
-            if self.playerObj.dead==True or self.secondPlayerObj.dead==True or self.timer.time_elapsed>self.countdown_time:
+            if self.playerObj.dead==True or self.secondPlayerObj.dead==True or self.time_elapsed>self.countdown_time:
+                if self.secondPlayerObj.dead==True:
+                    self.playerObj.score += (100-(self.timer.time_elapsed))*5
+
                 self.score_generator()
                 print("Player 1 score: {}, Player 2 score: {}".format(self.playerObj.score,self.secondPlayerObj.score))
                 self.save_score()
@@ -372,21 +372,18 @@ class Game():
             pygame.display.update()
 
 
-
-
 def start_check(player):
-    host=socket.gethostname()
-    ip=socket.gethostbyname(host)#'192.168.1.225'
+    #host=socket.gethostname()
+    #ip=socket.gethostbyname(host)#'192.168.1.225'
     message=menu(False)
-    if message==True:
-        game=Game(ip,player)
+    if message[0]==True:
+        game=Game(player,message[1])#"52.56.174.206")
         game.gameloop()
 #start_check()
 
 '''Things to still fix:
 
-Collectable items
-Projectiles going through walls
-Disable double jump
-Talk about problems with collectables (sending list data instead of running it on the server)
-'''
+Collectable items : Done
+Projectiles going through walls : Done
+Disable double jump: Done
+talk about why parallel data sets not sent due to synch issues and buffer needed'''
