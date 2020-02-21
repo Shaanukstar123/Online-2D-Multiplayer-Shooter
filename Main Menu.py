@@ -34,6 +34,7 @@ def menu(start):
     music=pygame.mixer.music.load("fire.wav")
     pygame.mixer.music.play(-1)
 
+    signal_bars = pygame.image.load("Images/signalbars.png")
     instructions = pygame.image.load("Images/instructions.png")
     server_background = pygame.image.load("Images/ServerWall.jpg")
     server_background = pygame.transform.scale(server_background,(width,height))
@@ -86,7 +87,7 @@ def menu(start):
             pointer = 0
             tracker  = []
             colour = white
-            title=process_text("S E R V E R S", font, 42, yellow)
+            title=process_text("S E R V E R S", font, 48, yellow)
             while True:
                 for event in pygame.event.get():
                     if event.type==pygame.KEYDOWN:
@@ -96,7 +97,7 @@ def menu(start):
                     display.blit(server_background,(0,0))
                     display.blit(title, (365, 40))
                     for server in servers:
-                        y+=50
+                        y+=70
                         server_list_position.append(y)
                     index=0
                     print(tracker)
@@ -110,6 +111,7 @@ def menu(start):
                         else:
                             server_name=process_text(key, font, 32, yellow)
                         display.blit(server_name, (x, server_list_position[index]))
+                        display.blit(signal_bars,(x+200,server_list_position[index]-20))
                         index+=1
                     pointer = 0
                     if event.type==pygame.KEYDOWN:
@@ -127,7 +129,6 @@ def menu(start):
                                 print(ip)
                                 return ip
 
-                    clock.tick(60)
                     pygame.display.update()
         else:
             print("No servers running")
@@ -229,9 +230,9 @@ def menu(start):
               text_instructions = process_text("INSTRUCTIONS",font,font_size,yellow)
 
             if selected == "Create Server":
-                 text_createserver = process_text("CREATE  SERVER",font,font_size,white)
+                 text_createserver = process_text("HOST MATCH",font,font_size,white)
             else:
-                text_createserver = process_text("CREATE  SERVER",font,font_size,yellow)
+                text_createserver = process_text("HOST MATCH",font,font_size,yellow)
 
 
             #title_rect=title.get_rect()
@@ -276,7 +277,7 @@ def run_scan(display):
 
         n+=1
         print(n)
-        if n>25:
+        if n>35:
             break
         try:
             data, address = sock.recvfrom(2048*2)
