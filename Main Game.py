@@ -16,7 +16,7 @@ class Game():
         self.username = username
         self.width = 1300
         self.height = 700
-        self.gameDisplay = pygame.display.set_mode((self.width, self.height))
+        self.display = pygame.display.set_mode((self.width, self.height))
         self.backgrounds = [
             pygame.image.load("sprites/Background anime/frame0.gif"),
             pygame.image.load("sprites/Background anime/frame1.gif"),
@@ -32,9 +32,8 @@ class Game():
         self.clock = pygame.time.Clock()
         self.fps = 45
         self.count = 100
-        #self.heartbeat_sound = pygame.mixer.music.load("heartbeat.wav")
         self.music = pygame.mixer.music.load("power_music.wav")
-        self.ip = ip#"192.168.1.225"#"134.209.20.155"
+        self.ip = ip
         self.p2 = None
         self.p = None
         self.n = None
@@ -44,7 +43,6 @@ class Game():
             Map(200, 375, 44, 22, "wall1.png")
         ]
         self.wall_img = pygame.image.load("wall1.png")
-        #self.items=[Collectables(1,"sprite.png")]
         self.proj_img = pygame.image.load("projectile1.png")
         self.run = False
         self.countdown_time=100
@@ -86,7 +84,7 @@ class Game():
         self.green = (0, 255, 0)
         self.blue = (0, 0, 255)
         self.light_blue = (173, 216, 230)
-        self.changed=False
+
         self.start_round=False
 
     def load_sprites(self):
@@ -105,18 +103,17 @@ class Game():
         self.waiting_screen=(pygame.transform.scale(self.waiting_screen,(self.width,self.height)))
 
     def show_username(self):
-        self.playerObj.username=self.username
         username = self.arcade_font.render(str(self.username), 0, self.light_blue)
         player2_username=self.arcade_font.render(str(self.secondPlayerObj.username), 0, self.light_blue)
-        self.gameDisplay.blit(username, (self.playerObj.x,self.playerObj.y-20))
+        self.display.blit(username, (self.playerObj.x,self.playerObj.y-20))
         if self.secondPlayerObj.visible==True:
-            self.gameDisplay.blit(player2_username, (self.secondPlayerObj.x,self.secondPlayerObj.y-20))
+            self.display.blit(player2_username, (self.secondPlayerObj.x,self.secondPlayerObj.y-20))
     def invisibility(self):
         if self.playerObj.visible == False:
-            self.playerObj.alpha_transparency(self.gameDisplay,self.loaded_player1[self.playerObj.direction],(self.playerObj.x,self.playerObj.y),130)
+            self.playerObj.alpha_transparency(self.display,self.loaded_player1[self.playerObj.direction],(self.playerObj.x,self.playerObj.y),130)
 
     def redraw_window(self):
-        self.gameDisplay.fill((255,255,255))
+        self.display.fill(self.white)
         if self.playerObj.player==1:
             score1 = self.text_font.render(str(self.playerObj.score), 0, self.light_blue)
             score2 = self.text_font.render(str(self.secondPlayerObj.score), 0, self.light_blue)
@@ -125,17 +122,14 @@ class Game():
             score2 = self.text_font.render(str(self.playerObj.score), 0, self.light_blue)
 
         index=int(self.background_index)
-        self.gameDisplay.blit(self.scaled_backgrounds[index],(0,0))
-        self.gameDisplay.blit(score1, (20, 50))
-        self.gameDisplay.blit(score2, (self.width-55, 50))
+        self.display.blit(self.scaled_backgrounds[index],(0,0))
+        self.display.blit(score1, (20, 50))
+        self.display.blit(score2, (self.width-55, 50))
         self.playerObj.draw(self)
         self.secondPlayerObj.draw(self)
         self.backwards_time=(self.countdown_time-(self.time_elapsed))
         time = self.text_font.render(str(self.backwards_time), 0, self.white)
-        self.gameDisplay.blit(time, (self.width/2, 20))
-
-        #self.playerObj.collectables(self)
-        #self.secondPlayerObj.collectables(self)
+        self.display.blit(time, (self.width/2, 20))
 
         self.invisibility()
 
@@ -149,16 +143,11 @@ class Game():
         self.secondPlayerObj.stop_item_usage()
 
         for bullet in self.playerObj.projectiles:
-            bullet.draw_bullet(self.gameDisplay,self.players)
+            bullet.draw_bullet(self.display,self.players)
             if bullet.collides(self)==True:
                 if self.timer.has_started==True:
                     self.playerObj.score+=10
-                '''if self.playerObj.player==1:
-                    self.player1_score+=10
-                    self.playerObj.score+=10
-                elif self.playerObj.player==2:
-                    self.player2_score+=10
-                    self.secondPlayerObj.score+=10'''
+
             if bullet.should_remove():
                 self.playerObj.remove_projectile(bullet)
                 continue
@@ -166,22 +155,17 @@ class Game():
 
 
         for bullet in self.secondPlayerObj.projectiles:
-            bullet.draw_bullet(self.gameDisplay,self.players)
+            bullet.draw_bullet(self.display,self.players)
             if bullet.collides(self)==True:
-                #if self.secondPlayerObj.player==1:
-                    #self.player1_score+=10
-                    #self.playerObj.score+=10
-                #elif self.playerObj.player==2:
-                #self.player2_score+=10
                 if self.timer.has_started==True:
                     self.secondPlayerObj.score+=10
                 else:
                     print("Can't score yet")
-                #self.players,self.walls[0],self.walls[1])
+
             if bullet.should_remove():
                 self.secondPlayerObj.remove_projectile(bullet)
                 continue
-            #bullet.draw_bullet(self.gameDisplay,self.players)
+
 
     def collectables(self):
         if self.image_index>8:
@@ -200,17 +184,31 @@ class Game():
                 if item.life>0:
                     item.levitate()
                     if item.type == 1:
-                        item.display(self.gameDisplay,self.heart_img)
+                        item.display(self.display,self.heart_img)
 
                     if item.type == 2:
-                        item.display(self.gameDisplay,self.invis_potion)
+                        item.display(self.display,self.invis_potion)
 
                     if item.type == 3:
-                        item.display_anime(self.gameDisplay,self.speed_ball,self.image_index)
+                        item.display_anime(self.display,self.speed_ball,self.image_index)
 
                     item.life-=1
                 else:
                     self.collectable_list.remove(item)
+
+    def error_screen(self,error):
+        big_font = pygame.font.Font("Images/arcade.TTF", 40)
+        time = 0
+        error_message=big_font.render(str(error), 0, self.white)
+        while True:
+            if time >=10:
+                start_check(self.username)
+            time +=1
+            self.display.fill(self.black)
+            self.display.blit(error_message, ((width/2) - (300), (height/2)))
+            pygame.display.update()
+            self.clock.tick(2)
+
 
     def endgame(self,player1_dead,player1_health,name1,player2_dead,player2_health,name2):
         count=0
@@ -218,8 +216,8 @@ class Game():
         new_font = pygame.font.Font("Images/arcade.TTF", 80)
         player_font=pygame.font.Font("Images/arcade.TTF", 60)
         game_over = new_font.render(str("GAME OVER"), 0, self.black)
-        player1=player_font.render(str(name1 +"  wins!"), 0, self.yellow)
-        player2=player_font.render(str(name2 +"   wins!"), 0, self.green)
+        player1=player_font.render(str(name1 +"  wins!"), 0, self.blue)
+        player2=player_font.render(str(name2 +"   wins!"), 0, self.blue)
         tie=player_font.render(str("Match    Tied"), 0, self.blue)
 
         player1_wins=False
@@ -248,14 +246,14 @@ class Game():
             if count==12:
                 start_check(self.username)
             count+=1
-            self.gameDisplay.fill((255,255,255))
-            self.gameDisplay.blit(game_over, ((width/2) - (200), (height/2)))
+            self.display.fill(self.white)
+            self.display.blit(game_over, ((width/2) - (200), (height/2)))
             if player1_wins==True:
-                self.gameDisplay.blit(player1, ((self.width/2) - (200), (self.height/2+100)))
+                self.display.blit(player1, ((self.width/2) - (200), (self.height/2+100)))
             if player2_wins==True:
-                self.gameDisplay.blit(player2, ((self.width/2) - (200), (self.height/2+100)))
+                self.display.blit(player2, ((self.width/2) - (200), (self.height/2+100)))
             if game_tie==True:
-                self.gameDisplay.blit(tie, ((self.width/2) - (200), (self.height/2+100)))
+                self.display.blit(tie, ((self.width/2) - (200), (self.height/2+100)))
 
             pygame.mixer.music.stop()
             print("Game Over")
@@ -277,15 +275,17 @@ class Game():
         #cursor.execute(store_score,[(self.playerObj.score)])
         update_score = 'UPDATE player SET highscore = ? WHERE username = ? AND highscore < ?'
         cursor.execute(update_score,[(self.playerObj.score),(self.username),(self.playerObj.score)])
+
+        secondplayer_search = ('SELECT * FROM player WHERE username = ?')
+        cursor.execute(secondplayer_search,[(self.secondPlayerObj.username)])
+        update_second_score = 'UPDATE player SET highscore = ? WHERE username = ? AND highscore < ?'
+        cursor.execute(update_second_score,[(self.secondPlayerObj.score),(self.secondPlayerObj.username),(self.secondPlayerObj.score)])
         db.commit()
 
-    '''def sound_effects(self):
-        if self.playerObj.health<31:
-            pygame.mixer.music.stop()'''
 
     def waiting_for_player(self):
-        self.gameDisplay.fill((255,255,255))
-        self.gameDisplay.blit(self.waiting_screen,(0,0))
+        self.display.fill((255,255,255))
+        self.display.blit(self.waiting_screen,(0,0))
         self.clock.tick(2)
         pygame.display.update()
 
@@ -304,6 +304,7 @@ class Game():
             self.playerObj = self.p['player']
             self.timer = self.p['timer']
             self.collectable_data= self.p['collectable']
+            self.playerObj.username=self.username
 
         except:
             print("Cannot connect to server")
@@ -312,12 +313,14 @@ class Game():
                 self.waiting_for_player()
                 self.p2 = self.n.send(self.p)
                 self.timer = self.p2['timer']
+                self.secondPlayerObj=self.p2['player']
+                if self.secondPlayerObj.username == self.playerObj.username:
+                    self.run = False
+                    self.error_screen("ERROR  ACCOUNT ALREADY LOGGED IN")
                 print("initial: ",self.timer.time_elapsed)
                 if self.timer.time_elapsed !=0:
                     self.time_addition = 0-self.timer.time_elapsed
                     self.client = True
-                #if self.timer.time_elapsed== -26:
-                    #self.negative_client = True
                 if self.timer==None:
                     continue
                 else:
@@ -331,6 +334,9 @@ class Game():
                 self.background_index+=0.30
             self.p2 = self.n.send(self.p)
             self.secondPlayerObj=self.p2['player']
+            if self.secondPlayerObj.username == self.playerObj.username:
+                self.run = False
+                self.error_screen("ERROR  ACCOUNT ALREADY LOGGED IN")
             self.timer = self.p2['timer']
             self.time_elapsed = self.timer.time_elapsed
             if self.client == True:
@@ -354,7 +360,6 @@ class Game():
             self.playerObj.collisions(self)
             self.playerObj.move(self)
             self.redraw_window()
-            #self.sound_effects()
 
 
             self.show_username()
