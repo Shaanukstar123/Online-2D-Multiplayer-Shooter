@@ -152,8 +152,6 @@ class Game():
                 self.playerObj.remove_projectile(bullet)
                 continue
 
-
-
         for bullet in self.secondPlayerObj.projectiles:
             bullet.draw_bullet(self.display,self.players)
             if bullet.collides(self)==True:
@@ -197,6 +195,7 @@ class Game():
                     self.collectable_list.remove(item)
 
     def error_screen(self,error):
+        pygame.mixer.music.stop()
         big_font = pygame.font.Font("Images/arcade.TTF", 40)
         time = 0
         error_message=big_font.render(str(error), 0, self.white)
@@ -314,9 +313,9 @@ class Game():
                 self.p2 = self.n.send(self.p)
                 self.timer = self.p2['timer']
                 self.secondPlayerObj=self.p2['player']
-                if self.secondPlayerObj.username == self.playerObj.username:
-                    self.run = False
-                    self.error_screen("ERROR  ACCOUNT ALREADY LOGGED IN")
+                #if self.secondPlayerObj.username == self.playerObj.username:
+                    #self.run = False
+                    #self.error_screen("ERROR  ACCOUNT  ALREADY  LOGGED  IN")
                 print("initial: ",self.timer.time_elapsed)
                 if self.timer.time_elapsed !=0:
                     self.time_addition = 0-self.timer.time_elapsed
@@ -336,7 +335,7 @@ class Game():
             self.secondPlayerObj=self.p2['player']
             if self.secondPlayerObj.username == self.playerObj.username:
                 self.run = False
-                self.error_screen("ERROR  ACCOUNT ALREADY LOGGED IN")
+                self.error_screen("ERROR  ACCOUNT  ALREADY  LOGGED  IN")
             self.timer = self.p2['timer']
             self.time_elapsed = self.timer.time_elapsed
             if self.client == True:
