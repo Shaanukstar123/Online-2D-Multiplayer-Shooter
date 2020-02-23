@@ -1,7 +1,3 @@
-'''from tkinter import *
-import sqlite3
-from tkinter import messagebox as ms
-from MainMenu import *'''
 import pygame
 from Network import Network
 from classes import *
@@ -23,6 +19,7 @@ db.close()
 class Login_system():
     def __init__(self,root):
         self.root=root
+        self.root.title('Login')
         self.username=StringVar()
         self.password = StringVar()
         self.new_username=StringVar()
@@ -47,8 +44,11 @@ class Login_system():
             start_check(self.username.get())
 
         else:
-            print("not found")
-            ms.showerror("Error","Account details not found. Please make sure the details are entered properly.")
+            if self.username.get() == "" or self.password.get() == "" :
+                 ms.showerror("Error","Please do not leave username or password fields blank.")
+            else:
+                print("not found")
+                ms.showerror("Error","Account details not found. Please make sure the details are entered properly.")
 
     def create_account(self):
         with sqlite3.connect('playerdata.db') as db:
@@ -56,13 +56,17 @@ class Login_system():
 
         player_search = ('SELECT * FROM player WHERE username = ?')
         cursor.execute(player_search,[(self.username.get())])
-        if cursor.fetchall():
-            ms.showerror("Error","This username has already been taken. Please chose another one")
+
+        if cursor.fetchall() or self.username.get() == "" or self.password.get()=="":
+            if self.username.get() == "" or self.password.get()=="":
+                ms.showerror("Error","Fields cannot be blank")
+            else:
+                ms.showerror("Error","This username has already been taken. Please chose another one")
         else:
             ms.showinfo("Success","Account created successfully")
             self.log_frame()
-        store = 'INSERT INTO player(username,password,highscore) VALUES(?,?,0)'
-        cursor.execute(store,[(self.new_username.get()),self.encrypt((self.new_pass.get()))])
+            store = 'INSERT INTO player(username,password,highscore) VALUES(?,?,0)'
+            cursor.execute(store,[(self.new_username.get()),self.encrypt((self.new_pass.get()))])
         db.commit()
 
     def encrypt(self,password):
@@ -110,5 +114,5 @@ class Login_system():
 root=Tk()
 root.geometry("600x350")
 login=Login_system(root)
-#Login_system(root)
+
 root.mainloop()
