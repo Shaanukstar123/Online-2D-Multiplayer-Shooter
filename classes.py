@@ -42,17 +42,18 @@ class Player():
         self.hitbox= pygame.Rect(self.x, self.y, 45, 68)
         image=pygame.image.load(self.display)
         if self.player==1 and self.visible==True:
-            game.gameDisplay.blit(game.loaded_player1[self.direction],(self.x,self.y))
+            game.display.blit(game.loaded_player1[self.direction],(self.x,self.y))
         elif self.player==2 and self.visible==True:
-            game.gameDisplay.blit(game.loaded_player2[self.direction],(self.x,self.y))
+            game.display.blit(game.loaded_player2[self.direction],(self.x,self.y))
         rect = pygame.Rect(self.x, self.y, 45, 68)
 
         new_font = pygame.font.Font("Images/arcade.TTF", 28)
-        health = new_font.render("HP "+(str(self.health)), 0, colour)
+        health_p1 = new_font.render("HP "+(str(self.health)), 0, game.yellow)
+        health_p2 = new_font.render("HP "+(str(self.health)), 0, game.green)
         if self.player==1:
-            game.gameDisplay.blit(health, (30, 20))
+            game.display.blit(health_p1, (30, 20))
         elif self.player==2:
-            game.gameDisplay.blit(health, (width-110, 20))
+            game.display.blit(health_p2, (width-110, 20))
 
     def alpha_transparency(self,target, source, location, opacity):
         x = location[0]
@@ -66,13 +67,13 @@ class Player():
     def item_use(self):
         for item in self.items:
             if item.type==1:
-                self.health+=50
+                self.health+=25
                 self.items.remove(item)
             if item.type==2:
                 self.visible = False
                 self.items.remove(item)
             if item.type == 3:
-                self.speed = 18
+                self.speed = 22
                 self.items.remove(item)
 
     def stop_item_usage(self):
@@ -132,17 +133,14 @@ class Player():
         keys = pygame.key.get_pressed()
         if self.y<(game.height-80) and self.collision_down==False and self.jump==False:
             if self.gravity > 0:
-            #self.y+=self.gravity
                 self.y-=(self.gravity ** 2) * 0.1 * (-1)
                 self.gravity -= 0.01
-                #print(self.y,game.height-80,self.jump)
             else:
                 self.gravity=10
         else:
             self.gravity=10
 
         projectile_sound=pygame.mixer.Sound("laser.wav")
-        #if pygame.sprite.collide_rect(self.sprite,wall.image)
         if keys[pygame.K_LEFT]:
             if 0<=self.x and self.collision_left==False:
                 self.x -= self.speed
@@ -174,14 +172,10 @@ class Player():
                 self.y -= ((self.jump_speed ** 2) * 0.1 * self.jump_direction)+15
                 self.jump_speed -= 1
 
-
             else:
-
                 self.jump=False
                 self.jump_speed=10
-                    #if self.collision_up==False:
-                        #self.jump=True
-                        #self.jump_positon=self.y
+
         for event in game.events:
             if event.type == pygame.KEYDOWN:
                 if event.key==pygame.K_SPACE:
@@ -193,18 +187,12 @@ class Player():
         self.projectiles.remove(proj)
 
     def damage_taken(self):
-        print("health reduced")
-        self.health-=5
+        self.health-=10
         if self.health<2:
             self.dead=True
             print("Dead")
         print(self.health)
 
-    def update(self):
-        pass
-
-    def update_username(self,username):
-        self.username=username
 
 class Projectile(Player):
     def __init__(self,x,y,direction,sprite,player):
@@ -219,12 +207,10 @@ class Projectile(Player):
         self.collided=False
         self.hitbox= pygame.Rect(self.x, self.y, 10, 10)
 
-    def draw_bullet(self, gameDisplay,players):
+    def draw_bullet(self, display,players):
         self.hitbox=pygame.Rect(self.x, self.y, 10, 10)
         proj=pygame.image.load("projectile1.png")
-        #rect = pygame.Rect(self.x+30, self.y+25, 5, 5)
-        #pygame.draw.rect(gameDisplay,(150,159,159), self.hitbox)
-        gameDisplay.blit(proj, (self.x+10, self.y+20))
+        display.blit(proj, (self.x+10, self.y+20))
         if self.x<width and self.x>0:
             if self.direction==1:
                 self.x+=self.speed
@@ -238,25 +224,26 @@ class Projectile(Player):
     def should_remove(self):
         return self.shouldRemove
 
-    def collides(self,game):#self,players,wall,wall2):
+    def collides(self,game):
+        move_left = -10
+        move_right = 10
         self.hitbox=pygame.Rect(self.x, self.y, 10, 10)
-        #self.hitbox= pygame.Rect(self.x, self.y, 10, 10)
         for p in game.players:
 
-            #print(p.health)
-            #if (p.x-22)<self.x<(p.x+22) and (p.y+5)<self.y<(p.y+63):
-            #if self.x<=p.x<(self.x+25) and (self.y-self.hit_radius)<p.y<self.y+40 and self.player!=p.player:
             if self.hitbox.colliderect(p.hitbox) and self.player!=p.player:
-
-                self.shouldRemove=True
-                self.collided =True
+                self.shouldRemove = True
+                self.collided = True
                 print("collided player {}".format(p.player))
-                print(p.player)
+                if p.x<=width-50 and p.x>=0:
+                    if self.direction == 1:
+                        p.x += move_right
+                    elif self.direction == 2:
+                        p.x += move_left
                 p.damage_taken()
                 print("Damage taken")
-                if p.player==1:
+                if p.player == 1:
                     return True
-                elif p.player==2:
+                elif p.player == 2:
                     return True
 
             #check the boundaries of the projectile and boundaries of player and if they collide, call player.getdamage()
@@ -281,12 +268,7 @@ class Map():
             return True
 
     def draw(self,game):
-        game.gameDisplay.blit(self.img,(self.x, self.y))
+        game.display.blit(self.img,(self.x, self.y))
 
-
-    '''def draw(self,gameDisplay):
-        wall1=pygame.image.load(self.image)
-        wall = pygame.Rect(self.x,self.y,228,44)
-        gameDisplay.blit(wall1,(self.x,self.y))'''
 
 '''single underscore under name = private method/attribute'''
