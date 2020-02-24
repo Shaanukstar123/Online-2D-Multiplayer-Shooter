@@ -1,3 +1,7 @@
+'''from tkinter import *
+import sqlite3
+from tkinter import messagebox as ms
+from MainMenu import *'''
 import pygame
 from Network import Network
 from classes import *
@@ -55,10 +59,11 @@ class Login_system():
             cursor = db.cursor()
 
         player_search = ('SELECT * FROM player WHERE username = ?')
-        cursor.execute(player_search,[(self.username.get())])
+        cursor.execute(player_search,[(self.new_username.get())])
 
-        if cursor.fetchall() or self.username.get() == "" or self.password.get()=="":
-            if self.username.get() == "" or self.password.get()=="":
+        if cursor.fetchall() or self.new_username.get() == "" or self.new_pass.get()== "":
+            print(self.new_username.get())
+            if self.new_username.get() == "" or self.new_pass.get()== "":
                 ms.showerror("Error","Fields cannot be blank")
             else:
                 ms.showerror("Error","This username has already been taken. Please chose another one")
