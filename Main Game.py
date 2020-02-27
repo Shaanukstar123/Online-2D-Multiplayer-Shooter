@@ -10,9 +10,6 @@ import sqlite3
 
 class Game():
     def __init__(self, username,ip):
-        self.client = False
-        self.time_addition = 0
-        self.time_elapsed = 0
         self.username = username
         self.width = 1300
         self.height = 700
@@ -32,11 +29,13 @@ class Game():
         self.clock = pygame.time.Clock()
         self.fps = 45
         self.count = 100
+        self.music_frequencies = [20000,35000,50000]
+        self.initial_music_frequency = pygame.mixer.init(frequency=self.music_frequencies[0])
         self.music = pygame.mixer.music.load("power_music.wav")
         self.ip = ip
         self.p2 = None
-        self.p = None
-        self.n = None
+        self.p1 = None
+        self.network = None
         self.walls = [
             Map(900, 500, 44, 228, "wall1.png"),
             Map(600, 250, 44, 228, "wall1.png"),
@@ -45,6 +44,9 @@ class Game():
         self.wall_img = pygame.image.load("wall1.png")
         self.proj_img = pygame.image.load("projectile1.png")
         self.run = False
+        self.client = False
+        self.time_addition = 0
+        self.time_elapsed = 0
         self.countdown_time=100
         self.playerObj = None
         self.secondPlayerObj = None
@@ -111,6 +113,8 @@ class Game():
     def invisibility(self):
         if self.playerObj.visible == False:
             self.playerObj.alpha_transparency(self.display,self.loaded_player1[self.playerObj.direction],(self.playerObj.x,self.playerObj.y),130)
+        if self.playerObj.visible == False and self.playerObj.player == 2:
+            self.playerObj.alpha_transparency(self.display,self.loaded_player2[self.playerObj.direction],(self.playerObj.x,self.playerObj.y),130)
 
     def redraw_window(self):
         self.display.fill(self.white)
@@ -136,7 +140,6 @@ class Game():
         for wall in self.walls:
             wall.draw(self)
 
-        self.collectables()
         self.playerObj.item_use()
         self.playerObj.stop_item_usage()
         self.secondPlayerObj.item_use()
@@ -163,6 +166,23 @@ class Game():
             if bullet.should_remove():
                 self.secondPlayerObj.remove_projectile(bullet)
                 continue
+
+    def music_control(self):
+        if self.loop_count == 1:
+            pygame.mixer.music.play(-1)
+
+        if self.time_elapsed == round(self.countdown_time/2):
+            print("sped up")
+            pygame.mixer.quit()
+            pygame.mixer.init(frequency=self.music_frequencies[1])
+            music=pygame.mixer.music.load("power_music.wav")
+            pygame.mixer.music.play(-1)
+
+        if self.time_elapsed == round(self.countdown_time/4):
+            pygame.mixer.quit()
+            pygame.mixer.init(frequency=self.music_frequencies[2])
+            music=pygame.mixer.music.load("power_music.wav")
+            pygame.mixer.music.play(-1)
 
 
     def collectables(self):
@@ -234,10 +254,10 @@ class Game():
             if player1_health>player2_health:
                 player1_wins=True
                 player2_wins=False
-            if player1_health<player2_health:
+            elif player1_health<player2_health:
                 player2_wins=True
                 player1_wins=False
-            else:
+            elif player1_health == player2_health:
                 player1_wins=False
                 player2_wins=False
                 game_tie=True
@@ -260,9 +280,12 @@ class Game():
             pygame.display.update()
 
     def score_generator(self):
+        if self.secondPlayerObj.dead==True:
+            self.playerObj.score += (100-(self.time_elapsed))*5
         health_diff=(self.playerObj.health - self.secondPlayerObj.health)
         if health_diff>0:
             self.playerObj.score+= (health_diff*3)
+
     def save_score(self):
         with sqlite3.connect('playerdata.db') as db:
             cursor = db.cursor()
@@ -290,33 +313,31 @@ class Game():
 
 
     def gameloop(self):
-        print(self.username)
         self.load_sprites()
         self.background_scale()
-        #pygame.mixer.music.play(-1)
         self.run = True
         try:
-            self.n = Network(self.ip)
-            self.p= self.n.getP()
-            print(self.p)
-            print(self.p['player'])
-            self.playerObj = self.p['player']
-            self.timer = self.p['timer']
-            self.collectable_data= self.p['collectable']
+            self.network = Network(self.ip)
+            self.p1= self.network.getP()
+            print(self.p1)
+            print(self.p1['player'])
+            self.playerObj = self.p1['player']
+            self.timer = self.p1['timer']
+            self.collectable_data= self.p1['collectable']
             self.playerObj.username=self.username
 
         except:
-            print("Cannot connect to server")
+            #print("Can't connet to server")
+            self.error_screen("ERROR CANNOT CONNECT TO SERVER")
         while self.run:
             while self.start_round == False: #and self.playerObj.player == 1:
                 self.waiting_for_player()
-                self.p2 = self.n.send(self.p)
+                self.p2 = self.network.send(self.p1)
                 self.timer = self.p2['timer']
                 self.secondPlayerObj=self.p2['player']
                 #if self.secondPlayerObj.username == self.playerObj.username:
                     #self.run = False
                     #self.error_screen("ERROR  ACCOUNT  ALREADY  LOGGED  IN")
-                print("initial: ",self.timer.time_elapsed)
                 if self.timer.time_elapsed !=0:
                     self.time_addition = 0-self.timer.time_elapsed
                     self.client = True
@@ -326,31 +347,31 @@ class Game():
                     if self.timer.started==True:
                         self.start_round = True
                         break
+
             self.loop_count+=1
             if self.background_index>6:
                 self.background_index=0
             else:
                 self.background_index+=0.30
-            self.p2 = self.n.send(self.p)
+            self.p2 = self.network.send(self.p1)
             self.secondPlayerObj=self.p2['player']
             if self.secondPlayerObj.username == self.playerObj.username:
                 self.run = False
-                self.error_screen("ERROR  ACCOUNT  ALREADY  LOGGED  IN")
+                self.error_screen("ERROR PLAYER ACCOUNTS ARE THE SAME")
+
             self.timer = self.p2['timer']
             self.time_elapsed = self.timer.time_elapsed
             if self.client == True:
                 self.time_elapsed+=self.time_addition
-            print("After Timer: ", self.timer.time_elapsed)
             self.collectable_data= self.p2['collectable']
+
             if self.loop_count == 1:
-                pygame.mixer.music.play(-1)
                 for data in self.collectable_data:
                     item=Collectable()
                     item.recreate(data[0],data[1],data[2],data[3],data[4])
                     self.collectable_list.append(item)
 
             self.players=[self.playerObj,self.secondPlayerObj]
-
             self.events=pygame.event.get()
             for event in self.events:
                 if event.type == pygame.QUIT:
@@ -358,15 +379,14 @@ class Game():
                     pygame.quit()
             self.playerObj.collisions(self)
             self.playerObj.move(self)
+
+            if self.time_elapsed == 0 or self.time_elapsed == round(self.countdown_time/2) or self.time_elapsed == round(self.countdown_time/4):
+                self.music_control()
+            self.collectables()
             self.redraw_window()
-
-
             self.show_username()
 
             if self.playerObj.dead==True or self.secondPlayerObj.dead==True or self.time_elapsed>self.countdown_time:
-                if self.secondPlayerObj.dead==True:
-                    self.playerObj.score += (100-(self.time_elapsed))*5
-
                 self.score_generator()
                 print("Player 1 score: {}, Player 2 score: {}".format(self.playerObj.score,self.secondPlayerObj.score))
                 self.save_score()
@@ -381,6 +401,7 @@ def start_check(player):
     #ip=socket.gethostbyname(host)#'192.168.1.225'
     message=menu(False)
     if message[0]==True:
+
         game=Game(player,message[1])#"52.56.174.206")
         game.gameloop()
 #start_check()
