@@ -13,14 +13,15 @@ import random
 
 host=gethostname()
 IP = gethostbyname(host)
-
+timer = Timer()
+timerHasStarted = False
 def run(name):
     start_new_thread(broadcast,(name,))
 
     global all_data,timer, totalConnections, timerHasStarted, timer
 
     totalConnections = 0
-    #server = "192.168.1.224"
+
     port = 5555
 
     server = ""
@@ -33,28 +34,28 @@ def run(name):
 
     s.listen(2)
     print("Waiting for a connection, Server Started")
-    timer = Timer()
+
     collectable_data = []
-    #item=Collectable()
-    #spawn_chance = 20
-    #itemlist=Collectable_list()
-    #collectables = CollectableList()
-    #players=[Player(0,0,"sprite1.png"),Player(100,100,"sprite2.png")]
+    walls=[pygame.Rect(900,500,228,44),pygame.Rect(600, 250, 44, 228),pygame.Rect(200,350,228,44)]
+
+    print("Now: ", timer.time_elapsed)
     all_data = [{
-        'player':Player(0,0,["sprite1.png","right.png","left.png"],1,1,0,100),
+        'player': Player(0,0,["sprite1.png","right.png","left.png"],1,1,0,100),
         "timer": timer,
-        "collectable": collectable_data
+        "collectable": collectable_data,
+        "walls" : walls
     }, {
         'player': Player(100,100,["sprite2.png","player2right.png","player2left.png"],2,2,0,100),
         "timer": timer,
-        "collectable": collectable_data
+        "collectable": collectable_data,
+        "walls": walls
     }]
     '''talk about why parallel data sets not sent due to synch issues and buffer needed'''
-    #all_data[0]
 
-    timerHasStarted = False
 
-    walls=[pygame.Rect(900,500,228,44),pygame.Rect(600, 250, 44, 228),pygame.Rect(200,350,228,44)]
+
+
+
 
 
     for i in range(random.randint(10,20)):
@@ -67,10 +68,14 @@ def run(name):
 
         conn, addr = s.accept()
         print("Connected to:", addr)
-        totalConnections += 1
+        if addr[1] != 10000:
+            totalConnections += 1
+            print("Total",totalConnections)
 
-        start_new_thread(threaded_client, (conn, currentPlayer))
-        currentPlayer += 1
+            start_new_thread(threaded_client, (conn, currentPlayer))
+            currentPlayer += 1
+            if currentPlayer>1:
+                print("2 Players already connected")
 
 
 def threaded_client(conn, player):
@@ -94,25 +99,27 @@ def threaded_client(conn, player):
                 all_data[1]['timer'] = timer
 
                 if totalConnections == 2:
-                    if not timerHasStarted:
+                    if timer.started == False:
                         print("STARTING")
                         timer.start()
                         timerHasStarted = True
+
                 if player == 1:
                     reply = all_data[0]
                 else:
+                    print("Player: ",player)
                     reply = all_data[1]
 
-                #print("Received: ", data)
-                #print("Sending : ", reply)
                 conn.sendall(pickle.dumps(reply))
         except:
+            print("Error")
             break
 
     print("Lost connection")
     conn.close()
 
 def broadcast(name):
+    time = 0
     broadcast_ip = IP.split(".")
     broadcast_ip[3] = "255"
 
@@ -121,37 +128,29 @@ def broadcast(name):
     message = name
     broadcast_address = (broadcast_ip, 10000)
 
-    # Create the datagram socket
-    #sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock=socket(AF_INET, SOCK_DGRAM)
     sock.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
-    # Set a timeout so the socket does not block indefinitely when trying
-    # to receive data.
-    sock.settimeout(0.2)
 
-    # Set the time-to-live for messages to 1 so they do not go past the
-    # local network segment.
-    #ttl = struct.pack('b', 1)
-    #sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, ttl)
+    sock.settimeout(0.5)
+
     try:
         while True:
-            # Send data to the multicast group
-            #print (sys.stderr, 'sending "%s"' % message)
-            sent = sock.sendto(message.encode("utf-8"), broadcast_address)
 
-            # Look for responses from all recipients
+
+            sent = sock.sendto(message.encode("utf-8"), broadcast_address)
+            #data, server = sock.recvfrom(16)
+            #if data!=None:
+                #print(data)
+
             while True:
-                #print (sys.stderr, 'waiting to receive')
+
                 try:
                     data, server = sock.recvfrom(16)
                 except timeout:
-                    #print (sys.stderr, 'timed out, no more responses')
                     break
-                else:
-                    pass
-                    #print (sys.stderr, 'received "%s" from %s' % (data, server))
             if totalConnections == 2:
                 break
+
 
     finally:
         print (sys.stderr, 'closing socket')
