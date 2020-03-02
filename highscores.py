@@ -5,28 +5,30 @@ class Highscores():
 
     def __init__(self,master,run):
         self.run = run
-        self.master=master
+        self.root=master
         self.height = 250
-        self.master.geometry('650x'+(str(self.height))+'+100+200')
-        self.master.title('Highscore')
+        self.root.geometry('650x'+(str(self.height))+'+100+200')
+        self.root.title('Highscore')
         self.connection = sqlite3.connect('playerdata.db')
         self.cursor = self.connection.cursor()
-        self.username_label = Label(self.master, text="Username",font = ("fixedsys",22), width=20)
+        self.username_label = Label(self.root, text="Username",font = ("fixedsys",22), width=20, background = "black", foreground = "white")
         self.username_label.grid(row=0, column=0)
-        #self.password_label = Label(self.master, text="Password", width=10)
-        #self.password_label.grid(row=0, column=1)
-        self.score_label = Label(self.master, text="Highscores",font = ("fixedsys",22), width=20)
+        self.score_label = Label(self.root, text="Highscores",font = ("fixedsys",22), width=20, background = "black", foreground = "white")
         self.score_label.grid(row=0, column=2)
         self.sorted_scores= []
         self.player_dict ={}
+        self.root.configure(background='black')
+
         self.showallrecords()
 
     def showallrecords(self):
         index=0
         data = self.readfromdatabase()
+        print("This is data: ",data)
         for array in data:
-            self.sorted_scores.append(array[2])
-            self.player_dict[array[0]] = array[2]
+            print("This is array: ", array)
+            self.sorted_scores.append(array[1])
+            self.player_dict[array[0]] = array[1]
         for score in self.sorted_scores:
             if score is None:
                 pointer = self.sorted_scores.index(score)
@@ -44,21 +46,15 @@ class Highscores():
             if score == 0:
                 no_score_count+=1
                 print(self.player_dict)
-                Label(self.master, text=no_score[no_score_count],font = ("fixedsys",16)).grid(row=index, column=0)
-                Label(self.master, text=0,font = ("fixedsys",16)).grid(row=index, column=2)
+                Label(self.root, text=no_score[no_score_count-1],font = ("fixedsys",17), background = "black", foreground = "white").grid(row=index, column=0)
+                Label(self.root, text=0,font = ("fixedsys",17), background = "black", foreground = "white").grid(row=index, column=2)
             else:
                 player_name = (list(self.player_dict.keys())[list(self.player_dict.values()).index(score)])
-                Label(self.master, text=player_name,font = ("fixedsys",16)).grid(row=index, column=0)
-                Label(self.master, text=score,font = ("fixedsys",16)).grid(row=index, column=2)
-
-        '''for index, dat in enumerate(data):
-            Label(self.master, text=dat[0]).grid(row=index+1, column=0)
-            #Label(self.master, text=dat[1]).grid(row=index+1, column=1)
-            Label(self.master, text=dat[2]).grid(row=index+1, column=2)'''
+                Label(self.root, text=player_name,font = ("fixedsys",17), background = "black", foreground = "white").grid(row=index, column=0)
+                Label(self.root, text=score,font = ("fixedsys",17), background = "black", foreground = "white").grid(row=index, column=2)
 
     def readfromdatabase(self):
-        self.cursor.execute("SELECT* FROM player")
-        #print(self.cursor.fetchall)
+        self.cursor.execute("SELECT username, highscore FROM player")
         return self.cursor.fetchall()
 
 
@@ -87,13 +83,8 @@ class Highscores():
       final_list.extend(right[right_pointer:])
       return final_list
 
-    #final = merge_sort(score_list)
-
-
 
 def run_table():
     root=Tk()
     instance = Highscores(root,True)
     root.mainloop()
-
-#instance = Records(root,True)
