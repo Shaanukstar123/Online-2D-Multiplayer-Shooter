@@ -67,13 +67,6 @@ def menu(start):
 
     n=0
 
-    def create_server_screen():
-        while True:
-            display.fill((255,255,255))
-            display.blit(server_background,(0,0))
-            clock.tick(10)
-            pygame.display.update()
-
     def server_screen(server_address):
         server_background = pygame.image.load("Images/ServerWall.jpg")
         server_background = pygame.transform.scale(server_background,(width,height))
@@ -187,7 +180,7 @@ def menu(start):
                             pygame.quit()
                             quit()
                         if selected =="start":
-                            result=server_screen(server_address)#multicast_group,server_address)
+                            result=server_screen(server_address)
                             if result != None:
                                 return [True,result]
 
@@ -195,12 +188,27 @@ def menu(start):
                             start_new_thread(run_table,())
 
                         if selected =="Create Server":
-                            #name=input("Server name: ")
-                            name = run_textbox(display)
+                            name = run_textbox(display,"ENTER  SERVER  NAME")
+                            time_limit = run_textbox(display, "ENTER  MATCH  TIME ")
+                            while True:
+                                try:
+                                    print(int(time_limit))
+                                except:
+                                    time_limit = run_textbox(display, "ENTER  INTEGERS  ONLY ")
+                                else:
+                                    break
+
                             if server_started == False:
                                 server_started = True
-                                start_new_thread(run,(name,))
+                                start_new_thread(run,(name,int(time_limit)))
                             else:
+                                text_font = pygame.font.Font(font, 50)
+                                message = "SERVER  ALREADY  STARTED"
+                                text = text_font.render(message, 0, white)
+                                display.fill(black)
+                                display.blit(text,(200,275))
+                                pygame.display.update()
+                                time.sleep(2)
                                 print("Server already started")
 
                         if selected == "instructions":
@@ -209,7 +217,7 @@ def menu(start):
             display.fill(grey)
             display.blit(backgrounds[n],(0,0))
             font_size=32
-            #title=process_text("Some shooting game", font, 70, yellow)
+
             if selected=="start":
                 text_start=process_text("JOIN GAME", font, font_size, white)
             else:
@@ -241,7 +249,6 @@ def menu(start):
             highscores_rect=text_highscores.get_rect()
             instruct_rect=text_instructions.get_rect()
             create_rect = text_createserver.get_rect()
-
             pos=width/2
             #display.blit(title, (450 - (title_rect[2]/2), 80))
             display.blit(text_start, (pos - (start_rect[2]/2), 80))
@@ -262,22 +269,20 @@ def menu(start):
 def run_scan(display):
     data = []
     address = None
-    sock.settimeout(1)
+    sock.settimeout(0.5)
     print (sys.stderr, '\nwaiting to receive message')
     server_list =[]
-    n=0
     message = "SCANNING FOR SERVERS . . ."
     text_font = pygame.font.Font(font, 50)
+    n=0
 
     while True:
         text = text_font.render(message, 0, white)
         display.fill(black)
         display.blit(text,(200,275))
         pygame.display.update()
-
         n+=1
-        print(n)
-        if n>35:
+        if n>20:
             break
         try:
             data, address = sock.recvfrom(2048*2)
@@ -291,13 +296,15 @@ def run_scan(display):
                 print(server_list)
                 sock.sendto('ack'.encode("utf-8"), address)
 
-            clock.tick(60)
+            #clock.tick(15)
             pygame.display.update()
+
         except TimeoutError:
             display.fill(black)
-            message = "NO  SERVERS  AVAILABLE"
-            text = text_font.render(message, 0, white)
-            display.blit(text,(200,275))
-            pygame.display.update()
-            time.sleep(2)
-            break
+            if len(server_list) == 0:
+                message = "NO  SERVERS  AVAILABLE"
+                text = text_font.render(message, 0, white)
+                display.blit(text,(200,275))
+                pygame.display.update()
+                time.sleep(2)
+                break
