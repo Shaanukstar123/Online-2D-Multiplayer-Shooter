@@ -7,12 +7,12 @@ white = (255,255,255)
 font = "Images/arcade.TTF"
 
 class TextBox(pygame.sprite.Sprite):
-  def __init__(self):
+  def __init__(self,message):
     pygame.sprite.Sprite.__init__(self)
     self.text = ""
     self.font = pygame.font.Font(font, 50)
-    self.image = self.font.render("ENTER  SERVER  NAME", False, white)
-    self.rect = self.image.get_rect()
+    self.message = self.font.render(message, False, white)
+    self.rect = self.message.get_rect()
 
   def add_chr(self, char):
     global upper_case
@@ -24,21 +24,22 @@ class TextBox(pygame.sprite.Sprite):
 
   def update(self):
     old_rect_pos = self.rect.center
-    self.image = self.font.render(self.text, False, white)
-    self.rect = self.image.get_rect()
+    self.message = self.font.render(self.text, False, white)
+    self.rect = self.message.get_rect()
     self.rect.center = old_rect_pos
 
-def run_textbox(screen):
+def run_textbox(screen,input_message):
     global upper_case
+    #self.message = self.font.render(input_message, False, white)
     #screen = pygame.display.set_mode([640, 480])
-    textBox = TextBox()
+    textBox = TextBox(input_message)
     upper_case = False
     textBox.rect.center = [450, 275]
 
     running = True
     while running:
       screen.fill(black)
-      screen.blit(textBox.image, textBox.rect)
+      screen.blit(textBox.message, textBox.rect)
       pygame.display.flip()
       for e in pygame.event.get():
         if e.type == pygame.QUIT:
