@@ -15,7 +15,7 @@ host=gethostname()
 IP = gethostbyname(host)
 timer = Timer()
 timerHasStarted = False
-def run(name):
+def run(name,time_limit):
     start_new_thread(broadcast,(name,))
 
     global all_data,timer, totalConnections, timerHasStarted, timer
@@ -37,28 +37,23 @@ def run(name):
 
     collectable_data = []
     walls=[pygame.Rect(900,500,228,44),pygame.Rect(600, 250, 44, 228),pygame.Rect(200,350,228,44)]
+    #wall_objects = [Map(900, 500, 44, 228, "wall1.png"),Map(600, 250, 44, 228, "wall1.png"),Map(200, 375, 44, 22, "wall1.png")]
 
     print("Now: ", timer.time_elapsed)
     all_data = [{
-        'player': Player(0,0,["sprite1.png","right.png","left.png"],1,1,0,100),
-        "timer": timer,
-        "collectable": collectable_data,
-        "walls" : walls
+        'player': Player(0,0,["sprite1.png","right.png","left.png","Images/sprites/hityellow.png","Images/sprites/hityellowleft.png"],1,1,0,100),
+        "timer": [timer,time_limit],
+        "collectable": collectable_data
+        #"walls" : wall_objects
     }, {
-        'player': Player(100,100,["sprite2.png","player2right.png","player2left.png"],2,2,0,100),
-        "timer": timer,
-        "collectable": collectable_data,
-        "walls": walls
+        'player': Player(100,100,["sprite2.png","player2right.png","player2left.png","Images/sprites/hitgreen.png","Images/sprites/hityellowleft.png"],2,2,0,100),
+        "timer": [timer,time_limit],
+        "collectable": collectable_data
+        #"walls": wall_objects
     }]
     '''talk about why parallel data sets not sent due to synch issues and buffer needed'''
 
-
-
-
-
-
-
-    for i in range(random.randint(10,20)):
+    for i in range(random.randint(20,40)):
         item = Collectable()
         if item.generate(walls):
             collectable_data.append([item.x,item.y,item.time,item.life,item.type])
@@ -95,8 +90,8 @@ def threaded_client(conn, player):
                 totalConnections -= 1
                 break
             else:
-                all_data[0]['timer'] = timer
-                all_data[1]['timer'] = timer
+                all_data[0]['timer'][0] = timer
+                all_data[1]['timer'][0] = timer
 
                 if totalConnections == 2:
                     if timer.started == False:
