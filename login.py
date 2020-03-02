@@ -13,6 +13,8 @@ import sqlite3
 from tkinter import*
 from tkinter import messagebox as ms
 from MainGame import *
+import PIL
+from PIL import ImageTk
 
 with sqlite3.connect("playerdata.db") as db:
     cursor =db.cursor()
@@ -58,8 +60,8 @@ class Login_system():
         with sqlite3.connect('playerdata.db') as db:
             cursor = db.cursor()
 
-        player_search = ('SELECT * FROM player WHERE username = ?')
-        cursor.execute(player_search,[(self.new_username.get())])
+        player_search = ('SELECT * FROM player WHERE username = ? OR password = ?')
+        cursor.execute(player_search,[(self.new_username.get()),(self.new_pass.get())])
 
         if cursor.fetchall() or self.new_username.get() == "" or self.new_pass.get()== "":
             print(self.new_username.get())
@@ -69,7 +71,7 @@ class Login_system():
                 ms.showerror("Error","This username has already been taken. Please chose another one")
         else:
             ms.showinfo("Success","Account created successfully")
-            self.log_frame()
+            self.login_frame()
             store = 'INSERT INTO player(username,password,highscore) VALUES(?,?,0)'
             cursor.execute(store,[(self.new_username.get()),self.encrypt((self.new_pass.get()))])
         db.commit()
@@ -83,41 +85,48 @@ class Login_system():
         return new_pass
 
 
-    def log_frame(self):
+    def login_frame(self):
         self.username.set('')
         self.password.set('')
         self.header['text'] = 'Login'
         self.createframe.pack_forget()
         self.logframe.pack()
+
     def create_frame(self):
         self.new_username.set('')
         self.new_pass.set('')
-        self.header['text'] = 'Create Account'
+        self.header['text'] = 'New User'
         self.logframe.pack_forget()
-        self.createframe.pack(fill="both", expand=True)
+        self.createframe.pack(fill="both", expand=True,padx=40)
 
     def widgets(self):
-        self.header = Label(self.root,text = 'Login',font = ("fixedsys",35),pady = 10)
+        self.header = Label(self.root,text = 'Login',font = ("fixedsys",32),padx=400,pady = 5)
         self.header.pack()
-        self.logframe = Frame(self.root,padx =10,pady = 10)
-        Label(self.logframe,text = 'username: ',font = ("fixedsys",20),pady=20,padx=55).grid(sticky = W)
+        self.logframe = Frame(self.root,padx =300,pady = 10)
+        Label(self.logframe,text = 'username: ',font = ("fixedsys",20),pady=15,padx=55).grid(sticky = W)
         Entry(self.logframe,textvariable = self.username,bd = 5,font = ("fixedsys",15)).grid(row=0,column=1)
-        Label(self.logframe,text = 'Password: ',font = ("fixedsys",20),pady=20,padx=55).grid(sticky = W)
+        Label(self.logframe,text = 'Password: ',font = ("fixedsys",20),pady=15,padx=55).grid(sticky = W)
         Entry(self.logframe,textvariable = self.password,bd = 5,font = ("fixedsys",15),show = '*').grid(row=1,column=1)
         Button(self.logframe,text = ' Login ',bd = 3 ,font = ("fixedsys",15),padx=5,pady=5,command=self.login).grid()
         Button(self.logframe,text = ' Create Account ',bd = 3 ,font = ("fixedsys",15),padx=5,pady=5,command=self.create_frame).grid(row=2,column=1)
         self.logframe.pack(fill="both", expand=True)
 
-        self.createframe = Frame(self.root,padx =10,pady = 10)
-        Label(self.createframe,text = 'username: ',font = ("fixedsys",20),pady=5,padx=5).grid(sticky = W)
+        self.createframe = Frame(self.root,padx =300,pady = 10)
+        Label(self.createframe,text = 'username: ',font = ("fixedsys",20),pady=15,padx=5).grid(sticky = W)
         Entry(self.createframe,textvariable = self.new_username,bd = 5,font = ("fixedsys",15)).grid(row=0,column=1)
-        Label(self.createframe,text = 'Password: ',font = ("fixedsys",20),pady=5,padx=5).grid(sticky = W)
+        Label(self.createframe,text = 'Password: ',font = ("fixedsys",20),pady=15,padx=5).grid(sticky = W)
         Entry(self.createframe,textvariable = self.new_pass,bd = 5,font = ("fixedsys",15),show = '*').grid(row=1,column=1)
         Button(self.createframe,text = 'Create Account',bd = 3 ,font = ("fixedsys",15),padx=5,pady=5,command=self.create_account).grid()
-        Button(self.createframe,text = 'Go to Login',bd = 3 ,font = ("fixedsys",15),padx=5,pady=5,command=self.log_frame).grid(row=2,column=1)
+        Button(self.createframe,text = 'Go to Login',bd = 3 ,font = ("fixedsys",15),padx=5,pady=5,command=self.login_frame).grid(row=2,column=1)
+        self.logframe.pack(fill="both", expand=True)
+        load="Images/joystick.gif"
+        display=PhotoImage(file=load)
+        img=Label(root,image=display)
+        img.image=display
+        img.place(x=0,y=0)
 
 root=Tk()
-root.geometry("600x350")
+root.geometry("800x320")
 login=Login_system(root)
 
 root.mainloop()
