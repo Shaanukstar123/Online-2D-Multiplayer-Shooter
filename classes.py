@@ -17,7 +17,6 @@ class Player():
         self.direction = direction #1=right, 2=left
         self.health=health
         self.display=sprite[direction]
-        self.bullet_count=2 #limits number of bullets per shot
         self.dead=False
         self.collision_left=False
         self.collision_right=False
@@ -36,14 +35,15 @@ class Player():
         self.items=[]
         self.speed_power_timer = 0
         self.invisibility_timer = 0
+        self.disconnected = False
 
     def draw(self,game):
         colour=(255,255,255)
         self.hitbox= pygame.Rect(self.x, self.y, 45, 68)
-        image=pygame.image.load(self.display)
-        if self.player==1 and self.visible==True:
+        #image=pygame.image.load(self.display)
+        if self.player==1 and self.visible==True: #and game.one_hit==False:
             game.display.blit(game.loaded_player1[self.direction],(self.x,self.y))
-        elif self.player==2 and self.visible==True:
+        elif self.player==2 and self.visible==True: #and game.two_hit==False:
             game.display.blit(game.loaded_player2[self.direction],(self.x,self.y))
         rect = pygame.Rect(self.x, self.y, 45, 68)
 
@@ -55,14 +55,22 @@ class Player():
         elif self.player==2:
             game.display.blit(health_p2, (width-110, 20))
 
-    def alpha_transparency(self,target, source, location, opacity):
+    def alpha_transparency(self,display, source, location, opacity):
         x = location[0]
         y = location[1]
-        temp = pygame.Surface((source.get_width(), source.get_height())).convert()
-        temp.blit(target, (-x, -y))
-        temp.blit(source, (0, 0))
-        temp.set_alpha(opacity)
-        target.blit(temp, location)
+        surface = pygame.Surface((source.get_width(), source.get_height())).convert()
+        surface.blit(display, (-x, -y))
+        surface.blit(source, (0, 0))
+        surface.set_alpha(opacity)
+        display.blit(surface, location)
+
+    '''def alpha_red(self,game):
+        source = game.loaded_player1[self.direction]
+        surface = pygame.Surface(source.get_size()).convert_alpha()
+        surface.fill((255,0,0))
+        source.blit(surface, (0,0), special_flags = pygame.BLEND_RGBA_MULT)
+        game.display.blit(game.loaded_player1[self.direction],(self.x,self.y))'''
+
 
     def item_use(self):
         for item in self.items:
@@ -91,7 +99,6 @@ class Player():
 
 
     def collisions(self,game):
-
         for wall in game.walls:
         #if rect.colliderect(game.walls[0].rect) or rect.colliderect(game.walls[1].rect):
             if self.hitbox.colliderect(wall.rect):
@@ -201,6 +208,7 @@ class Projectile(Player):
         self.direction=direction
         self.speed=35
         self.sprite=sprite
+        #self.loaded_sprite = pygame.image.load(self.sprite)
         self.player=player
         self.shouldRemove = False
         self.hit_radius=50
@@ -209,8 +217,8 @@ class Projectile(Player):
 
     def draw_bullet(self, display,players):
         self.hitbox=pygame.Rect(self.x, self.y, 10, 10)
-        proj=pygame.image.load("projectile1.png")
-        display.blit(proj, (self.x+10, self.y+20))
+        proj_img=pygame.image.load("projectile1.png")
+        display.blit(proj_img, (self.x+10, self.y+20))
         if self.x<width and self.x>0:
             if self.direction==1:
                 self.x+=self.speed
@@ -218,15 +226,13 @@ class Projectile(Player):
                 self.x-=self.speed
         else:
             self.shouldRemove = True
-            for p in players:
-                p.bullet_count=2
 
     def should_remove(self):
         return self.shouldRemove
 
     def collides(self,game):
-        move_left = -10
-        move_right = 10
+        move_left = -25
+        move_right = 25
         self.hitbox=pygame.Rect(self.x, self.y, 10, 10)
         for p in game.players:
 
