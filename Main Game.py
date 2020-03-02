@@ -28,19 +28,15 @@ class Game():
         self.waiting_screen = pygame.image.load("Images/waitingscreen1.0.png")
         self.clock = pygame.time.Clock()
         self.fps = 45
-        self.count = 100
-        self.music_frequencies = [20000,35000,50000]
+        self.music_frequencies = [44100,50000]
         self.initial_music_frequency = pygame.mixer.init(frequency=self.music_frequencies[0])
         self.music = pygame.mixer.music.load("power_music.wav")
         self.ip = ip
         self.p2 = None
         self.p1 = None
         self.network = None
-        self.walls = [
-            Map(900, 500, 44, 228, "wall1.png"),
-            Map(600, 250, 44, 228, "wall1.png"),
-            Map(200, 375, 44, 22, "wall1.png")
-        ]
+        self.walls = [Map(900, 500, 44, 228, "wall1.png"),Map(600, 250, 44, 228, "wall1.png"),Map(200, 375, 44, 22, "wall1.png")]
+
         self.wall_img = pygame.image.load("wall1.png")
         self.proj_img = pygame.image.load("projectile1.png")
         self.run = False
@@ -54,13 +50,20 @@ class Game():
         self.events = None
         self.loop_count = 0
         self.background_index = 0
-        self.player1_sprites = ["sprite1.png", "right.png", "left.png"]
+        self.player1_sprites = ["sprite1.png","right.png","left.png",
+            "Images/sprites/hityellowleft.png","Images/sprites/hityellow.png",
+        ]
         self.player2_sprites = [
-            "sprite2.png", "player2right.png", "player2left.png"
+            "sprite2.png","player2right.png","player2left.png"
+            ,"Images/sprites/hityellowleft.png","Images/sprites/hitgreen.png"
         ]
         self.loaded_player1 = []
         self.loaded_player2 = []
         self.collectable_list=[]
+        self.one_hit = False
+        self.two_hit = False
+        self.one_hit_time = 0
+        self.two_hit_time = 0
         self.arcade_font = pygame.font.Font("Images/arcade.TTF", 12)
         self.text_font = pygame.font.Font("Images/arcade.TTF", 28)
 
@@ -82,12 +85,13 @@ class Game():
         self.image_index = 0
         self.black = (0, 0, 0)
         self.white = (255, 255, 255)
-        self.yellow = (155,135,12)
+        self.yellow = (255,255,0)
         self.green = (0, 255, 0)
         self.blue = (0, 0, 255)
         self.light_blue = (173, 216, 230)
 
         self.start_round=False
+
 
     def load_sprites(self):
         for i in self.player1_sprites:
@@ -116,6 +120,22 @@ class Game():
         if self.playerObj.visible == False and self.playerObj.player == 2:
             self.playerObj.alpha_transparency(self.display,self.loaded_player2[self.playerObj.direction],(self.playerObj.x,self.playerObj.y),130)
 
+    def hit_display(self):
+        if self.one_hit == True:
+            self.one_hit_time+=1
+            self.display.blit(self.loaded_player1[self.playerObj.direction*-1],(self.playerObj.x,self.playerObj.y))
+            if self.one_hit_time>25:
+                self.one_hit_time = 0
+                self.one_hit = False
+
+        if self.two_hit == True:
+            self.two_hit_time+=1
+            self.display.blit(self.loaded_player2[self.secondPlayerObj.direction*-1],(self.playerObj.x,self.playerObj.y))
+            if self.two_hit_time>25:
+                self.two_hit_time = 0
+                self.two_hit =False
+
+
     def redraw_window(self):
         self.display.fill(self.white)
         if self.playerObj.player==1:
@@ -127,8 +147,8 @@ class Game():
 
         index=int(self.background_index)
         self.display.blit(self.scaled_backgrounds[index],(0,0))
-        self.display.blit(score1, (20, 50))
-        self.display.blit(score2, (self.width-55, 50))
+        self.display.blit(score1, (30, 50))
+        self.display.blit(score2, (self.width-65, 50))
         self.playerObj.draw(self)
         self.secondPlayerObj.draw(self)
         self.backwards_time=(self.countdown_time-(self.time_elapsed))
@@ -136,6 +156,7 @@ class Game():
         self.display.blit(time, (self.width/2, 20))
 
         self.invisibility()
+        self.hit_display()
 
         for wall in self.walls:
             wall.draw(self)
@@ -150,6 +171,13 @@ class Game():
             if bullet.collides(self)==True:
                 if self.timer.has_started==True:
                     self.playerObj.score+=10
+                    '''if self.playerObj.player ==2:
+                        self.one_hit = True
+                    else:
+                        self.two_hit = True
+                    #self.playerObj.alpha_transparency(self.display,self.loaded_player1[self.playerObj.direction],(self.playerObj.x,self.playerObj.y),110)
+                    #self.secondPlayerObj.alpha_red(self)'''
+
 
             if bullet.should_remove():
                 self.playerObj.remove_projectile(bullet)
@@ -160,6 +188,11 @@ class Game():
             if bullet.collides(self)==True:
                 if self.timer.has_started==True:
                     self.secondPlayerObj.score+=10
+                    '''if self.secondPlayerObj.player ==2:
+                        self.one_hit = True
+                    else:
+                        self.two_hit = True'''
+
                 else:
                     print("Can't score yet")
 
@@ -170,17 +203,20 @@ class Game():
     def music_control(self):
         if self.loop_count == 1:
             pygame.mixer.music.play(-1)
+            print("Works")
 
-        if self.time_elapsed == round(self.countdown_time/2):
+        '''if self.time_elapsed == round(self.countdown_time/2):
+            pygame.mixer.music.stop()
             print("sped up")
             pygame.mixer.quit()
             pygame.mixer.init(frequency=self.music_frequencies[1])
             music=pygame.mixer.music.load("power_music.wav")
-            pygame.mixer.music.play(-1)
+            pygame.mixer.music.play(-1)'''
 
-        if self.time_elapsed == round(self.countdown_time/4):
+        if self.time_elapsed == round(self.countdown_time/5):
+            pygame.mixer.music.stop()
             pygame.mixer.quit()
-            pygame.mixer.init(frequency=self.music_frequencies[2])
+            pygame.mixer.init(frequency=self.music_frequencies[1])
             music=pygame.mixer.music.load("power_music.wav")
             pygame.mixer.music.play(-1)
 
@@ -323,8 +359,10 @@ class Game():
             print(self.p1['player'])
             self.playerObj = self.p1['player']
             self.timer = self.p1['timer']
+            self.countdown_time = self.p1['timer'][1]
             self.collectable_data= self.p1['collectable']
             self.playerObj.username=self.username
+            #self.walls = self.p1['walls']
 
         except:
             #print("Can't connet to server")
@@ -333,7 +371,7 @@ class Game():
             while self.start_round == False: #and self.playerObj.player == 1:
                 self.waiting_for_player()
                 self.p2 = self.network.send(self.p1)
-                self.timer = self.p2['timer']
+                self.timer = self.p2['timer'][0]
                 self.secondPlayerObj=self.p2['player']
                 #if self.secondPlayerObj.username == self.playerObj.username:
                     #self.run = False
@@ -357,9 +395,9 @@ class Game():
             self.secondPlayerObj=self.p2['player']
             if self.secondPlayerObj.username == self.playerObj.username:
                 self.run = False
-                self.error_screen("ERROR PLAYER ACCOUNTS ARE THE SAME")
+                self.error_screen("ERROR  PLAYER  ACCOUNTS  ARE  THE  SAME")
 
-            self.timer = self.p2['timer']
+            self.timer = self.p2['timer'][0]
             self.time_elapsed = self.timer.time_elapsed
             if self.client == True:
                 self.time_elapsed+=self.time_addition
@@ -382,8 +420,9 @@ class Game():
 
             if self.time_elapsed == 0 or self.time_elapsed == round(self.countdown_time/2) or self.time_elapsed == round(self.countdown_time/4):
                 self.music_control()
-            self.collectables()
+                #start_new_thread(self.music_control,())
             self.redraw_window()
+            self.collectables()
             self.show_username()
 
             if self.playerObj.dead==True or self.secondPlayerObj.dead==True or self.time_elapsed>self.countdown_time:
